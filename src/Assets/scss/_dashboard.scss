@@ -1,0 +1,76 @@
+.licencepress-admin {
+	.licencepress-summary-card,
+	.licencepress-resource-card {
+		background: #fff;
+		border: 1px solid var(--licencepress-line);
+		border-radius: 0.75rem;
+		box-shadow: 0 0.5rem 1.5rem rgba(16, 42, 67, 0.06);
+		color: var(--licencepress-ink);
+		display: flex;
+		text-decoration: none;
+		transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+
+		&:hover,
+		&:focus-visible {
+			border-color: var(--licencepress-blue);
+			transform: translateY(-2px);
+			box-shadow: var(--bs-box-shadow) !important;
+		}
+	}
+
+	.licencepress-summary-card {
+		align-items: center;
+		gap: 0.75rem;
+		padding: 1.25rem;
+
+		strong { line-height: 1; margin-left: auto; }
+	}
+
+	.licencepress-summary-icon {
+		align-items: center;
+		background: #e8f0ff;
+		border-radius: 0.5rem;
+		color: var(--licencepress-blue);
+		display: inline-flex;
+		font-size: 1.25rem;
+		height: 2.5rem;
+		justify-content: center;
+		width: 2.5rem;
+	}
+
+	.licencepress-welcome-card {
+		background: linear-gradient(125deg, #e8f0ff 0%, #fff 72%);
+		border-left: 4px solid var(--licencepress-blue) !important;
+	}
+
+	.licencepress-recent-card .list-group-item-action {
+		transition: background-color 140ms ease, padding-left 140ms ease;
+
+		&:hover,
+		&:focus-visible { background: #f2f6ff; padding-left: 1.6rem !important; }
+	}
+
+	.licencepress-resource-card {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 0.55rem;
+		padding: 1.25rem;
+
+		.dashicons { color: var(--licencepress-blue); font-size: 1.35rem; height: 1.35rem; width: 1.35rem; }
+	}
+
+	.licencepress-count-ready {
+		animation: licencepress-count-ready 420ms ease-out both;
+	}
+}
+
+@keyframes licencepress-count-ready {
+	from { opacity: 0; transform: translateY(4px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.licencepress-admin .licencepress-summary-card,
+	.licencepress-admin .licencepress-resource-card,
+	.licencepress-admin .licencepress-recent-card .list-group-item-action { transition: none; }
+}

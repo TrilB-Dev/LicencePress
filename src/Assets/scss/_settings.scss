@@ -1,0 +1,39 @@
+.licencepress-admin {
+	.nav-tabs {
+		border-bottom-color: var(--bs-border-color);
+
+		.nav-link {
+			color: var(--bs-secondary-color);
+
+			&.active {
+				color: var(--bs-primary);
+				font-weight: 600;
+			}
+		}
+	}
+
+	.licencepress-settings-form,
+	.licencepress-import-form {
+		width: 100%;
+		max-width: 100%;
+	}
+
+	.licencepress-settings-form {
+		.tab-content {
+			margin-top: 1rem;
+		}
+
+		> .card-body > .btn {
+			margin-top: 1rem;
+		}
+	}
+
+	.licencepress-settings-tab-content {
+		transition: opacity 150ms ease;
+
+		&.is-loading {
+			opacity: .65;
+			pointer-events: none;
+		}
+	}
+}

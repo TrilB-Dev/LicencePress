@@ -1,0 +1,138 @@
+# Translation catalog for FontAwesome.
+# Copyright (C) 2026 MSPress contributors
+# This file is distributed under the same license as the MSPress package.
+msgid ""
+msgstr ""
+"Project-Id-Version: MSPress 1.0.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: mspress\n"
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:48
+msgid "Base package"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:62
+msgid "Base package version"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:566
+msgid "Brands"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:578
+msgid "Cancel"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:560
+msgid "Choose an Icon"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:44
+msgid "Choose how MSPress loads Font Awesome icons."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:527
+msgid "Choose Icon"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:566
+msgid "Classic"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Assets/Assets.php:93
+msgid "Close"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:566
+msgid "Duotone"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:55
+msgid "Enter the ID of your Font Awesome Kit."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:37
+msgid "Font Awesome"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:38
+msgid "Font Awesome integration"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:49
+msgid "Font Awesome Kit"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:43
+msgid "Icon source"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:54
+msgid "Kit ID"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:567
+msgid "Light"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:572
+msgid "Loading icons..."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Assets/Assets.php:91
+msgid "Loading..."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Assets/Assets.php:90
+msgid "No icons found"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/FontAwesome.php:83
+msgid "Provides Font Awesome loading, icon picking, and styling APIs for MSPress."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:567
+msgid "Regular"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Assets/Assets.php:89
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:565
+msgid "Search icons..."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Assets/Assets.php:92
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:581
+msgid "Select Icon"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:63
+msgid "Set the version of the bundled Font Awesome package to load."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:566
+msgid "Sharp"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:566
+msgid "Sharp Duotone"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:567
+msgid "Solid"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:567
+msgid "Thin"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:56
+msgid "This value is used only when Icon source is set to Font Awesome Kit."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:64
+msgid "Use a version supported by the installed Font Awesome assets."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:45
+msgid "Use the base package for the bundled icons or a Kit when you need a custom Font Awesome configuration."
+msgstr ""

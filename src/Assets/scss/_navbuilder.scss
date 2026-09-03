@@ -1,0 +1,14 @@
+.licencepress-admin {
+	[data-licencepress-menu-builder] {
+		background: var(--bs-tertiary-bg);
+		border-color: var(--bs-border-color) !important;
+	}
+
+	[data-licencepress-nav-items] {
+		min-height: 2.75rem;
+	}
+
+	[data-licencepress-nav-item] {
+		cursor: grab;
+	}
+}

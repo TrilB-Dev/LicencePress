@@ -1,0 +1,777 @@
+# Translation catalog for LicencePress
+# Copyright (C) 2026 LicencePress contributors
+# This file is distributed under the same license as the plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: LicencePress 1.0.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: licencepress\n"
+#: src/Public/Frontend.php:38
+msgid "%d min read"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:153
+msgid "3rd Party"
+msgstr ""
+
+#: src/Includes/Tools/DataTransfer.php:87
+msgid "A page entry was skipped because it was invalid."
+msgstr ""
+
+#: src/Includes/Settings/SettingsManager.php:93
+msgid "A searchable knowledge base powered by LicencePress."
+msgstr ""
+
+#: src/Includes/Tools/DataTransfer.php:74
+msgid "A Wiki entry was skipped because it was invalid."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:154
+msgid "Access"
+msgstr ""
+
+#: src/Includes/Core/PostType.php:45
+msgid "Add New Wiki"
+msgstr ""
+
+#: src/Includes/Core/PostType.php:67
+msgid "Add New Wiki Page"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:34
+msgid "Allows access to the LicencePress Wiki Pages administration area."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:25
+msgid "Allows access to the LicencePress Wikis administration area."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:35
+msgid "Allows creating Wiki Pages."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:26
+msgid "Allows creating Wikis."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:42
+msgid "Allows deleting published Wiki Pages."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:31
+msgid "Allows deleting published Wikis."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:39
+msgid "Allows deleting Wiki Pages created by other users."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:37
+msgid "Allows deleting Wiki Pages."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:33
+msgid "Allows deleting Wikis created by other users."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:28
+msgid "Allows deleting Wikis."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:44
+msgid "Allows editing general LicencePress settings."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:53
+msgid "Allows editing LicencePress access settings."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:46
+msgid "Allows editing LicencePress layout settings."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:41
+msgid "Allows editing published Wiki Pages."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:30
+msgid "Allows editing published Wikis."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:51
+msgid "Allows editing settings for external LicencePress plugins."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:49
+msgid "Allows editing settings for internal LicencePress plugins."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:38
+msgid "Allows editing Wiki Pages created by other users."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:36
+msgid "Allows editing Wiki Pages."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:32
+msgid "Allows editing Wikis created by other users."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:27
+msgid "Allows editing Wikis."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:55
+msgid "Allows exporting LicencePress data."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:54
+msgid "Allows importing LicencePress data."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:40
+msgid "Allows publishing Wiki Pages."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:29
+msgid "Allows publishing Wikis."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:56
+msgid "Allows using LicencePress debug tools."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:43
+msgid "Allows viewing general LicencePress settings."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:52
+msgid "Allows viewing LicencePress access settings."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:57
+msgid "Allows viewing LicencePress analytics."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:45
+msgid "Allows viewing LicencePress layout settings."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:47
+msgid "Allows viewing LicencePress plugin settings."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:50
+msgid "Allows viewing settings for external LicencePress plugins."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:48
+msgid "Allows viewing settings for internal LicencePress plugins."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:164
+msgid "Analytics"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:49
+msgid "Base package"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:63
+msgid "Base package version"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:566
+msgid "Brands"
+msgstr ""
+
+#: src/Public/Frontend.php:79
+msgid "Breadcrumbs"
+msgstr ""
+
+#: src/Includes/Settings/SettingsManager.php:95
+msgid "Browse the LicencePress knowledge base."
+msgstr ""
+
+#: src/Public/Frontend.php:90
+msgid "by %s"
+msgstr ""
+
+#: src/Includes/Core/Editor.php:58
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:578
+msgid "Cancel"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:141
+msgid "Categories"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:560
+msgid "Choose an Icon"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:45
+msgid "Choose how LicencePress loads Font Awesome icons."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:527
+msgid "Choose Icon"
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Includes/Settings/Settings.php:88
+msgid "Choose the stylesheet used inside the editor content area."
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Includes/Settings/Settings.php:97
+msgid "Choose the TinyMCE toolbar and dialog skin."
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Includes/Settings/Settings.php:106
+msgid "Choose which bundled TinyMCE plugins are available to the editor."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:566
+msgid "Classic"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Assets/Assets.php:117
+msgid "Close"
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Includes/Settings/Settings.php:89
+msgid "Content skins control typography and content formatting inside the editing area."
+msgstr ""
+
+#: src/Includes/Functions/Helpers/FormFieldHelper.php:543
+msgid "Create \"{0}\""
+msgstr ""
+
+#: src/Includes/Core/Editor.php:58
+msgid "Create Page"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:35
+msgid "Create Wiki Pages"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:26
+msgid "Create Wikis"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:103
+msgid "Dashboard"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:161
+msgid "Debug"
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Includes/Settings/Settings.php:87
+msgid "Default content skin"
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Includes/Settings/Settings.php:96
+msgid "Default user-interface skin"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:39
+msgid "Delete Others Wiki Pages"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:33
+msgid "Delete Others Wikis"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:42
+msgid "Delete Published Wiki Pages"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:31
+msgid "Delete Published Wikis"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:37
+msgid "Delete Wiki Pages"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:28
+msgid "Delete Wikis"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:566
+msgid "Duotone"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:53
+msgid "Edit Access Settings"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:51
+msgid "Edit External Plugin Settings"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:44
+msgid "Edit General Settings"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:49
+msgid "Edit Internal Plugin Settings"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:46
+msgid "Edit Layout Settings"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:38
+msgid "Edit Others Wiki Pages"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:32
+msgid "Edit Others Wikis"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:41
+msgid "Edit Published Wiki Pages"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:30
+msgid "Edit Published Wikis"
+msgstr ""
+
+#: src/Includes/Core/PostType.php:46
+msgid "Edit Wiki"
+msgstr ""
+
+#: src/Includes/Core/PostType.php:68
+msgid "Edit Wiki Page"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:36
+msgid "Edit Wiki Pages"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:27
+msgid "Edit Wikis"
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Includes/Settings/Settings.php:105
+msgid "Enabled TinyMCE plugins"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:56
+msgid "Enter the ID of your Font Awesome Kit."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:163
+msgid "Export"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:55
+msgid "Export LicencePress Data"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:38
+msgid "Font Awesome"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:39
+msgid "Font Awesome integration"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:50
+msgid "Font Awesome Kit"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:150
+msgid "General"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:44
+msgid "Icon source"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:162
+msgid "Import"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:54
+msgid "Import LicencePress Data"
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Assets/Assets.php:80
+msgid "Insert into editor"
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Assets/Assets.php:79
+#: src/Includes/Plugins/TinyMCE/Assets/Assets.php:81
+msgid "Insert media"
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/TinyMCE.php:75
+msgid "Introduces a local TinyMCE 8.8 editor for LicencePress."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:55
+msgid "Kit ID"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:151
+msgid "Layout"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:94
+#: src/Public/Frontend.php:72
+msgid "LicencePress"
+msgstr ""
+
+#: src/Includes/Settings/SettingsManager.php:94
+msgid "LicencePress Documentation"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:567
+msgid "Light"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:572
+msgid "Loading icons..."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Assets/Assets.php:115
+msgid "Loading..."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:110
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:137
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:140
+msgid "Manage Wiki"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:143
+msgid "New Wiki"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Assets/Assets.php:114
+msgid "No icons found"
+msgstr ""
+
+#: src/Includes/Settings/SettingsManager.php:115
+msgid "No Wiki pages found."
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Includes/Settings/Settings.php:107
+msgid "Only selected local plugin files are requested when an editor starts."
+msgstr ""
+
+#: src/Includes/Core/Editor.php:57
+msgid "Page Content"
+msgstr ""
+
+#: src/Includes/Core/Editor.php:57
+msgid "Page Title"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsImport.php:31
+msgid "Please upload a valid LicencePress JSON export."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsPlugins.php:75
+#: src/Includes/Functions/Admin/FunctionsPlugins.php:76
+msgid "Plugin settings saved successfully."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:152
+msgid "Plugins"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/FontAwesome.php:96
+msgid "Provides Font Awesome enqueueing in Admin, Frontend, Login Page, icon picking, and styling APIs for LicencePress."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:40
+msgid "Publish Wiki Pages"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:29
+msgid "Publish Wikis"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:567
+msgid "Regular"
+msgstr ""
+
+#: src/Includes/Functions/Helpers/FormFieldHelper.php:546
+msgid "Remove"
+msgstr ""
+
+#: src/Includes/Core/Editor.php:58
+msgid "Save Page"
+msgstr ""
+
+#: src/Includes/Settings/SettingsManager.php:113
+#: src/Public/Frontend.php:65
+msgid "Search"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Assets/Assets.php:113
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:565
+msgid "Search icons..."
+msgstr ""
+
+#: src/Public/Frontend.php:63
+msgid "Search LicencePress"
+msgstr ""
+
+#: src/Includes/Functions/Helpers/FormFieldHelper.php:542
+msgid "Search or create"
+msgstr ""
+
+#: src/Includes/Settings/SettingsManager.php:112
+#: src/Public/Frontend.php:64
+msgid "Search the Wiki"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Assets/Assets.php:116
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:581
+msgid "Select Icon"
+msgstr ""
+
+#: src/Includes/Functions/Helpers/FormFieldHelper.php:547
+msgid "Select options"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:64
+msgid "Set the version of the bundled Font Awesome package to load."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:117
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:147
+msgid "Settings"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:566
+msgid "Sharp"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:566
+msgid "Sharp Duotone"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:567
+msgid "Solid"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:142
+msgid "Tags"
+msgstr ""
+
+#: src/Includes/Tools/DataTransfer.php:58
+msgid "The %s export section must be an array."
+msgstr ""
+
+#: src/Includes/Tools/DataTransfer.php:50
+msgid "The import data must be an object."
+msgstr ""
+
+#: src/Includes/Tools/ImportValidator.php:24
+msgid "The import file contains invalid JSON."
+msgstr ""
+
+#: src/Includes/Tools/ImportValidator.php:36
+#: src/Includes/Tools/ImportValidator.php:40
+msgid "The import file could not be read."
+msgstr ""
+
+#: src/Includes/Tools/ImportValidator.php:33
+msgid "The import file could not be uploaded."
+msgstr ""
+
+#: src/Includes/Tools/ImportValidator.php:19
+msgid "The import file is empty."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsPlugins.php:44
+msgid "The LicencePress plugin state could not be saved."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsPlugins.php:59
+msgid "The requested LicencePress plugin settings were not found."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsPlugins.php:37
+msgid "The requested LicencePress plugin was not found."
+msgstr ""
+
+#: src/Includes/Functions/Helpers/PermalinkHelper.php:23
+msgid "The root LicencePress slug."
+msgstr ""
+
+#: src/Includes/Functions/Helpers/PermalinkHelper.php:25
+msgid "The tags assigned to the Wiki container."
+msgstr ""
+
+#: src/Includes/Functions/Helpers/PermalinkHelper.php:28
+msgid "The tags assigned to the Wiki page."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsImport.php:35
+msgid "The uploaded file is not valid JSON."
+msgstr ""
+
+#: src/Includes/Functions/Helpers/PermalinkHelper.php:24
+msgid "The Wiki categories, from parent to child."
+msgstr ""
+
+#: src/Includes/Functions/Helpers/PermalinkHelper.php:27
+msgid "The Wiki page categories, from parent to child."
+msgstr ""
+
+#: src/Includes/Functions/Helpers/PermalinkHelper.php:29
+msgid "The Wiki page slug."
+msgstr ""
+
+#: src/Includes/Functions/Helpers/PermalinkHelper.php:26
+msgid "The Wiki slug."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/IconPicker.php:567
+msgid "Thin"
+msgstr ""
+
+#: src/Includes/Tools/DataTransfer.php:53
+msgid "This LicencePress export version is not supported."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:57
+msgid "This value is used only when Icon source is set to Font Awesome Kit."
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Includes/Settings/Settings.php:81
+msgid "TinyMCE"
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Includes/Settings/Settings.php:82
+msgid "TinyMCE integration"
+msgstr ""
+
+#: src/Includes/Functions/Helpers/FormFieldHelper.php:331
+msgid "Toggle Dropdown"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:124
+#: src/Includes/Functions/Admin/FunctionsSidebar.php:158
+msgid "Tools"
+msgstr ""
+
+#: src/Includes/Plugins/TinyMCE/Includes/Settings/Settings.php:98
+msgid "UI skins control the toolbar, menus, dialogs, and editor chrome."
+msgstr ""
+
+#: src/Public/Frontend.php:86
+msgid "Updated %s"
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:65
+msgid "Use a version supported by the installed Font Awesome assets."
+msgstr ""
+
+#: src/Includes/Plugins/FontAwesome/Includes/Settings/Settings.php:46
+msgid "Use the base package for the bundled icons or a Kit when you need a custom Font Awesome configuration."
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:52
+msgid "View Access Settings"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:57
+msgid "View Analytics Tools"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:56
+msgid "View Debug Tools"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:50
+msgid "View External Plugin Settings"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:43
+msgid "View General Settings"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:48
+msgid "View Internal Plugin Settings"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:45
+msgid "View Layout Settings"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:47
+msgid "View Plugin Settings"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:34
+msgid "View Wiki Pages Administration"
+msgstr ""
+
+#: src/Includes/Core/Capabilities.php:25
+msgid "View Wikis Administration"
+msgstr ""
+
+#: src/Includes/Core/PostType.php:44
+msgid "Wiki"
+msgstr ""
+
+#: src/Includes/Core/Taxonomy.php:27
+msgid "Wiki Categories"
+msgstr ""
+
+#: src/Includes/Core/Taxonomy.php:27
+msgid "Wiki Category"
+msgstr ""
+
+#: src/Includes/Core/PostType.php:66
+msgid "Wiki Page"
+msgstr ""
+
+#: src/Includes/Core/PostType.php:65
+msgid "Wiki Pages"
+msgstr ""
+
+#: src/Includes/Core/Taxonomy.php:43
+msgid "Wiki Tag"
+msgstr ""
+
+#: src/Includes/Core/Taxonomy.php:43
+msgid "Wiki Tags"
+msgstr ""
+
+#: src/Includes/Core/PostType.php:43
+msgid "Wikis"
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsExport.php:26
+msgid "You are not allowed to export LicencePress data."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsImport.php:26
+msgid "You are not allowed to import LicencePress data."
+msgstr ""
+
+#: src/Admin/Admin.php:159
+msgid "You are not authorized to load LicencePress settings."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsPlugins.php:40
+msgid "You are not authorized to manage external LicencePress plugins."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsPlugins.php:29
+msgid "You are not authorized to manage LicencePress plugins."
+msgstr ""
+
+#: src/Includes/Functions/Admin/FunctionsPlugins.php:64
+msgid "You are not authorized to save LicencePress plugin settings."
+msgstr ""

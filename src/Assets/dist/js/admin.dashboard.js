@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll("[data-licencepress-count]").forEach(e=>{e.classList.add("licencepress-count-ready")})});

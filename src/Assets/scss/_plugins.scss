@@ -1,0 +1,61 @@
+
+.licencepress-admin {
+
+	.licencepress-plugin-card {
+		.card-header { background: #fff; border-color: var(--licencepress-line); }
+		.card-body { display: flex; flex-direction: column; }
+	}
+
+	.licencepress-plugin-icon {
+		color: var(--licencepress-blue);
+		font-size: 2rem;
+		height: 2rem;
+		width: 2rem;
+	}
+
+	.licencepress-plugin-settings-modal {
+		.modal-dialog { max-height: calc(100vh - 3.5rem); }
+		.modal-content { max-height: calc(100vh - 3.5rem); }
+		.modal-body { overflow-y: auto; }
+		.bootstrap-select {
+			&.show {
+				position: relative;
+				z-index: 1061 !important;
+
+				.dropdown-menu {
+					z-index: 1062 !important;
+				}
+			}
+		}
+
+		.licencepress-plugin-settings-fields-box {
+			display: grid;
+			gap: 1rem;
+			grid-template-columns: 1fr;
+
+			@media (min-width: 576px) {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			@media (min-width: 1200px) {
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+			}
+		}
+
+		.licencepress-plugin-settings-field {
+			border-color: var(--licencepress-line);
+			background: var(--bs-light);
+
+			.card-body { padding: 1rem; }
+			.form-label { margin-bottom: 0; font-weight: 600; }
+			.form-check { margin-top: 0; }
+			.form-text { margin-top: .35rem; }
+		}
+
+		.licencepress-plugin-settings-field-description {
+			margin-top: .75rem;
+			margin-bottom: 0;
+		}
+
+	}
+}

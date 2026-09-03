@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll(".licencepress-editor-form").forEach(e=>{e.addEventListener("submit",()=>{const t=e.querySelector('[type="submit"]');t&&(t.disabled=!0)})})});

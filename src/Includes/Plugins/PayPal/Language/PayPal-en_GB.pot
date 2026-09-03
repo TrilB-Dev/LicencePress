@@ -1,0 +1,65 @@
+# Translation catalog for PayPal.
+# Copyright (C) 2026 LicencePress contributors
+# This file is distributed under the same license as the LicencePress package.
+msgid ""
+msgstr ""
+"Project-Id-Version: LicencePress 1.0.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: licencepress\n"
+#: src/Includes/Plugins/PayPal/Includes/Settings/Settings.php:87
+msgid "Choose the stylesheet used inside the editor content area."
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/Includes/Settings/Settings.php:96
+msgid "Choose the TinyMCE toolbar and dialog skin."
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/Includes/Settings/Settings.php:105
+msgid "Choose which bundled TinyMCE plugins are available to the editor."
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/Includes/Settings/Settings.php:88
+msgid "Content skins control typography and content formatting inside the editing area."
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/Includes/Settings/Settings.php:86
+msgid "Default content skin"
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/Includes/Settings/Settings.php:95
+msgid "Default user-interface skin"
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/Includes/Settings/Settings.php:104
+msgid "Enabled TinyMCE plugins"
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/Assets/Assets.php:52
+msgid "Insert into editor"
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/Assets/Assets.php:51
+#: src/Includes/Plugins/PayPal/Assets/Assets.php:53
+msgid "Insert media"
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/PayPal.php:67
+msgid "Introduces a local PayPal 8.8 editor for LicencePress."
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/Includes/Settings/Settings.php:106
+msgid "Only selected local plugin files are requested when an editor starts."
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/Includes/Settings/Settings.php:80
+msgid "TinyMCE"
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/Includes/Settings/Settings.php:81
+msgid "TinyMCE integration"
+msgstr ""
+
+#: src/Includes/Plugins/PayPal/Includes/Settings/Settings.php:97
+msgid "UI skins control the toolbar, menus, dialogs, and editor chrome."
+msgstr ""

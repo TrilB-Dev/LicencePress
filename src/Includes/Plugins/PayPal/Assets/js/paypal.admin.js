@@ -1,0 +1,1 @@
+// JavaScript for PayPal admin functionality in LicencePress

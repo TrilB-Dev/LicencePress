@@ -19,8 +19,10 @@ use LicencePress\Includes\Functions\Admin\FunctionsSidebar;
 use LicencePress\Assets\Assets;
 use LicencePress\Admin\Manager\Tools\ToolsManager;
 use LicencePress\Admin\Manager\Dashboard\DashboardManager;
+use LicencePress\Admin\Manager\Licences\LicencesManager;
 use LicencePress\Admin\Manager\Settings\SettingsManager;
 use LicencePress\Admin\Manager\PlugName\PlugNameManager;
+use LicencePress\Includes\Licence\LicenceTypeManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -45,6 +47,12 @@ final class Admin {
      * @var SettingsManager
      */
     private SettingsManager $settings_manager;
+    /**
+     * LicencesManager instance for managing licence-type and issued licence pages.
+     *
+     * @var LicencesManager
+     */
+    private LicencesManager $licences_manager;
     /**
     * ToolsManager instance for managing tools-related admin pages.
      *
@@ -75,15 +83,22 @@ final class Admin {
         $this->plugname_functions = new FunctionsPlugName();
         $this->plugname_manager = new PlugNameManager( $this->plugname_functions );
         $this->settings_manager = new SettingsManager();
+        $this->licences_manager = new LicencesManager();
         $this->tools_manager = new ToolsManager();
         $this->plugin_functions = new FunctionsPlugins();
         $this->loader = new LoaderHelper();
         $this->dashboard_manager->register_assets( $assets );
         $this->plugname_manager->register_assets( $assets );
         $this->settings_manager->register_assets( $assets );
+        $this->licences_manager->register_assets( $assets );
         $this->tools_manager->register_assets( $assets );
         $this->loader->register_component( $this, [
             [ 'type' => 'action', 'hook' => 'wp_ajax_licencepress_load_settings_tab', 'callback' => 'load_settings_tab' ],
+            [ 'type' => 'action', 'hook' => 'wp_ajax_licencepress_preview_licence_type', 'callback' => 'preview_licence_type' ],
+            [ 'type' => 'action', 'hook' => 'wp_ajax_licencepress_load_licence_type', 'callback' => 'load_licence_type' ],
+            [ 'type' => 'action', 'hook' => 'wp_ajax_licencepress_save_licence_type', 'callback' => 'save_licence_type' ],
+            [ 'type' => 'action', 'hook' => 'wp_ajax_licencepress_toggle_licence_type_retired', 'callback' => 'toggle_licence_type_retired' ],
+            [ 'type' => 'action', 'hook' => 'wp_ajax_licencepress_delete_licence_type', 'callback' => 'delete_licence_type' ],
         ] );
         $this->loader->register_component( $this->plugname_functions, [
             [ 'type' => 'action', 'hook' => 'wp_ajax_licencepress_save_plugname_settings', 'callback' => 'save_plugname_settings' ],
@@ -122,6 +137,22 @@ final class Admin {
      */
     public function render_plugnames(): void {
         $this->plugname_manager->render();
+    }
+
+    public function render_licences(): void {
+        $this->licences_manager->render();
+    }
+
+    public function render_licence_type_add(): void {
+        $this->licences_manager->render_add_type();
+    }
+
+    public function render_licence_types(): void {
+        $this->licences_manager->render_manage_types();
+    }
+
+    public function render_licence_management(): void {
+        $this->licences_manager->render_manage_licences();
     }
     /**
      * Render the settings page.
@@ -164,6 +195,120 @@ final class Admin {
         $this->settings_manager->render_tab_content( $tab, $layout_section );
         $html = (string) ob_get_clean();
         AjaxHelper::success( [ 'html' => $html, 'tab' => $tab, 'layout_section' => $layout_section ] );
+    }
+
+    public function preview_licence_type(): void {
+        if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_issue' ) ) {
+            AjaxHelper::unauthorized( __( 'You are not authorized to preview a LicencePress licence type.', 'licencepress' ) );
+        }
+
+        $payload = isset( $_POST ) ? wp_unslash( $_POST ) : [];
+        $settings = [
+            'name' => sanitize_text_field( (string) ( $payload['name'] ?? '' ) ),
+            'prefix' => sanitize_text_field( (string) ( $payload['prefix'] ?? '' ) ),
+            'suffix' => sanitize_text_field( (string) ( $payload['suffix'] ?? '' ) ),
+            'length' => max( 8, (int) ( $payload['length'] ?? 12 ) ),
+            'pattern' => sanitize_text_field( (string) ( $payload['pattern'] ?? 'prefix-segment' ) ),
+        ];
+
+        AjaxHelper::success( LicenceTypeManager::generate_preview( $settings ) );
+    }
+
+    public function load_licence_type(): void {
+        if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_issue' ) ) {
+            AjaxHelper::unauthorized( __( 'You are not authorized to load a LicencePress licence type.', 'licencepress' ) );
+        }
+
+        $id = isset( $_POST['id'] ) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
+        $type = $id > 0 ? LicenceTypeManager::get_type( $id ) : null;
+
+        if ( null === $type ) {
+            AjaxHelper::error( [ 'message' => __( 'Licence type not found.', 'licencepress' ) ], 404 );
+        }
+
+        AjaxHelper::success( [ 'type' => $type ] );
+    }
+
+    public function save_licence_type(): void {
+        if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_issue' ) ) {
+            AjaxHelper::unauthorized( __( 'You are not authorized to save a LicencePress licence type.', 'licencepress' ) );
+        }
+
+        $payload = isset( $_POST ) ? wp_unslash( $_POST ) : [];
+        $id = isset( $payload['id'] ) ? absint( $payload['id'] ) : 0;
+        $settings = [
+            'name' => sanitize_text_field( (string) ( $payload['name'] ?? '' ) ),
+            'slug' => sanitize_key( (string) ( $payload['slug'] ?? '' ) ),
+            'parent_id' => ! empty( $payload['parent_id'] ) ? (int) $payload['parent_id'] : 0,
+            'is_variant' => ! empty( $payload['is_variant'] ) ? 1 : 0,
+            'is_retired' => ! empty( $payload['is_retired'] ) ? 1 : 0,
+            'prefix' => sanitize_text_field( (string) ( $payload['prefix'] ?? '' ) ),
+            'suffix' => sanitize_text_field( (string) ( $payload['suffix'] ?? '' ) ),
+            'length' => max( 8, (int) ( $payload['length'] ?? 12 ) ),
+            'pattern' => sanitize_text_field( (string) ( $payload['pattern'] ?? 'prefix-segment' ) ),
+            'description' => sanitize_textarea_field( (string) ( $payload['description'] ?? '' ) ),
+        ];
+
+        if ( '' === $settings['name'] ) {
+            AjaxHelper::error( [ 'message' => __( 'A licence type name is required.', 'licencepress' ) ], 400 );
+        }
+
+        $saved_id = 0;
+        $message = __( 'Licence type created successfully.', 'licencepress' );
+        if ( $id > 0 ) {
+            $saved_id = $id;
+            $updated = LicenceTypeManager::update_type( $id, $settings );
+            if ( ! $updated ) {
+                AjaxHelper::error( [ 'message' => __( 'Licence type could not be updated.', 'licencepress' ) ], 400 );
+            }
+            $message = __( 'Licence type updated successfully.', 'licencepress' );
+        } else {
+            $saved_id = LicenceTypeManager::create_type( $settings );
+        }
+
+        AjaxHelper::success( [
+            'message' => $message,
+            'id' => $saved_id,
+            'preview' => LicenceTypeManager::generate_preview( $settings ),
+        ] );
+    }
+
+    public function toggle_licence_type_retired(): void {
+        if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_issue' ) ) {
+            AjaxHelper::unauthorized( __( 'You are not authorized to retire a LicencePress licence type.', 'licencepress' ) );
+        }
+
+        $id = isset( $_POST['id'] ) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
+        if ( $id <= 0 ) {
+            AjaxHelper::error( [ 'message' => __( 'A valid licence type ID is required.', 'licencepress' ) ], 400 );
+        }
+
+        $retired = ! empty( $_POST['retired'] );
+        if ( ! LicenceTypeManager::retire_type( $id, $retired ) ) {
+            AjaxHelper::error( [ 'message' => __( 'Licence type status could not be updated.', 'licencepress' ) ], 400 );
+        }
+
+        AjaxHelper::success( [
+            'message' => $retired ? __( 'Licence type retired successfully.', 'licencepress' ) : __( 'Licence type reactivated successfully.', 'licencepress' ),
+            'retired' => $retired,
+        ] );
+    }
+
+    public function delete_licence_type(): void {
+        if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_issue' ) ) {
+            AjaxHelper::unauthorized( __( 'You are not authorized to delete a LicencePress licence type.', 'licencepress' ) );
+        }
+
+        $id = isset( $_POST['id'] ) ? absint( wp_unslash( $_POST['id'] ) ) : 0;
+        if ( $id <= 0 ) {
+            AjaxHelper::error( [ 'message' => __( 'A valid licence type ID is required.', 'licencepress' ) ], 400 );
+        }
+
+        if ( ! LicenceTypeManager::delete_type( $id ) ) {
+            AjaxHelper::error( [ 'message' => __( 'Licence type could not be deleted.', 'licencepress' ) ], 400 );
+        }
+
+        AjaxHelper::success( [ 'message' => __( 'Licence type deleted successfully.', 'licencepress' ) ] );
     }
 
     /**

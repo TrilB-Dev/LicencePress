@@ -1,0 +1,1 @@
+// JavaScript for PayPal frontend functionality in LicencePress

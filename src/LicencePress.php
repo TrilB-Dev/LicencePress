@@ -24,6 +24,7 @@ use LicencePress\Includes\Functions\Admin\FunctionsPlugins;
 use LicencePress\Includes\Functions\Admin\FunctionsSettings;
 use LicencePress\API\Routes;
 use LicencePress\Includes\Analytics\Analytics;
+use LicencePress\Includes\Licence\LicenceManager;
 use LicencePress\Includes\Plugins\Plugins;
 use LicencePress\Public\Frontend;
 /**
@@ -223,6 +224,7 @@ class LicencePress {
 		$this->settings_functions = new FunctionsSettings( new FunctionsPlugins() );
 
 		$this->loader->add_action( 'init', $this->includes, 'init' );
+		$this->loader->add_action( 'init', LicenceManager::class, 'initialize' );
 		$this->loader->add_action( 'init', $this->plugins, 'init', -10 );
 		$this->loader->add_action( 'admin_menu', $this->admin, 'register_admin_menu' );
 		$this->loader->add_action( 'admin_init', $this->settings_functions, 'register_settings' );

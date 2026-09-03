@@ -107,11 +107,32 @@ final class FunctionsSidebar {
 				'capability' => 'licencepress_admin_view',
 			],
 			[
-				'name'       => __( 'Manage Wiki', 'licencepress' ),
-				'slug'       => 'licencepress-manage',
+				'name'       => __( 'Licences', 'licencepress' ),
+				'slug'       => 'licencepress-licences',
 				'parent'     => 'licencepress',
-				'callback'   => [ $admin, 'render_wikis' ],
-				'capability' => 'licencepress_admin_view',
+				'callback'   => [ $admin, 'render_licences' ],
+				'capability' => 'licencepress_licence_view',
+			],
+			[
+				'name'       => __( 'Add Licence Type', 'licencepress' ),
+				'slug'       => 'licencepress-licence-types-add',
+				'parent'     => 'licencepress-licences',
+				'callback'   => [ $admin, 'render_licence_type_add' ],
+				'capability' => 'licencepress_licence_issue',
+			],
+			[
+				'name'       => __( 'Manage Licence Types', 'licencepress' ),
+				'slug'       => 'licencepress-licence-types',
+				'parent'     => 'licencepress-licences',
+				'callback'   => [ $admin, 'render_licence_types' ],
+				'capability' => 'licencepress_licence_view',
+			],
+			[
+				'name'       => __( 'Manage Licences', 'licencepress' ),
+				'slug'       => 'licencepress-licence-management',
+				'parent'     => 'licencepress-licences',
+				'callback'   => [ $admin, 'render_licence_management' ],
+				'capability' => 'licencepress_licence_view',
 			],
 			[
 				'name'       => __( 'Settings', 'licencepress' ),
@@ -133,14 +154,16 @@ final class FunctionsSidebar {
 	/** @return array<string, array<string, mixed>> */
 	private static function core_sidebar_groups(): array {
 		return [
-			'manage-wiki' => [
-				'label' => __( 'Manage Wiki', 'licencepress' ),
-				'icon'  => 'fa-solid fa-file-lines',
+			'licences' => [
+				'label' => __( 'Licences', 'licencepress' ),
+				'icon'  => 'fa-solid fa-file-signature',
 				'items' => [
-					'licencepress-manage'                  => [ 'label' => __( 'Manage Wiki', 'licencepress' ), 'icon' => 'fa-solid fa-book-open-lines', 'capability' => 'licencepress_admin_view' ],
-					'licencepress-manage&wiki=categories' => [ 'label' => __( 'Categories', 'licencepress' ), 'icon' => 'fa-book-open-lines-category', 'capability' => 'licencepress_edit' ],
-					'licencepress-manage&wiki=tags'       => [ 'label' => __( 'Tags', 'licencepress' ), 'icon' => 'fa-kit fa-solid-book-open-lines-tag', 'capability' => 'licencepress_edit' ],
-					'licencepress-manage&wiki=new'        => [ 'label' => __( 'New Wiki', 'licencepress' ), 'icon' => 'fa-kit fa-solid-book-open-lines-circle-plus', 'capability' => 'licencepress_create' ],
+					'licencepress-licences'                           => [ 'label' => __( 'Overview', 'licencepress' ), 'icon' => 'fa-solid fa-key', 'capability' => 'licencepress_licence_view' ],
+					'licencepress-licence-types-add'                  => [ 'label' => __( 'Add Licence Type', 'licencepress' ), 'icon' => 'fa-solid fa-square-plus', 'capability' => 'licencepress_licence_issue' ],
+					'licencepress-licence-types'                      => [ 'label' => __( 'Manage Licence Types', 'licencepress' ), 'icon' => 'fa-solid fa-list', 'capability' => 'licencepress_licence_view' ],
+					'licencepress-licence-management'                 => [ 'label' => __( 'Manage Licences', 'licencepress' ), 'icon' => 'fa-solid fa-folder-open', 'capability' => 'licencepress_licence_view' ],
+					'licencepress-tools&tool=export'                 => [ 'label' => __( 'Export', 'licencepress' ), 'icon' => 'fa-solid fa-file-export', 'capability' => 'licencepress_tools_export' ],
+					'licencepress-tools&tool=import'                 => [ 'label' => __( 'Import', 'licencepress' ), 'icon' => 'fa-solid fa-file-import', 'capability' => 'licencepress_tools_import' ],
 				],
 			],
 			'settings' => [
@@ -148,20 +171,19 @@ final class FunctionsSidebar {
 				'icon'  => 'fa-solid fa-gear',
 				'items' => [
 					'licencepress-settings&tab=general'     => [ 'label' => __( 'General', 'licencepress' ), 'icon' => 'fa-solid fa-sliders', 'capability' => 'licencepress_settings_general_view' ],
-					'licencepress-settings&tab=layout'      => [ 'label' => __( 'Layout', 'licencepress' ), 'icon' => 'fa-solid fa-table-columns', 'capability' => 'licencepress_settings_layout_view' ],
+					'licencepress-settings&tab=access'      => [ 'label' => __( 'Access', 'licencepress' ), 'icon' => 'fa-solid fa-user-shield', 'capability' => 'licencepress_settings_access_view' ],
 					'licencepress-settings&tab=plugins'     => [ 'label' => __( 'Plugins', 'licencepress' ), 'icon' => 'fa-solid fa-puzzle-piece', 'capability' => 'licencepress_settings_plugins_view' ],
 					'licencepress-settings&tab=third-party' => [ 'label' => __( '3rd Party', 'licencepress' ), 'icon' => 'fa-solid fa-plug', 'capability' => 'licencepress_settings_plugins_ext_view' ],
-					'licencepress-settings&tab=access'      => [ 'label' => __( 'Access', 'licencepress' ), 'icon' => 'fa-solid fa-user-shield', 'capability' => 'licencepress_settings_access_view' ],
 				],
 			],
 			'tools' => [
-				'label' => __( 'Tools', 'licencepress' ),
+				'label' => __( 'Operations', 'licencepress' ),
 				'icon'  => 'fa-solid fa-toolbox',
 				'items' => [
-					'licencepress-tools&tool=debug'     => [ 'label' => __( 'Debug', 'licencepress' ), 'icon' => 'fa-solid fa-bug-slash', 'capability' => 'licencepress_tools_debug' ],
-					'licencepress-tools&tool=import'    => [ 'label' => __( 'Import', 'licencepress' ), 'icon' => 'fa-solid fa-file-import', 'capability' => 'licencepress_tools_import' ],
-					'licencepress-tools&tool=export'    => [ 'label' => __( 'Export', 'licencepress' ), 'icon' => 'fa-solid fa-file-export', 'capability' => 'licencepress_tools_export' ],
-					'licencepress-tools&tool=analytics' => [ 'label' => __( 'Analytics', 'licencepress' ), 'icon' => 'fa-solid fa-chart-line', 'capability' => 'licencepress_tools_analytics' ],
+					'licencepress-tools&tool=debug'  => [ 'label' => __( 'Debug', 'licencepress' ), 'icon' => 'fa-solid fa-bug-slash', 'capability' => 'licencepress_tools_debug' ],
+					'licencepress-tools&tool=reset'  => [ 'label' => __( 'Reset', 'licencepress' ), 'icon' => 'fa-solid fa-rotate', 'capability' => 'licencepress_tools_reset' ],
+					'licencepress-tools&tool=import' => [ 'label' => __( 'Import', 'licencepress' ), 'icon' => 'fa-solid fa-file-import', 'capability' => 'licencepress_tools_import' ],
+					'licencepress-tools&tool=export' => [ 'label' => __( 'Export', 'licencepress' ), 'icon' => 'fa-solid fa-file-export', 'capability' => 'licencepress_tools_export' ],
 				],
 			],
 		];

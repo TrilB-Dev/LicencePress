@@ -25,7 +25,8 @@
         }
     ],
     "require": {
-        "fortawesome/wordpress-fontawesome": "^5.2"
+        "fortawesome/wordpress-fontawesome": "^5.2",
+        "defuse/php-encryption": "^2.4"
     },
     "require-dev": {
         "php-stubs/wordpress-stubs": "^6.9",
@@ -47,5 +48,10 @@
             "@lint",
             "@lint:docs"
         ]
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }

@@ -30,6 +30,16 @@ const tinyMCEEntries = {
     './src/Includes/Plugins/TinyMCE/Assets/scss/tinymce.scss',
   ],
 };
+const paypalEntries = {
+  'paypal.admin': [
+    './src/Includes/Plugins/PayPal/Assets/js/paypal.admin.js',
+    './src/Includes/Plugins/PayPal/Assets/scss/paypal.admin.scss',
+  ],
+  'paypal.frontend': [
+    './src/Includes/Plugins/PayPal/Assets/js/paypal.frontend.js',
+    './src/Includes/Plugins/PayPal/Assets/scss/paypal.frontend.scss',
+  ],
+};
 
 const jsDirectory = path.resolve(__dirname, 'src/Assets/js');
 fs.readdirSync(jsDirectory)
@@ -106,6 +116,18 @@ module.exports = [
     entry: tinyMCEEntries,
     output: {
       path: path.resolve(__dirname, 'src/Includes/Plugins/TinyMCE/Assets/dist'),
+      filename: 'js/[name].js',
+      clean: true,
+    },
+    plugins: [
+      new MiniCssExtractPlugin({ filename: 'css/[name].css' }),
+    ],
+  },
+  {
+    ...shared,
+    entry: paypalEntries,
+    output: {
+      path: path.resolve(__dirname, 'src/Includes/Plugins/PayPal/Assets/dist'),
       filename: 'js/[name].js',
       clean: true,
     },

@@ -69,8 +69,12 @@ final class SettingsAccess {
 			if ( empty( $selected ) ) {
 				$selected[] = $options[0];
 			}
-
-			echo '<tr><th scope="row">' . FormFieldHelper::label( $id, $field['label'], $field ) . '</th><td>' . FormFieldHelper::select( $name, $options, $selected[0]['value'], array( 'id' => $id ) ) . '</td></tr>';
+			?>
+			<tr>
+				<th scope="row"><?php echo FormFieldHelper::label( $id, $field['label'], $field ); ?></th>
+				<td><?php echo FormFieldHelper::select( $name, $options, $selected[0]['value'], array( 'id' => $id ) ); ?></td>
+			</tr>
+			<?php
 		}
 	}
 }

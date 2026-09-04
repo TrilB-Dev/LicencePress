@@ -9,6 +9,7 @@
 namespace LicencePress\Admin\Manager\UI;
 
 use LicencePress\Includes\Functions\Admin\FunctionsSidebar;
+use LicencePress\Includes\Functions\Helpers\FormFieldHelper;
 use LicencePress\Includes\Functions\Helpers\RequestHelper;
 use LicencePress\Includes\Functions\Helpers\SanitizationHelper;
 
@@ -44,9 +45,18 @@ final class Sidebar {
 							<?php $expanded = self::group_is_expanded( $key, $group, $current ); ?>
 							<div class="licencepress-sidebar-group">
 								<h3 class="licencepress-sidebar-group-heading">
-									<button class="licencepress-sidebar-link licencepress-sidebar-group-link border-0 bg-transparent w-100 text-start <?php echo $expanded ? '' : 'collapsed'; ?>" type="button" data-bs-toggle="collapse" data-bs-target="#licencepress-group-<?php echo esc_attr( $key ); ?>" aria-expanded="<?php echo $expanded ? 'true' : 'false'; ?>" aria-controls="licencepress-group-<?php echo esc_attr( $key ); ?>">
-										<?php echo self::render_icon_markup( (string) ( $group['icon'] ?? '' ) ); ?><?php echo esc_html( $group['label'] ); ?><span class="ms-auto text-secondary"><?php echo count( $group['items'] ); ?></span>
-									</button>
+										<?php echo FormFieldHelper::button(
+											self::render_icon_markup( (string) ( $group['icon'] ?? '' ) ) . esc_html( $group['label'] ) . '<span class="ms-auto text-secondary">' . count( $group['items'] ) . '</span>',
+											array(
+												'class'          => 'licencepress-sidebar-link licencepress-sidebar-group-link border-0 bg-transparent w-100 text-start ' . ( $expanded ? '' : 'collapsed' ),
+												'type'           => 'button',
+												'data-bs-toggle' => 'collapse',
+												'data-bs-target' => '#licencepress-group-' . esc_attr( $key ),
+												'aria-expanded'  => $expanded ? 'true' : 'false',
+												'aria-controls'  => 'licencepress-group-' . esc_attr( $key ),
+												'raw'            => true,
+											)
+										); ?>
 								</h3>
 								<div id="licencepress-group-<?php echo esc_attr( $key ); ?>" class="collapse <?php echo $expanded ? 'show' : ''; ?>">
 									<div class="nav flex-column licencepress-sidebar-group-items">

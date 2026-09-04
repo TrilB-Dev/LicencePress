@@ -71,6 +71,8 @@ final class DebugManager extends Manager {
 			}
 		}
 		?>
+		<div class="card shadow-sm">
+			<div class="card-body">
 		<?php if ( is_array( $diagnostics ) ) : ?>
 			<div class="notice <?php echo ! empty( $diagnostics['success'] ) ? 'notice-success' : 'notice-error'; ?> is-dismissible">
 				<p><strong><?php echo esc_html( $diagnostics['message'] ?? __( 'Diagnostics completed.', 'licencepress' ) ); ?></strong></p>
@@ -137,6 +139,8 @@ final class DebugManager extends Manager {
 				<a class="btn btn-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=licencepress-settings&tab=tools' ) ); ?>"><?php esc_html_e( 'Open Tools Settings', 'licencepress' ); ?></a>
 			</div>
 		</div>
+		</div>
+		</div>
 		<?php
 	}
 
@@ -153,33 +157,42 @@ final class DebugManager extends Manager {
 			'tooltip'      => __( 'Enable this only while investigating a problem, because logs can grow over time.', 'licencepress' ),
 			'tooltip_type' => 'info',
 		);
-		echo '<tr><th scope="row">' . wp_kses_post( FormFieldHelper::label( $field_id, __( 'Debug logging', 'licencepress' ), $field ) ) . '</th><td>' . wp_kses_post(
-			FormFieldHelper::checkbox(
-				'licencepress_tools[debug_logging]',
-				'1',
-				__( 'Enable LicencePress debug logging', 'licencepress' ),
-				array(
-					'id'      => $field_id,
-					'checked' => ! empty( $values['debug_logging'] ),
+		?>
+		<tr>
+			<th scope="row"><?php echo wp_kses_post( FormFieldHelper::label( $field_id, __( 'Debug logging', 'licencepress' ), $field ) ); ?></th>
+			<td><?php echo wp_kses_post(
+				FormFieldHelper::checkbox(
+					'licencepress_tools[debug_logging]',
+					'1',
+					__( 'Enable LicencePress debug logging', 'licencepress' ),
+					array(
+						'id'      => $field_id,
+						'checked' => ! empty( $values['debug_logging'] ),
+					)
 				)
-			)
-		) . '</td></tr>';
-
+			); ?></td>
+		</tr>
+		<?php
 		$field_id = 'licencepress-console-logging';
 		$field    = array(
 			'description' => __( 'Write diagnostic information to the browser console.', 'licencepress' ),
 			'tooltip'     => __( 'Use this during frontend troubleshooting and disable it afterward.', 'licencepress' ),
 		);
-		echo '<tr><th scope="row">' . wp_kses_post( FormFieldHelper::label( $field_id, __( 'Console logging', 'licencepress' ), $field ) ) . '</th><td>' . wp_kses_post(
-			FormFieldHelper::checkbox(
-				'licencepress_tools[console_logging]',
-				'1',
-				__( 'Enable browser console logging', 'licencepress' ),
-				array(
-					'id'      => $field_id,
-					'checked' => ! empty( $values['console_logging'] ),
+		?>
+		<tr>
+			<th scope="row"><?php echo wp_kses_post( FormFieldHelper::label( $field_id, __( 'Console logging', 'licencepress' ), $field ) ); ?></th>
+			<td><?php echo wp_kses_post(
+				FormFieldHelper::checkbox(
+					'licencepress_tools[console_logging]',
+					'1',
+					__( 'Enable browser console logging', 'licencepress' ),
+					array(
+						'id'      => $field_id,
+						'checked' => ! empty( $values['console_logging'] ),
+					)
 				)
-			)
-		) . '</td></tr>';
+			); ?></td>
+		</tr>
+		<?php
 	}
 }

@@ -12,6 +12,7 @@
 namespace LicencePress\Includes\Plugins;
 
 use LicencePress\Includes\Functions\Helpers\LoggerHelper;
+use LicencePress\Includes\Functions\Helpers\ShortcodeHelper;
 use LicencePress\Includes\Settings\Settings;
 use LicencePress\Includes\Plugins\PluginInterface;
 
@@ -389,7 +390,7 @@ class Plugins {
 			}
 
 			if ( $plugin instanceof ShortcodeProviderInterface ) {
-				\LicencePress\Includes\Functions\Helpers\ShortcodeHelper::register_many( $plugin->get_shortcodes() );
+				ShortcodeHelper::register_many( $plugin->get_shortcodes() );
 			}
 
 			if ( $plugin instanceof AssetsProviderInterface ) {

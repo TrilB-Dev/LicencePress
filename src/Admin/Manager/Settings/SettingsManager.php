@@ -10,10 +10,10 @@ namespace LicencePress\Admin\Manager\Settings;
 
 use LicencePress\Admin\Manager\Manager;
 use LicencePress\Assets\Assets;
+use LicencePress\Admin\Manager\Settings\SettingsAccess;
+use LicencePress\Admin\Manager\Settings\SettingsGeneral;
 use LicencePress\Admin\Manager\Settings\SettingsPlugins;
 use LicencePress\Includes\Functions\Helpers\RequestHelper;
-use LicencePress\Includes\Functions\Helpers\SanitizationHelper;
-use LicencePress\Includes\Functions\Helpers\FormFieldHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -39,13 +39,15 @@ final class SettingsManager extends Manager {
 	}
 
 	public function render(): void {
-		$tab = RequestHelper::get_key( 'tab', 'general' );
+		$tab = sanitize_key( RequestHelper::get_key( 'tab', 'general' ) );
 		$tab = $this->normalize_tab( $tab );
 
 		$this->header( __( 'Settings', 'licencepress' ) );
-		echo '<div id="licencepress-settings-panel" data-current-tab="' . esc_attr( $tab ) . '">';
-		$this->render_tab_content( $tab );
-		echo '</div>';
+		?>
+		<div id="licencepress-settings-panel" data-current-tab="<?php echo esc_attr( $tab ); ?>">
+			<?php $this->render_tab_content( $tab ); ?>
+		</div>
+		<?php
 		$this->footer();
 	}
 
@@ -73,24 +75,37 @@ final class SettingsManager extends Manager {
 		if ( ! $can_view ) {
 			wp_die( esc_html__( 'You are not authorized to view these LicencePress settings.', 'licencepress' ) );
 		}
-
-		echo '<div class="licencepress-settings-tab-content" role="tabpanel">';
-
-		if ( 'general' === $tab ) {
-			echo '<div class="mb-3"><h2 class="h5 mb-1">' . esc_html__( 'Licence configuration', 'licencepress' ) . '</h2><p class="text-secondary mb-0">' . esc_html__( 'Set the default commercial rules for generated licences, expiry, and validation.', 'licencepress' ) . '</p></div>';
-			echo '<table class="form-table" role="presentation"><tbody>';
-			( new \LicencePress\Admin\Manager\Settings\SettingsGeneral() )->render( array() );
-			echo '</tbody></table>';
-		} elseif ( 'access' === $tab ) {
-			echo '<div class="mb-3"><h2 class="h5 mb-1">' . esc_html__( 'Access control', 'licencepress' ) . '</h2><p class="text-secondary mb-0">' . esc_html__( 'Define who can issue, revoke, export, review, and manage licences.', 'licencepress' ) . '</p></div>';
-			echo '<table class="form-table" role="presentation"><tbody>';
-			( new \LicencePress\Admin\Manager\Settings\SettingsAccess() )->render( array() );
-			echo '</tbody></table>';
-		} else {
-			$this->plugins_page->render( $tab );
-		}
-
-		echo '</div>';
+		?>
+		<div class="licencepress-settings-tab-content" role="tabpanel">
+			<?php if ( 'general' === $tab ) : ?>
+				<div class="card shadow-sm">
+					<div class="card-body">
+						<div class="mb-3">
+							<h2 class="h5 mb-1"><?php esc_html_e( 'Licence configuration', 'licencepress' ); ?></h2>
+							<p class="text-secondary mb-0"><?php esc_html_e( 'Set the default commercial rules for generated licences, expiry, and validation.', 'licencepress' ); ?></p>
+						</div>
+						<table class="form-table" role="presentation"><tbody>
+							<?php ( new SettingsGeneral() )->render( array() ); ?>
+						</tbody></table>
+					</div>
+				</div>
+			<?php elseif ( 'access' === $tab ) : ?>
+				<div class="card shadow-sm">
+					<div class="card-body">
+						<div class="mb-3">
+							<h2 class="h5 mb-1"><?php esc_html_e( 'Access control', 'licencepress' ); ?></h2>
+							<p class="text-secondary mb-0"><?php esc_html_e( 'Define who can issue, revoke, export, review, and manage licences.', 'licencepress' ); ?></p>
+						</div>
+						<table class="form-table" role="presentation"><tbody>
+							<?php ( new SettingsAccess() )->render( array() ); ?>
+						</tbody></table>
+					</div>
+				</div>
+			<?php else : ?>
+				<?php $this->plugins_page->render( $tab ); ?>
+			<?php endif; ?>
+		</div>
+		<?php
 	}
 
 	private function normalize_tab( string $tab ): string {

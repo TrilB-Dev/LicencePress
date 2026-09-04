@@ -55,7 +55,15 @@ final class DashboardManager extends Manager {
 							<span class="badge text-bg-primary-subtle text-primary mb-2"><?php esc_html_e( 'First-time setup', 'licencepress' ); ?></span>
 							<h2 class="h3 mb-0" id="licencepress-onboarding-title"><?php esc_html_e( 'Welcome to LicencePress', 'licencepress' ); ?></h2>
 						</div>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php esc_attr_e( 'Close onboarding', 'licencepress' ); ?>"></button>
+						<?php echo FormFieldHelper::button(
+							'',
+							array(
+								'class'          => 'btn-close',
+								'type'           => 'button',
+								'data-bs-dismiss' => 'modal',
+								'aria-label'     => __( 'Close onboarding', 'licencepress' ),
+							)
+						); ?>
 					</div>
 					<div class="modal-body py-4">
 						<div class="licencepress-onboarding-step" data-step="1">
@@ -122,10 +130,10 @@ final class DashboardManager extends Manager {
 						</div>
 					</div>
 					<div class="modal-footer border-0 pt-0">
-						<button type="button" class="btn btn-link text-secondary" data-role="skip"><?php esc_html_e( 'Skip for now', 'licencepress' ); ?></button>
-						<button type="button" class="btn btn-outline-secondary" data-role="prev"><?php esc_html_e( 'Back', 'licencepress' ); ?></button>
-						<button type="button" class="btn btn-primary" data-role="next"><?php esc_html_e( 'Next', 'licencepress' ); ?></button>
-						<button type="button" class="btn btn-success d-none" data-role="finish"><?php esc_html_e( 'Finish setup', 'licencepress' ); ?></button>
+						<?php echo FormFieldHelper::button( __( 'Skip for now', 'licencepress' ), array( 'class' => 'btn-link text-secondary', 'type' => 'button', 'data-role' => 'skip' ) ); ?>
+						<?php echo FormFieldHelper::button( __( 'Back', 'licencepress' ), array( 'class' => 'btn-outline-secondary', 'type' => 'button', 'data-role' => 'prev' ) ); ?>
+						<?php echo FormFieldHelper::button( __( 'Next', 'licencepress' ), array( 'class' => 'btn-primary', 'type' => 'button', 'data-role' => 'next' ) ); ?>
+						<?php echo FormFieldHelper::button( __( 'Finish setup', 'licencepress' ), array( 'class' => 'btn-success d-none', 'type' => 'button', 'data-role' => 'finish' ) ); ?>
 					</div>
 				</div>
 			</div>

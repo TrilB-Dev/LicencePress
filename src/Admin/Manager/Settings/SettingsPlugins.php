@@ -54,65 +54,69 @@ final class SettingsPlugins {
 		if ( ! is_array( $page ) ) {
 			return;
 		}
-
-		echo '<tr><th scope="row">' . esc_html( $page['title'] ?? $page['label'] ) . '</th><td>';
-		foreach ( $page['fields'] as $field ) {
-			$key = SanitizationHelper::key( $field['key'] ?? '' );
-			if ( '' === $key ) {
-				continue;
-			}
-			$default = array_key_exists( 'default', $field ) ? $field['default'] : false;
-			$name    = 'licencepress_' . SanitizationHelper::key( $page['slug'] ) . '[' . $key . ']';
-			$value   = $values[ $key ] ?? $default;
-			$type    = SanitizationHelper::key( $field['type'] ?? 'checkbox', 'checkbox' );
-			echo '<div class="mb-3">' . FormFieldHelper::label(
-				'licencepress-' . $key,
-				(string) ( $field['label'] ?? $key ),
-				array(
-					'description'  => (string) ( $field['description'] ?? '' ),
-					'tooltip'      => (string) ( $field['tooltip'] ?? '' ),
-					'tooltip_type' => SanitizationHelper::key(
-						$field['tooltip_type'] ?? 'question',
-						'question'
-					),
-					'tooltip_icon' => (string) ( $field['tooltip_icon'] ?? '' ),
-				)
-			);
-			if ( 'select' === $type ) {
-				echo FormFieldHelper::select(
-					$name,
-					(array) ( $field['options'] ?? array() ),
-					$value,
-					array( 'id' => 'licencepress-' . $key )
-				);
-			} elseif ( 'text' === $type ) {
-				echo FormFieldHelper::input(
-					$name,
-					is_scalar( $value ) ? (string) $value : '',
-					array(
-						'id'   => 'licencepress-' . $key,
-						'type' => 'text',
-					)
-				);
-			} elseif ( 'custom' === $type ) {
-				$render = $field['render'] ?? null;
-				if ( is_callable( $render ) ) {
-					call_user_func( $render, $value, $name, 'licencepress-' . $key );
-				}
-			} else {
-				echo FormFieldHelper::checkbox(
-					$name,
-					'1',
-					'',
-					array(
-						'id'      => 'licencepress-' . $key,
-						'checked' => ! empty( $value ),
-					)
-				);
-			}
-			echo '</div>';
-		}
-		echo '</td></tr>';
+		?>
+		<tr>
+			<th scope="row"><?php echo esc_html( $page['title'] ?? $page['label'] ); ?></th>
+			<td>
+				<?php foreach ( $page['fields'] as $field ) : ?>
+					<?php
+					$key = SanitizationHelper::key( $field['key'] ?? '' );
+					if ( '' === $key ) {
+						continue;
+					}
+					$default = array_key_exists( 'default', $field ) ? $field['default'] : false;
+					$name    = 'licencepress_' . SanitizationHelper::key( $page['slug'] ) . '[' . $key . ']';
+					$value   = $values[ $key ] ?? $default;
+					$type    = SanitizationHelper::key( $field['type'] ?? 'checkbox', 'checkbox' );
+					?>
+					<div class="mb-3">
+						<?php echo FormFieldHelper::label(
+							'licencepress-' . $key,
+							(string) ( $field['label'] ?? $key ),
+							array(
+								'description'  => (string) ( $field['description'] ?? '' ),
+								'tooltip'      => (string) ( $field['tooltip'] ?? '' ),
+								'tooltip_type' => SanitizationHelper::key(
+									$field['tooltip_type'] ?? 'question',
+									'question'
+								),
+								'tooltip_icon' => (string) ( $field['tooltip_icon'] ?? '' ),
+							)
+						); ?>
+						<?php if ( 'select' === $type ) : ?>
+							<?php echo FormFieldHelper::select(
+								$name,
+								(array) ( $field['options'] ?? array() ),
+								$value,
+								array( 'id' => 'licencepress-' . $key )
+							); ?>
+						<?php elseif ( 'text' === $type ) : ?>
+							<?php echo FormFieldHelper::input(
+								$name,
+								is_scalar( $value ) ? (string) $value : '',
+								array(
+									'id'   => 'licencepress-' . $key,
+									'type' => 'text',
+								)
+							); ?>
+						<?php elseif ( 'custom' === $type ) : ?>
+							<?php $render = $field['render'] ?? null; if ( is_callable( $render ) ) { call_user_func( $render, $value, $name, 'licencepress-' . $key ); } ?>
+						<?php else : ?>
+							<?php echo FormFieldHelper::checkbox(
+								$name,
+								'1',
+								'',
+								array(
+									'id'      => 'licencepress-' . $key,
+									'checked' => ! empty( $value ),
+								)
+							); ?>
+						<?php endif; ?>
+					</div>
+				<?php endforeach; ?>
+			</td>
+		</tr>
+		<?php
 	}
 	/**
 	 * Render the settings page for the given tab.
@@ -344,7 +348,16 @@ final class SettingsPlugins {
 				<div class="modal-content">
 					<div class="modal-header">
 						<h2 class="modal-title fs-5" id="<?php echo esc_attr( $modal_id . '-label' ); ?>"><?php echo esc_html( $plugin->get_name() ); ?></h2>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php esc_attr_e( 'Close', 'licencepress' ); ?>"></button>
+						<?php echo FormFieldHelper::button(
+							'',
+							array(
+								'class'          => 'btn-close',
+								'type'           => 'button',
+								'data-bs-dismiss' => 'modal',
+								'aria-label'     => __( 'Close', 'licencepress' ),
+								'raw'            => true,
+							),
+						); ?>
 					</div>
 					<div class="modal-body">
 						<section class="licencepress-plugin-modal-info mb-4" aria-labelledby="<?php echo esc_attr( $modal_id . '-info' ); ?>">
@@ -367,9 +380,9 @@ final class SettingsPlugins {
 						</form>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php esc_html_e( 'Cancel', 'licencepress' ); ?></button>
+						<?php echo FormFieldHelper::button( __( 'Cancel', 'licencepress' ), array( 'class' => 'btn-secondary', 'type' => 'button', 'data-bs-dismiss' => 'modal' ) ); ?>
 						<?php if ( $can_edit ) : ?>
-							<button type="button" class="btn btn-primary" data-plugin-settings-save><?php esc_html_e( 'Save', 'licencepress' ); ?></button>
+							<?php echo FormFieldHelper::button( __( 'Save', 'licencepress' ), array( 'class' => 'btn-primary', 'type' => 'button', 'data-plugin-settings-save' => 'true' ) ); ?>
 						<?php endif; ?>
 					</div>
 				</div>

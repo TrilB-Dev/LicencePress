@@ -278,7 +278,7 @@ final class FormFieldHelper {
 
 		$tag        = ! empty( $options['href'] ) ? 'a' : 'button';
 		$attributes = array_merge( $options['attributes'] ?? array(), $options );
-		unset( $attributes['attributes'], $attributes['href'], $attributes['class'], $attributes['type'], $attributes['label'], $attributes['value'], $attributes['disabled'] );
+		unset( $attributes['attributes'], $attributes['href'], $attributes['class'], $attributes['type'], $attributes['label'], $attributes['value'], $attributes['disabled'], $attributes['raw'] );
 		$attributes['class'] = self::classes( array( 'btn', $options['class'] ?? 'btn-primary' ) );
 
 		if ( 'a' === $tag ) {
@@ -295,7 +295,9 @@ final class FormFieldHelper {
 			}
 		}
 
-		return '<' . $tag . ' ' . self::attributes_to_string( $attributes ) . '>' . esc_html( $label ) . '</' . $tag . '>';
+		$content = ! empty( $options['raw'] ) ? $label : esc_html( $label );
+
+		return '<' . $tag . ' ' . self::attributes_to_string( $attributes ) . '>' . $content . '</' . $tag . '>';
 	}
 
 	/**

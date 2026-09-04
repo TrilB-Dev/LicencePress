@@ -1,4 +1,4 @@
-name: Test MSPress
+name: Test LicencePress
 
 on:
   push:

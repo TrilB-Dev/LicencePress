@@ -1,6 +1,6 @@
 <?php
 
-namespace LicencePress\Frontend;
+namespace LicencePress\Public;
 
 use LicencePress\Includes\Core\PostType;
 use LicencePress\Includes\Functions\Helpers\ContentHelper;

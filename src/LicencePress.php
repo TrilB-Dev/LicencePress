@@ -27,7 +27,7 @@ use LicencePress\API\Routes;
 use LicencePress\Includes\Analytics\Analytics;
 use LicencePress\Includes\Licence\LicenceManager;
 use LicencePress\Includes\Plugins\Plugins;
-use LicencePress\Frontend\Frontend;
+use LicencePress\Public\Frontend;
 /**
  * The core plugin class.
  *

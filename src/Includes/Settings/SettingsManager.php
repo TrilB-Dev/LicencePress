@@ -40,9 +40,10 @@ final class SettingsManager {
     }
 
     public static function get( string $key, $default = null ) {
-        foreach ( self::get_all() as $settings ) {
-            if ( is_array( $settings ) && array_key_exists( $key, $settings ) ) {
-                return $settings[ $key ];
+        $settings = self::get_all();
+        foreach ( $settings as $group_settings ) {
+            if ( is_array( $group_settings ) && array_key_exists( $key, $group_settings ) ) {
+                return $group_settings[ $key ];
             }
         }
         return self::registered_default( $key, $default );
@@ -77,6 +78,11 @@ final class SettingsManager {
 
     public static function get_all(): array {
         global $wpdb;
+
+        if ( ! self::table_exists() ) {
+            return [];
+        }
+
         $rows = $wpdb->get_results( 'SELECT setting_group, setting_value FROM ' . self::table_name(), ARRAY_A );
         $settings = [];
         foreach ( $rows ?: [] as $row ) {
@@ -139,6 +145,11 @@ final class SettingsManager {
 
     public static function get_group( string $group ): ?array {
         global $wpdb;
+
+        if ( ! self::table_exists() ) {
+            return null;
+        }
+
         $value = $wpdb->get_var( $wpdb->prepare( 'SELECT setting_value FROM ' . self::table_name() . ' WHERE setting_group = %s', self::storage_group( $group ) ) );
         $settings = $value === null ? null : maybe_unserialize( $value );
         return is_array( $settings ) ? $settings : null;
@@ -193,8 +204,30 @@ final class SettingsManager {
 
     private static function get_legacy_group( string $group ): ?array {
         global $wpdb;
+
+        if ( ! self::table_exists() ) {
+            return null;
+        }
+
         $value = $wpdb->get_var( $wpdb->prepare( 'SELECT setting_value FROM ' . self::table_name() . ' WHERE setting_group = %s', sanitize_key( $group ) ) );
         return $value === null ? null : maybe_unserialize( $value );
+    }
+
+    private static function table_exists(): bool {
+        global $wpdb;
+
+        if ( ! isset( $wpdb ) || ! is_object( $wpdb ) || ! method_exists( $wpdb, 'get_var' ) ) {
+            return false;
+        }
+
+        if ( ! method_exists( $wpdb, 'prepare' ) ) {
+            return false;
+        }
+
+        $query = $wpdb->prepare( 'SHOW TABLES LIKE %s', self::table_name() );
+        $table = $wpdb->get_var( $query );
+
+        return is_string( $table ) && '' !== $table;
     }
 
     private static function delete_legacy_group( string $group ): void {
@@ -250,5 +283,22 @@ final class SettingsManager {
     private static function normalize_group( string $group ): string {
         $group = sanitize_key( $group );
         return str_starts_with( $group, 'wikipress_' ) ? substr( $group, 10 ) : $group;
+    }
+
+    private static function table_ready(): bool {
+        global $wpdb;
+
+        if ( ! isset( $wpdb ) || ! is_object( $wpdb ) ) {
+            return false;
+        }
+
+        if ( ! method_exists( $wpdb, 'get_var' ) ) {
+            return false;
+        }
+
+        $query = $wpdb->prepare( 'SHOW TABLES LIKE %s', self::table_name() );
+        $table = $wpdb->get_var( $query );
+
+        return null !== $table && '' !== (string) $table;
     }
 }

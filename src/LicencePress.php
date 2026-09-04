@@ -232,7 +232,9 @@ class LicencePress {
 		$this->loader->add_action( 'admin_post_wikipress_import', $this->import_functions, 'import_data' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $this->assets, 'enqueue_admin' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $this->assets, 'enqueue_frontend' );
-		$this->loader->add_action( 'wp_head', Analytics::class, 'track_view' );
+		if ( class_exists( Analytics::class ) && method_exists( Analytics::class, 'track_view' ) ) {
+			$this->loader->add_action( 'wp_head', Analytics::class, 'track_view' );
+		}
 		$this->loader->add_filter( 'the_content', $this->frontend, 'filter_content' );
 		$this->loader->add_filter( 'body_class', $this->frontend, 'body_classes' );
 		$this->loader->add_action( 'rest_api_init', Routes::class, 'register_routes' );

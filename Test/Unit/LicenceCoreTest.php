@@ -9,6 +9,7 @@ use LicencePress\Includes\Licence\LicenceGenerator;
 use LicencePress\Includes\Licence\LicenceManager;
 use LicencePress\Includes\Licence\LicenceTypeManager;
 use LicencePress\Includes\Licence\LicenceValidator;
+use LicencePress\Includes\Settings\SettingsManager;
 use PHPUnit\Framework\TestCase;
 
 final class LicenceCoreTest extends TestCase {
@@ -23,6 +24,38 @@ final class LicenceCoreTest extends TestCase {
         }
 
         KeyManager::set_runtime_key( (string) constant( 'LICENCEPRESS_ENCRYPTION_KEY' ) );
+    }
+
+    public function test_missing_settings_table_does_not_query_before_install(): void {
+        $guard = new class() {
+            public string $prefix = 'wp_';
+
+            public function prepare( $query, ...$args ) {
+                return sprintf( $query, ...$args );
+            }
+
+            public function get_var( $query ) {
+                if ( stripos( (string) $query, 'SHOW TABLES LIKE' ) !== false ) {
+                    return null;
+                }
+                throw new \RuntimeException( 'Settings table should not be queried before installation.' );
+            }
+
+            public function get_results( $query, $output = ARRAY_A ) {
+                throw new \RuntimeException( 'Settings table should not be queried before installation.' );
+            }
+        };
+
+        global $wpdb;
+        $previous = $wpdb;
+        $wpdb = $guard;
+
+        try {
+            $this->assertSame( [], SettingsManager::get_all() );
+            $this->assertNull( SettingsManager::get_group( 'general' ) );
+        } finally {
+            $wpdb = $previous;
+        }
     }
 
     public function test_generates_and_validates_a_license(): void {

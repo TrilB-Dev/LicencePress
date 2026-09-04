@@ -121,6 +121,8 @@ final class Assets {
 			$defaults['styles'][]  = array(
 				'handle' => 'licencepress-admin-ui',
 				'src'    => LICENCEPRESS_URL . 'src/Assets/dist/css/admin.ui.css',
+                'version' => '1.0.0',
+                'deps'    => array( 'licencepress-bootstrap' ),
 			);
 			$defaults['scripts'][] = array(
 				'handle'    => 'licencepress-admin-ui',

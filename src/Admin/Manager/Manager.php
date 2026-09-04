@@ -91,11 +91,9 @@ abstract class Manager {
 			<div class="container-fluid licencepress-shell px-3 px-lg-4 py-4">
 				<div class="row g-4">
 					<?php Sidebar::render(); ?>
-					<section class="col-12 col-lg flex-grow-1" aria-labelledby="licencepress-page-title">
+					<section class="col-12 card flex-grow-1" aria-labelledby="licencepress-page-title">
 						<div class="licencepress-page-heading d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
-							<div>
-								<h1 class="h1 mb-0" id="licencepress-page-title"><?php echo esc_html( $title ); ?></h1>
-							</div>
+							<h1 class="h1 mb-0" id="licencepress-page-title"><?php echo esc_html( $title ); ?></h1>
 						</div>
 		<?php
 	}

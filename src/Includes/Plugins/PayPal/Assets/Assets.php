@@ -68,6 +68,6 @@ final class Assets {
      * @return string The image URL, or an empty string when the path is invalid.
      */
     public static function get_image( string $file ): string {
-        return ImageHelper::get_image_url( 'licencepress-tinymce', $file );
+        return ImageHelper::get_image_url( 'licencepress-paypal', $file );
     }
 }

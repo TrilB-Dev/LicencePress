@@ -8,6 +8,7 @@
 
 namespace LicencePress\Includes\Plugins\PayPal;
 
+use LicencePress\Includes\Functions\Helpers\LoaderHelper;
 use LicencePress\Includes\Plugins\AdminMenuProviderInterface;
 use LicencePress\Includes\Plugins\AdminSidebarProviderInterface;
 use LicencePress\Includes\Plugins\AssetsProviderInterface;
@@ -20,7 +21,20 @@ use LicencePress\Includes\Plugins\PayPal\Assets\Assets;
 use LicencePress\Includes\Plugins\PayPal\Includes\I18n;
 use LicencePress\Includes\Plugins\PayPal\Includes\Includes;
 
-final class PayPal implements PluginInterface, SettingsProviderInterface, SettingsPageProviderInterface, AssetsProviderInterface, I18nProviderInterface {
+final class PayPal implements PluginInterface, SettingsProviderInterface, SettingsPageProviderInterface, AssetsProviderInterface, I18nProviderInterface, AdminMenuProviderInterface, AdminSidebarProviderInterface {
+    /**
+     * The loader helper instance.
+     *
+     * @var LoaderHelper The loader helper instance.
+     */
+    private LoaderHelper $loader;
+    /**
+     * Constructor for the PayPal plugin.
+     */
+    public function __construct() {
+        $this->loader = new LoaderHelper();
+    }
+
     /**
      * Get the plugin slug.
      *
@@ -107,11 +121,32 @@ final class PayPal implements PluginInterface, SettingsProviderInterface, Settin
      * @return void
      */
     public function init(): void {
+        /**
+         * Init the PayPal plugin.
+         * 
+         */
         Includes::get_instance()->init();
-        add_action( 'admin_init', [ PayPalAdmin::class, 'maybe_handle_oauth_connect' ] );
-        add_action( 'admin_init', [ PayPalAdmin::class, 'maybe_handle_oauth_callback' ] );
+        /**
+         * Register the PayPal admin component with the loader.
+         */
+        $this->loader->register_component( PayPalAdmin::class, [
+            [
+                'type' => 'action',
+                'hook' => 'admin_init',
+                'callback' => 'maybe_handle_oauth_connect',
+            ],
+            [
+                'type' => 'action',
+                'hook' => 'admin_init',
+                'callback' => 'maybe_handle_oauth_callback',
+            ],
+        ] )->run();
     }
-
+    /**
+     * Register the settings for the plugin.
+     *
+     * @return void
+     */
     public function register_settings(): void {
         Includes::get_instance()->settings()->register();
     }
@@ -148,11 +183,19 @@ final class PayPal implements PluginInterface, SettingsProviderInterface, Settin
     public function load_textdomain(): void {
         I18n::load_textdomain();
     }
-
+    /**
+     * Get the admin menu for the plugin.
+     *
+     * @return array The admin menu configuration.
+     */
     public function get_admin_menu(): array {
         return PayPalAdmin::get_admin_menu();
     }
-
+    /**
+     * Get the admin sidebar for the plugin.
+     *
+     * @return array The admin sidebar configuration.
+     */
     public function get_admin_sidebar(): array {
         return PayPalAdmin::get_admin_sidebar();
     }

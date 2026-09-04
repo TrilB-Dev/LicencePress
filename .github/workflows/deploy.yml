@@ -41,7 +41,7 @@ jobs:
         shell: bash
         run: |
           shopt -s globstar
-          git add src/**/build/** || true
+          git add src/**/dist/** || true
 
       - name: Commit Node changes
         shell: bash

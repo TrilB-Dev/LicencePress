@@ -169,33 +169,6 @@ final class Admin {
         $this->loader->register_component( $this->plugin_functions, [
             [ 
                 'type' => 'action',
-                'hook' => 'wp_ajax_licencepress_save_plugname_settings',
-                'callback' => 'save_plugname_settings'
-            ],
-            [ 
-                'type' => 'action',
-                'hook' => 'wp_ajax_licencepress_delete_plugname',
-                'callback' => 'delete_plugname'
-            ],
-            [ 
-                'type' => 'action',
-                'hook' => 'wp_ajax_licencepress_delete_plugname_page',
-                'callback' => 'delete_plugname_page'
-            ],
-            [ 
-                'type' => 'action',
-                'hook' => 'wp_ajax_licencepress_save_plugname_term',
-                'callback' => 'save_plugname_term'
-            ],
-            [ 
-                'type' => 'action',
-                'hook' => 'wp_ajax_licencepress_delete_plugname_term',
-                'callback' => 'delete_plugname_term'
-            ],
-        ] );
-        $this->loader->register_component( $this->plugin_functions, [
-            [ 
-                'type' => 'action',
                 'hook' => 'wp_ajax_licencepress_toggle_plugin',
                 'callback' => 'toggle_plugin'
             ],

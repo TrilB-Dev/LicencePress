@@ -9,6 +9,9 @@
 namespace LicencePress\Assets;
 
 use LicencePress\Includes\Functions\Helpers\ImageHelper;
+use LicencePress\Includes\Functions\Helpers\LoaderHelper;
+use LicencePress\Includes\Functions\Helpers\RequestHelper;
+use LicencePress\Includes\Functions\Helpers\SanitizationHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -32,7 +35,26 @@ final class Assets {
      * @return void
      */
     public function register(): void {
-        add_filter( 'licencepress_base_assets', [ $this, 'default_assets' ], 10, 2 );
+        ( new LoaderHelper() )->register_component( $this, 
+        [
+            [ 
+                'type' => 'filter', 
+                'hook' => 'licencepress_base_assets', 
+                'callback' => 'default_assets', 
+                'priority' => 90,
+                'accepted_args' => 2 
+            ],
+            [ 
+                'type' => 'action', 
+                'hook' => 'wp_enqueue_scripts', 
+                'callback' => 'enqueue_frontend' 
+            ],
+            [ 
+                'type' => 'action', 
+                'hook' => 'admin_enqueue_scripts', 
+                'callback' => 'enqueue_admin' 
+            ],
+        ] )->run();
     }
     /**
      * Registers assets for a specific page.
@@ -42,7 +64,7 @@ final class Assets {
      * @return void
      */
     public function register_page( string $page, array $assets ): void {
-        $page = sanitize_key( $page );
+        $page = SanitizationHelper::key( $page, 'licencepress' );
         $this->pages[ $page ] = [
             'styles' => array_merge( $this->pages[ $page ]['styles'] ?? [], $assets['styles'] ?? [] ),
             'scripts' => array_merge( $this->pages[ $page ]['scripts'] ?? [], $assets['scripts'] ?? [] ),
@@ -73,9 +95,7 @@ final class Assets {
                     'handle' => 'licencepress-bootstrap-select',
                     'src' => LICENCEPRESS_URL . 'src/Assets/dist/css/bootstrap-select.css',
                     'version' => '1.2.2',
-                    'deps' => [
-                        'licencepress-bootstrap'
-                        ]
+                    'deps' => [ 'licencepress-bootstrap' ]
                 ],
             ],
             'scripts' => [
@@ -138,7 +158,7 @@ final class Assets {
             return;
         }
 
-        $page = sanitize_key( $_GET['page'] ?? 'licencepress' );
+        $page = RequestHelper::get_key( 'page', 'licencepress' );
         $registered = $this->pages[ $page ] ?? [];
         $base = apply_filters( 'licencepress_base_assets', [], 'admin' );
         $this->enqueue_registered( 'admin', [
@@ -188,7 +208,9 @@ final class Assets {
             ] );
         }
 
-        if ( 'licencepress-settings' === sanitize_key( $_GET['page'] ?? '' ) ) {
+        $current_page = RequestHelper::get_key( 'page', '' );
+
+        if ( 'licencepress-settings' === $current_page ) {
             $settings_config = [
                 'ajaxUrl' => admin_url( 'admin-ajax.php' ),
                 'nonce' => wp_create_nonce( 'licencepress_settings_tabs' ),
@@ -201,7 +223,7 @@ final class Assets {
                 }
             }
         }
-        if ( 'licencepress-manage' === sanitize_key( $_GET['page'] ?? '' ) && wp_script_is( 'licencepress-admin-wiki', 'enqueued' ) ) {
+        if ( 'licencepress-manage' === $current_page && wp_script_is( 'licencepress-admin-wiki', 'enqueued' ) ) {
             wp_localize_script( 'licencepress-admin-wiki', 'licencepressWikiManager', [
                 'ajaxUrl' => admin_url( 'admin-ajax.php' ),
                 'nonce' => wp_create_nonce( 'licencepress_manage_wiki' ),

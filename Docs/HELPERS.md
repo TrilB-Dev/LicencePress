@@ -1,6 +1,6 @@
 # Shared Helpers
 
-Reusable helpers live in `src/Includes/Functions/Helpers` and use the namespace `LicencePress\Includes\Functions\Helpers`. Prefer these helpers over duplicating WordPress sanitization, authorization, URL, query, form, menu, or response logic.
+Reusable helpers live in `src/Includes/Functions/Helpers` and use the namespace `MSPress\Includes\Functions\Helpers`. Prefer these helpers over duplicating WordPress sanitization, authorization, URL, query, form, menu, or response logic.
 
 The helpers are shared infrastructure, but feature-specific rules remain in the owning plugin. Sanitize input before validation or persistence, check capabilities before protected operations, and escape helper output for its final context.
 
@@ -35,7 +35,7 @@ $tags = SanitizationHelper::terms($payload['tags'] ?? []);
 - `boolean($source, $key, $fallback = false)` parses boolean-like request values.
 
 ```php
-$page = RequestHelper::get_key('page', 'licencepress');
+$page = RequestHelper::get_key('page', 'mspress');
 $per_page = RequestHelper::integer_range($request->get_param('per_page'), 1, 100, 20);
 $enabled = RequestHelper::boolean([ 'enabled' => $request->get_param('enabled') ], 'enabled');
 ```
@@ -99,22 +99,6 @@ Build common administrative URLs consistently:
 
 Always escape returned URLs at output time with `esc_url()`.
 
-## PermalinkHelper
-
-`PermalinkHelper` is optional. Use it only when the plugin owns tokenized permalink patterns. Replace any content-specific tokens, post types, taxonomies, settings keys, metadata keys, rewrite variables, and filters with the current plugin's equivalents.
-
-- `token_definitions()` returns available translated token descriptions.
-- `default_pattern()` returns the default pattern.
-- `sanitize_pattern($pattern)` keeps supported tokens and sanitized literal segments.
-- `pattern_for_object($object_id = 0)` resolves an object-specific override or configured default. Rename this method and its parameter to match the plugin-owned content model.
-- `page_url($page)` returns a full URL for a supported post object.
-- `expand($pattern, $page, $parent = null)` expands a pattern into a relative path.
-- `rewrite_rule()` registers the feature's rewrite handling.
-- `resolve_request($vars)` resolves a requested path.
-- `filter_page_permalink($link, $post)` replaces the normal permalink for supported posts.
-
-Sanitize patterns before persisting custom values. Keep override metadata and rewrite variables namespaced to the owning plugin.
-
 ## AjaxHelper
 
 Use `AjaxHelper` for common AJAX checks and JSON responses:
@@ -150,12 +134,13 @@ Never log credentials, tokens, secrets, or sensitive request data. Keep the logg
 
 ## FormFieldHelper
 
+For the complete API, option contracts, composition patterns, accessibility guidance, and examples, see [the FormFieldHelper reference](Helpers/FORMFIELDHELPER.md).
+
 `FormFieldHelper` renders escaped Bootstrap-compatible form controls and validation markup:
 
 - `input($name, $value = '', $options = [])` renders a configurable input type.
 - `text_input($name, $value = '', $attributes = [])` renders a text input.
 - `textarea($name, $value = '', $options = [])` renders a textarea.
-- `tinymce($id, $name, $label, $value = '', $rows = 8, $media_buttons = false)` renders a TinyMCE editor or textarea fallback.
 - `select($name, $options = [], $selected = [], $attributes = [])` renders a select, including option groups.
 - `checkbox($name, $value = '1', $label = '', $options = [])`, `radio($name, $value, $label = '', $options = [])`, and `switch($name, $value = '1', $label = '', $options = [])` render check controls.
 - `check($type, $name, $value, $label = '', $options = [])` is the shared checkbox/radio renderer.
@@ -193,7 +178,7 @@ Prefer these controls over hand-built form HTML so attributes, labels, and valid
 Define and register plugin-owned shortcodes through the shared registry:
 
 ```php
-use LicencePress\Includes\Functions\Helpers\ShortcodeHelper;
+use MSPress\Includes\Functions\Helpers\ShortcodeHelper;
 
 $definition = ShortcodeHelper::define(
 	'my_status',

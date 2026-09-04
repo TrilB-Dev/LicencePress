@@ -12,6 +12,7 @@ use LicencePress\Admin\Manager\Tools\ResetManager;
 use LicencePress\Admin\Manager\Tools\ImportManager;
 use LicencePress\Admin\Manager\Tools\ExportManager;
 use LicencePress\Assets\Assets;
+use LicencePress\Includes\Functions\Helpers\RequestHelper;
 use LicencePress\Includes\Functions\Helpers\SanitizationHelper;
 use LicencePress\Includes\Functions\Helpers\PermissionHelper;
 
@@ -99,7 +100,7 @@ final class ToolsManager extends Manager {
      * @return void
      */
     public function render(): void {
-        $tool = SanitizationHelper::key( $_GET['tool'] ?? 'debug', 'debug' );
+        $tool = RequestHelper::get_key( 'tool', 'debug' );
         if ( ! in_array( $tool, [ 'debug', 'reset', 'import', 'export' ], true ) ) {
             $tool = 'debug';
         }

@@ -9,6 +9,8 @@
 namespace LicencePress\Admin\Manager\UI;
 
 use LicencePress\Includes\Functions\Admin\FunctionsSidebar;
+use LicencePress\Includes\Functions\Helpers\RequestHelper;
+use LicencePress\Includes\Functions\Helpers\SanitizationHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,7 +26,7 @@ final class Sidebar {
 	 * @return void
 	 */
 	public static function render(): void {
-		$current = sanitize_key( $_GET['page'] ?? 'licencepress' );
+		$current = RequestHelper::get_key( 'page', 'licencepress' );
 		$groups  = FunctionsSidebar::get_sidebar_groups();
 		?>
 		<aside class="col-12 col-lg-auto licencepress-sidebar-column">
@@ -130,7 +132,7 @@ final class Sidebar {
 		}
 
 		foreach ( $query as $key => $value ) {
-			if ( (string) ( $_GET[ $key ] ?? '' ) !== (string) $value ) {
+			if ( (string) RequestHelper::value( $_GET, $key, '' ) !== (string) $value ) {
 				return false;
 			}
 		}

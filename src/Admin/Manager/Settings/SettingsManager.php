@@ -11,6 +11,7 @@ namespace LicencePress\Admin\Manager\Settings;
 use LicencePress\Admin\Manager\Manager;
 use LicencePress\Assets\Assets;
 use LicencePress\Admin\Manager\Settings\SettingsPlugins;
+use LicencePress\Includes\Functions\Helpers\RequestHelper;
 use LicencePress\Includes\Functions\Helpers\SanitizationHelper;
 use LicencePress\Includes\Functions\Helpers\FormFieldHelper;
 
@@ -28,7 +29,7 @@ final class SettingsManager extends Manager {
     }
 
     public function render(): void {
-        $tab = SanitizationHelper::key( wp_unslash( $_GET['tab'] ?? 'general' ), 'general' );
+        $tab = RequestHelper::get_key( 'tab', 'general' );
         $tab = $this->normalize_tab( $tab );
 
         $this->header( __( 'Settings', 'licencepress' ) );

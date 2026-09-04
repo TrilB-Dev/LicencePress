@@ -117,21 +117,6 @@ final class Assets {
 			),
 		);
 
-		if ( 'admin' === $context ) {
-			$defaults['styles'][]  = array(
-				'handle' => 'licencepress-admin-ui',
-				'src'    => LICENCEPRESS_URL . 'src/Assets/dist/css/admin.ui.css',
-                'version' => '1.0.0',
-                'deps'    => array( 'licencepress-bootstrap' ),
-			);
-			$defaults['scripts'][] = array(
-				'handle'    => 'licencepress-admin-ui',
-				'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/admin.ui.js',
-				'deps'      => array( 'licencepress-bootstrap' ),
-				'in_footer' => true,
-			);
-		}
-
 		return array( 'base' => $defaults ) + $defaults;
 	}
 
@@ -188,8 +173,30 @@ final class Assets {
 		$this->enqueue_registered(
 			'admin',
 			array(
-				'styles'  => array_merge( $base['styles'] ?? array(), $registered['styles'] ?? array() ),
-				'scripts' => array_merge( $base['scripts'] ?? array(), $registered['scripts'] ?? array() ),
+				'styles'  => array_merge(
+					$base['styles'] ?? array(),
+					array(
+						array(
+							'handle'  => 'licencepress-admin-ui',
+							'src'     => LICENCEPRESS_URL . 'src/Assets/dist/css/admin.ui.css',
+							'version' => '1.0.0',
+							'deps'    => array( 'licencepress-bootstrap' ),
+						),
+					),
+					$registered['styles'] ?? array()
+				),
+				'scripts' => array_merge(
+					$base['scripts'] ?? array(),
+					array(
+						array(
+							'handle'    => 'licencepress-admin-ui',
+							'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/admin.ui.js',
+							'deps'      => array( 'licencepress-bootstrap' ),
+							'in_footer' => true,
+						),
+					),
+					$registered['scripts'] ?? array()
+				),
 			)
 		);
 	}
@@ -229,17 +236,17 @@ final class Assets {
 			);
 		}
 		foreach ( $assets['styles'] ?? array() as $style ) {
-			wp_enqueue_style( $style['handle'], $style['src'], $style['deps'] ?? array(), $style['version'] ?? LICENCEPRESS_VERSION, $style['media'] ?? 'all' );
+			LoaderHelper::enqueue_style( $style['handle'], $style['src'], $style['deps'] ?? array(), $style['version'] ?? LICENCEPRESS_VERSION, $style['media'] ?? 'all' );
 		}
 		foreach ( $assets['scripts'] ?? array() as $script ) {
-			wp_enqueue_script( $script['handle'], $script['src'], $script['deps'] ?? array(), $script['version'] ?? LICENCEPRESS_VERSION, $script['in_footer'] ?? true );
+			LoaderHelper::enqueue_script( $script['handle'], $script['src'], $script['deps'] ?? array(), $script['version'] ?? LICENCEPRESS_VERSION, $script['in_footer'] ?? true );
 			if ( isset( $script['localize']['object_name'], $script['localize']['data'] ) ) {
-				wp_localize_script( $script['handle'], $script['localize']['object_name'], $script['localize']['data'] );
+				LoaderHelper::localize_script( $script['handle'], $script['localize']['object_name'], $script['localize']['data'] );
 			}
 		}
 
 		if ( wp_script_is( 'licencepress-admin-ui', 'enqueued' ) ) {
-			wp_localize_script(
+			LoaderHelper::localize_script(
 				'licencepress-admin-ui',
 				'licencepressOnboarding',
 				array(
@@ -260,12 +267,12 @@ final class Assets {
 			);
 			foreach ( array( 'licencepress-admin-settings', 'licencepress-admin-plugins' ) as $handle ) {
 				if ( wp_script_is( $handle, 'enqueued' ) ) {
-					wp_localize_script( $handle, 'licencepressSettingsTabs', $settings_config );
+					LoaderHelper::localize_script( $handle, 'licencepressSettingsTabs', $settings_config );
 				}
 			}
 		}
 		if ( 'licencepress-manage' === $current_page && wp_script_is( 'licencepress-admin-wiki', 'enqueued' ) ) {
-			wp_localize_script(
+			LoaderHelper::localize_script(
 				'licencepress-admin-wiki',
 				'licencepressWikiManager',
 				array(

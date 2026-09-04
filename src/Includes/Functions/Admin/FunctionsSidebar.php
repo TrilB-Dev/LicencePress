@@ -10,8 +10,8 @@ namespace LicencePress\Includes\Functions\Admin;
 
 use LicencePress\Admin\Admin;
 use LicencePress\Includes\Functions\Helpers\LoggerHelper;
-use LicencePress\Includes\Functions\Helpers\PAMHelper;
-use LicencePress\Includes\Functions\Helpers\PASMHelper;
+use LicencePress\Includes\Functions\Helpers\LPAMHelper;
+use LicencePress\Includes\Functions\Helpers\LPASMHelper;
 use LicencePress\Includes\Plugins\AdminMenuProviderInterface;
 use LicencePress\Includes\Plugins\AdminSidebarProviderInterface;
 use LicencePress\Includes\Plugins\Plugins;
@@ -38,7 +38,7 @@ final class FunctionsSidebar {
 			self::register_wordpress_menu( $menu );
 		}
 
-		foreach ( PAMHelper::filter( self::plugin_wordpress_menus() ) as $menu ) {
+		foreach ( LPAMHelper::filter( self::plugin_wordpress_menus() ) as $menu ) {
 			self::register_wordpress_menu( $menu );
 		}
 	}
@@ -50,7 +50,7 @@ final class FunctionsSidebar {
 	 */
 	public static function get_sidebar_groups(): array {
 		$groups = self::core_sidebar_groups();
-		$menus  = PASMHelper::filter( self::plugin_sidebar_menus() );
+		$menus  = LPASMHelper::filter( self::plugin_sidebar_menus() );
 
 		// Create parents first so children can target a parent in any order.
 		foreach ( $menus as $menu ) {
@@ -332,16 +332,16 @@ final class FunctionsSidebar {
 					}
 
 					if ( 'group' === ( $definition['type'] ?? '' ) ) {
-						$menus[] = PASMHelper::define( $definition['label'] ?? '', $definition['slug'] ?? '', $definition['icon'] ?? '', '', $definition['capability'] ?? '' );
+						$menus[] = LPASMHelper::define( $definition['label'] ?? '', $definition['slug'] ?? '', $definition['icon'] ?? '', '', $definition['capability'] ?? '' );
 						foreach ( $definition['items'] ?? array() as $child ) {
 							if ( is_array( $child ) ) {
-								$menus[] = PASMHelper::define( $child['label'] ?? '', self::sidebar_slug( $child ), $child['icon'] ?? '', $definition['slug'] ?? '', $child['capability'] ?? '' );
+								$menus[] = LPASMHelper::define( $child['label'] ?? '', self::sidebar_slug( $child ), $child['icon'] ?? '', $definition['slug'] ?? '', $child['capability'] ?? '' );
 							}
 						}
 						continue;
 					}
 
-					$menus[] = PASMHelper::define( $definition['label'] ?? '', self::sidebar_slug( $definition ), $definition['icon'] ?? '', $definition['parent'] ?? '', $definition['capability'] ?? '' );
+					$menus[] = LPASMHelper::define( $definition['label'] ?? '', self::sidebar_slug( $definition ), $definition['icon'] ?? '', $definition['parent'] ?? '', $definition['capability'] ?? '' );
 				}
 			} catch ( \Throwable $e ) {
 				LoggerHelper::write_log( sprintf( 'LicencePress plugin %s failed to provide sidebar menus: %s', $plugin->get_slug(), $e->getMessage() ) );

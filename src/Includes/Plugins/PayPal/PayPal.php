@@ -121,15 +121,11 @@ final class PayPal implements PluginInterface, SettingsProviderInterface, Settin
      * @return void
      */
     public function init(): void {
-        /**
-         * Init the PayPal plugin.
-         * 
-         */
         Includes::get_instance()->init();
-        /**
-         * Register the PayPal admin component with the loader.
-         */
-        $this->loader->register_component( PayPalAdmin::class, [
+
+        $paypal_admin = new PayPalAdmin();
+
+        $this->loader->register_component( $paypal_admin, [
             [
                 'type' => 'action',
                 'hook' => 'admin_init',

@@ -69,33 +69,20 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.show();
   }
 
-  const toggleCollapse = (button) => {
+  root.querySelectorAll('[data-bs-toggle="collapse"]').forEach((button) => {
     const target = root.querySelector(button.dataset.bsTarget);
-    if (!target || target.classList.contains('collapsing')) return;
+    if (!target) return;
 
-    const isOpen = target.classList.contains('show');
-    button.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
-    button.classList.toggle('collapsed', isOpen);
-    target.classList.add('collapsing');
-    target.classList.remove('collapse', 'show');
-    target.style.height = isOpen ? `${target.scrollHeight}px` : '0px';
-    target.offsetHeight;
-    target.style.height = isOpen ? '0px' : `${target.scrollHeight}px`;
+    if (!window.bootstrap?.Collapse) {
+      return;
+    }
 
-    window.setTimeout(() => {
-      target.classList.remove('collapsing');
-      target.classList.add('collapse');
-      if (!isOpen) target.classList.add('show');
-      target.style.height = '';
-    }, 350);
-  };
+    const instance = window.bootstrap.Collapse.getOrCreateInstance(target, { toggle: false });
 
-  root.addEventListener('click', (event) => {
-    const button = event.target.closest?.('[data-bs-toggle="collapse"]');
-    if (!button) return;
-
-    event.preventDefault();
-    toggleCollapse(button);
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      instance.toggle();
+    });
   });
 
   root.querySelectorAll('[data-bs-toggle="tooltip"]').forEach((element) => {

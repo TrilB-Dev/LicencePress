@@ -66,13 +66,16 @@ final class FunctionsSidebar {
 			}
 		}
 
-		foreach ( $groups as &$group ) {
-			$group['items'] = array_filter(
-				$group['items'],
-				static fn ( array $item ): bool => '' === ( $capability = sanitize_key( (string) ( $item['capability'] ?? '' ) ) ) || current_user_can( $capability )
-			);
+		foreach ( $groups as $group_key => $group ) {
+			$filtered_items = array();
+			foreach ( $group['items'] as $item ) {
+				$capability = sanitize_key( (string) ( $item['capability'] ?? '' ) );
+				if ( '' === $capability || current_user_can( $capability ) ) {
+					$filtered_items[] = $item;
+				}
+			}
+			$groups[ $group_key ]['items'] = $filtered_items;
 		}
-		unset( $group );
 
 		return array_filter( $groups, static fn ( array $group ): bool => ! empty( $group['items'] ) );
 	}
@@ -89,104 +92,160 @@ final class FunctionsSidebar {
 
 	/** @return array<int, array<string, mixed>> */
 	private static function core_wordpress_menus( Admin $admin ): array {
-		return [
-			[
+		return array(
+			array(
 				'name'       => __( 'LicencePress', 'licencepress' ),
 				'slug'       => 'licencepress',
 				'icon'       => 'dashicons-book-alt',
 				'parent'     => '',
-				'callback'   => [ $admin, 'render_dashboard' ],
+				'callback'   => array( $admin, 'render_dashboard' ),
 				'capability' => 'licencepress_admin_view',
 				'position'   => 30,
-			],
-			[
+			),
+			array(
 				'name'       => __( 'Dashboard', 'licencepress' ),
 				'slug'       => 'licencepress',
 				'parent'     => 'licencepress',
-				'callback'   => [ $admin, 'render_dashboard' ],
+				'callback'   => array( $admin, 'render_dashboard' ),
 				'capability' => 'licencepress_admin_view',
-			],
-			[
+			),
+			array(
 				'name'       => __( 'Licences', 'licencepress' ),
 				'slug'       => 'licencepress-licences',
 				'parent'     => 'licencepress',
-				'callback'   => [ $admin, 'render_licences' ],
+				'callback'   => array( $admin, 'render_licences' ),
 				'capability' => 'licencepress_licence_view',
-			],
-			[
+			),
+			array(
 				'name'       => __( 'Add Licence Type', 'licencepress' ),
 				'slug'       => 'licencepress-licence-types-add',
 				'parent'     => 'licencepress-licences',
-				'callback'   => [ $admin, 'render_licence_type_add' ],
+				'callback'   => array( $admin, 'render_licence_type_add' ),
 				'capability' => 'licencepress_licence_issue',
-			],
-			[
+			),
+			array(
 				'name'       => __( 'Manage Licence Types', 'licencepress' ),
 				'slug'       => 'licencepress-licence-types',
 				'parent'     => 'licencepress-licences',
-				'callback'   => [ $admin, 'render_licence_types' ],
+				'callback'   => array( $admin, 'render_licence_types' ),
 				'capability' => 'licencepress_licence_view',
-			],
-			[
+			),
+			array(
 				'name'       => __( 'Manage Licences', 'licencepress' ),
 				'slug'       => 'licencepress-licence-management',
 				'parent'     => 'licencepress-licences',
-				'callback'   => [ $admin, 'render_licence_management' ],
+				'callback'   => array( $admin, 'render_licence_management' ),
 				'capability' => 'licencepress_licence_view',
-			],
-			[
+			),
+			array(
 				'name'       => __( 'Settings', 'licencepress' ),
 				'slug'       => 'licencepress-settings',
 				'parent'     => 'licencepress',
-				'callback'   => [ $admin, 'render_settings' ],
+				'callback'   => array( $admin, 'render_settings' ),
 				'capability' => 'licencepress_settings_general_view',
-			],
-			[
+			),
+			array(
 				'name'       => __( 'Tools', 'licencepress' ),
 				'slug'       => 'licencepress-tools',
 				'parent'     => 'licencepress',
-				'callback'   => [ $admin, 'render_tools' ],
+				'callback'   => array( $admin, 'render_tools' ),
 				'capability' => 'licencepress_tools_debug',
-			],
-		];
+			),
+		);
 	}
 
 	/** @return array<string, array<string, mixed>> */
 	private static function core_sidebar_groups(): array {
-		return [
-			'licences' => [
+		return array(
+			'licences' => array(
 				'label' => __( 'Licences', 'licencepress' ),
 				'icon'  => 'fa-solid fa-file-signature',
-				'items' => [
-					'licencepress-licences'                           => [ 'label' => __( 'Overview', 'licencepress' ), 'icon' => 'fa-solid fa-key', 'capability' => 'licencepress_licence_view' ],
-					'licencepress-licence-types-add'                  => [ 'label' => __( 'Add Licence Type', 'licencepress' ), 'icon' => 'fa-solid fa-square-plus', 'capability' => 'licencepress_licence_issue' ],
-					'licencepress-licence-types'                      => [ 'label' => __( 'Manage Licence Types', 'licencepress' ), 'icon' => 'fa-solid fa-list', 'capability' => 'licencepress_licence_view' ],
-					'licencepress-licence-management'                 => [ 'label' => __( 'Manage Licences', 'licencepress' ), 'icon' => 'fa-solid fa-folder-open', 'capability' => 'licencepress_licence_view' ],
-					'licencepress-tools&tool=export'                 => [ 'label' => __( 'Export', 'licencepress' ), 'icon' => 'fa-solid fa-file-export', 'capability' => 'licencepress_tools_export' ],
-					'licencepress-tools&tool=import'                 => [ 'label' => __( 'Import', 'licencepress' ), 'icon' => 'fa-solid fa-file-import', 'capability' => 'licencepress_tools_import' ],
-				],
-			],
-			'settings' => [
+				'items' => array(
+					'licencepress-licences'           => array(
+						'label'      => __( 'Overview', 'licencepress' ),
+						'icon'       => 'fa-solid fa-key',
+						'capability' => 'licencepress_licence_view',
+					),
+					'licencepress-licence-types-add'  => array(
+						'label'      => __( 'Add Licence Type', 'licencepress' ),
+						'icon'       => 'fa-solid fa-square-plus',
+						'capability' => 'licencepress_licence_issue',
+					),
+					'licencepress-licence-types'      => array(
+						'label'      => __( 'Manage Licence Types', 'licencepress' ),
+						'icon'       => 'fa-solid fa-list',
+						'capability' => 'licencepress_licence_view',
+					),
+					'licencepress-licence-management' => array(
+						'label'      => __( 'Manage Licences', 'licencepress' ),
+						'icon'       => 'fa-solid fa-folder-open',
+						'capability' => 'licencepress_licence_view',
+					),
+					'licencepress-tools&tool=export'  => array(
+						'label'      => __( 'Export', 'licencepress' ),
+						'icon'       => 'fa-solid fa-file-export',
+						'capability' => 'licencepress_tools_export',
+					),
+					'licencepress-tools&tool=import'  => array(
+						'label'      => __( 'Import', 'licencepress' ),
+						'icon'       => 'fa-solid fa-file-import',
+						'capability' => 'licencepress_tools_import',
+					),
+				),
+			),
+			'settings' => array(
 				'label' => __( 'Settings', 'licencepress' ),
 				'icon'  => 'fa-solid fa-gear',
-				'items' => [
-					'licencepress-settings&tab=general'     => [ 'label' => __( 'General', 'licencepress' ), 'icon' => 'fa-solid fa-sliders', 'capability' => 'licencepress_settings_general_view' ],
-					'licencepress-settings&tab=access'      => [ 'label' => __( 'Access', 'licencepress' ), 'icon' => 'fa-solid fa-user-shield', 'capability' => 'licencepress_settings_access_view' ],
-					'licencepress-settings&tab=plugins'     => [ 'label' => __( 'Plugins', 'licencepress' ), 'icon' => 'fa-solid fa-puzzle-piece', 'capability' => 'licencepress_settings_plugins_view' ],
-					'licencepress-settings&tab=third-party' => [ 'label' => __( '3rd Party', 'licencepress' ), 'icon' => 'fa-solid fa-plug', 'capability' => 'licencepress_settings_plugins_ext_view' ],
-				],
-			],
-			'tools' => [
+				'items' => array(
+					'licencepress-settings&tab=general' => array(
+						'label'      => __( 'General', 'licencepress' ),
+						'icon'       => 'fa-solid fa-sliders',
+						'capability' => 'licencepress_settings_general_view',
+					),
+					'licencepress-settings&tab=access'  => array(
+						'label'      => __( 'Access', 'licencepress' ),
+						'icon'       => 'fa-solid fa-user-shield',
+						'capability' => 'licencepress_settings_access_view',
+					),
+					'licencepress-settings&tab=plugins' => array(
+						'label'      => __( 'Plugins', 'licencepress' ),
+						'icon'       => 'fa-solid fa-puzzle-piece',
+						'capability' => 'licencepress_settings_plugins_view',
+					),
+					'licencepress-settings&tab=third-party' => array(
+						'label'      => __( '3rd Party', 'licencepress' ),
+						'icon'       => 'fa-solid fa-plug',
+						'capability' => 'licencepress_settings_plugins_ext_view',
+					),
+				),
+			),
+			'tools'    => array(
 				'label' => __( 'Operations', 'licencepress' ),
 				'icon'  => 'fa-solid fa-toolbox',
-				'items' => [
-					'licencepress-tools&tool=debug'  => [ 'label' => __( 'Debug', 'licencepress' ), 'icon' => 'fa-solid fa-bug-slash', 'capability' => 'licencepress_tools_debug' ],
-					'licencepress-tools&tool=reset'  => [ 'label' => __( 'Reset', 'licencepress' ), 'icon' => 'fa-solid fa-rotate', 'capability' => 'licencepress_tools_reset' ],
-					'licencepress-tools&tool=import' => [ 'label' => __( 'Import', 'licencepress' ), 'icon' => 'fa-solid fa-file-import', 'capability' => 'licencepress_tools_import' ],
-					'licencepress-tools&tool=export' => [ 'label' => __( 'Export', 'licencepress' ), 'icon' => 'fa-solid fa-file-export', 'capability' => 'licencepress_tools_export' ],
-				],
-			],
-		];
+				'items' => array(
+					'licencepress-tools&tool=debug'  => array(
+						'label'      => __( 'Debug', 'licencepress' ),
+						'icon'       => 'fa-solid fa-bug-slash',
+						'capability' => 'licencepress_tools_debug',
+					),
+					'licencepress-tools&tool=reset'  => array(
+						'label'      => __( 'Reset', 'licencepress' ),
+						'icon'       => 'fa-solid fa-rotate',
+						'capability' => 'licencepress_tools_reset',
+					),
+					'licencepress-tools&tool=import' => array(
+						'label'      => __( 'Import', 'licencepress' ),
+						'icon'       => 'fa-solid fa-file-import',
+						'capability' => 'licencepress_tools_import',
+					),
+					'licencepress-tools&tool=export' => array(
+						'label'      => __( 'Export', 'licencepress' ),
+						'icon'       => 'fa-solid fa-file-export',
+						'capability' => 'licencepress_tools_export',
+					),
+				),
+			),
+		);
 	}
 
 	private static function register_wordpress_menu( array $menu ): void {
@@ -210,7 +269,7 @@ final class FunctionsSidebar {
 
 	/** @return array<int, array<string, mixed>> */
 	private static function plugin_wordpress_menus(): array {
-		$menus = [];
+		$menus = array();
 
 		foreach ( Plugins::get_instance()->get_registered_plugins() as $plugin ) {
 			if ( ! $plugin instanceof AdminMenuProviderInterface || ! $plugin->is_active() ) {
@@ -224,10 +283,10 @@ final class FunctionsSidebar {
 					}
 
 					$menus[] = self::normalize_wordpress_menu( $definition );
-					foreach ( $definition['children'] ?? [] as $child ) {
+					foreach ( $definition['children'] ?? array() as $child ) {
 						if ( is_array( $child ) ) {
 							$child['parent'] = $definition['menu_slug'] ?? '';
-							$menus[] = self::normalize_wordpress_menu( $child );
+							$menus[]         = self::normalize_wordpress_menu( $child );
 						}
 					}
 				}
@@ -241,7 +300,7 @@ final class FunctionsSidebar {
 
 	/** @param array<string, mixed> $definition @return array<string, mixed> */
 	private static function normalize_wordpress_menu( array $definition ): array {
-		return [
+		return array(
 			'name'       => $definition['menu_title'] ?? $definition['page_title'] ?? '',
 			'slug'       => $definition['menu_slug'] ?? '',
 			'icon'       => $definition['icon'] ?? 'dashicons-admin-generic',
@@ -249,7 +308,7 @@ final class FunctionsSidebar {
 			'callback'   => $definition['callback'] ?? null,
 			'capability' => $definition['capability'] ?? 'manage_options',
 			'position'   => $definition['position'] ?? null,
-		];
+		);
 	}
 
 	private static function admin_parent_slug( string $parent ): string {
@@ -259,7 +318,7 @@ final class FunctionsSidebar {
 
 	/** @return array<int, array<string, mixed>> */
 	private static function plugin_sidebar_menus(): array {
-		$menus = [];
+		$menus = array();
 
 		foreach ( Plugins::get_instance()->get_registered_plugins() as $plugin ) {
 			if ( ! $plugin instanceof AdminSidebarProviderInterface || ! $plugin->is_active() ) {
@@ -274,7 +333,7 @@ final class FunctionsSidebar {
 
 					if ( 'group' === ( $definition['type'] ?? '' ) ) {
 						$menus[] = PASMHelper::define( $definition['label'] ?? '', $definition['slug'] ?? '', $definition['icon'] ?? '', '', $definition['capability'] ?? '' );
-						foreach ( $definition['items'] ?? [] as $child ) {
+						foreach ( $definition['items'] ?? array() as $child ) {
 							if ( is_array( $child ) ) {
 								$menus[] = PASMHelper::define( $child['label'] ?? '', self::sidebar_slug( $child ), $child['icon'] ?? '', $definition['slug'] ?? '', $child['capability'] ?? '' );
 							}
@@ -295,7 +354,7 @@ final class FunctionsSidebar {
 	/** @param array<string, mixed> $definition */
 	private static function sidebar_slug( array $definition ): string {
 		$page  = (string) ( $definition['page'] ?? $definition['slug'] ?? '' );
-		$query = $definition['query'] ?? [];
+		$query = $definition['query'] ?? array();
 
 		if ( ! is_array( $query ) || empty( $query ) ) {
 			return $page;
@@ -311,7 +370,11 @@ final class FunctionsSidebar {
 		$icon  = (string) ( $menu['icon'] ?? '' );
 
 		if ( '' !== $slug && '' !== $label && '' !== $icon ) {
-			$groups[ $slug ] = [ 'label' => $label, 'icon' => $icon, 'items' => [] ];
+			$groups[ $slug ] = array(
+				'label' => $label,
+				'icon'  => $icon,
+				'items' => array(),
+			);
 		}
 	}
 
@@ -323,7 +386,11 @@ final class FunctionsSidebar {
 
 		$capability = sanitize_key( (string) ( $menu['capability'] ?? '' ) );
 		if ( isset( $groups[ $parent ] ) && '' !== $slug && '' !== $label && '' !== $icon && ( '' === $capability || current_user_can( $capability ) ) ) {
-			$groups[ $parent ]['items'][ $slug ] = [ 'label' => $label, 'icon' => $icon, 'capability' => $capability ];
+			$groups[ $parent ]['items'][ $slug ] = array(
+				'label'      => $label,
+				'icon'       => $icon,
+				'capability' => $capability,
+			);
 		}
 	}
 

@@ -36,7 +36,9 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^1.2",
         "wp-coding-standards/wpcs": "^3.4",
         "yoast/phpunit-polyfills": "^1.1",
-        "yoast/wp-test-utils": "^1.2"
+        "yoast/wp-test-utils": "^1.2",
+        "phpcompatibility/php-compatibility": "^9.3",
+        "phpcompatibility/phpcompatibility-wp": "^2.1"
     },
     "scripts": {
         "test": "php ./vendor/bin/phpunit --configuration phpunit.xml.dist",

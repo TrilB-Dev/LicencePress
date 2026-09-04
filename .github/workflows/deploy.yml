@@ -110,6 +110,7 @@ jobs:
           rm -f phpunit.xml.dist || true
           rm -f phpcs.xml.dist || true
           rm -f webpack.config.js || true
+          rm -f .wp-env.json || true
 
       - name: Add all remaining files
         shell: bash

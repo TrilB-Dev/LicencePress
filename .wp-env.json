@@ -9,5 +9,5 @@
     "SCRIPT_DEBUG": true,
     "FS_METHOD": "direct"
   },
-  "testsEnvironment": false
+  "testsEnvironment": true
 }

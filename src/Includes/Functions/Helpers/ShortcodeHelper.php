@@ -18,17 +18,17 @@ final class ShortcodeHelper {
 	 * @param array<string, mixed> $metadata Optional descriptor metadata.
 	 * @return array<string, mixed>
 	 */
-	public static function define( string $tag, callable $callback, array $attributes = [], array $metadata = [] ): array {
+	public static function define( string $tag, callable $callback, array $attributes = array(), array $metadata = array() ): array {
 		return array_merge(
-			[
-				'tag' => $tag,
-				'callback' => $callback,
-				'attributes' => $attributes,
+			array(
+				'tag'         => $tag,
+				'callback'    => $callback,
+				'attributes'  => $attributes,
 				'description' => '',
-				'category' => '',
-				'enclosing' => false,
-				'tinymce' => false,
-			],
+				'category'    => '',
+				'enclosing'   => false,
+				'tinymce'     => false,
+			),
 			$metadata
 		);
 	}

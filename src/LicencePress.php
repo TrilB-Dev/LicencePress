@@ -13,6 +13,7 @@
  * @subpackage LicencePress/Includes
  */
 namespace LicencePress;
+
 use LicencePress\Admin\Admin;
 use LicencePress\Assets\Assets;
 use LicencePress\Includes\Includes;
@@ -26,7 +27,7 @@ use LicencePress\API\Routes;
 use LicencePress\Includes\Analytics\Analytics;
 use LicencePress\Includes\Licence\LicenceManager;
 use LicencePress\Includes\Plugins\Plugins;
-use LicencePress\Public\Frontend;
+use LicencePress\Frontend\Frontend;
 /**
  * The core plugin class.
  *
@@ -159,12 +160,11 @@ class LicencePress {
 	public function __construct( string $licencepress_file = LICENCEPRESS_FILE, string $licencepress_name = LICENCEPRESS_NAME, string $version = LICENCEPRESS_VERSION ) {
 		$this->licencepress_file = $licencepress_file;
 		$this->licencepress_name = sanitize_key( $licencepress_name );
-		$this->version = $version;
+		$this->version           = $version;
 
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_core_hooks();
-
 	}
 
 	/**
@@ -185,7 +185,6 @@ class LicencePress {
 	 */
 	private function load_dependencies() {
 		$this->loader = new LoaderHelper();
-
 	}
 
 	/**
@@ -202,7 +201,6 @@ class LicencePress {
 		$plugin_i18n = new I18n( $this->licencepress_name, null, $this->licencepress_file );
 
 		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-
 	}
 
 	/**
@@ -214,13 +212,13 @@ class LicencePress {
 	 */
 	private function define_core_hooks() {
 		$this->includes = Includes::get_instance();
-		$this->assets = new Assets();
+		$this->assets   = new Assets();
 		$this->assets->register();
-		$this->admin = new Admin( $this->assets );
-		$this->frontend = new Frontend();
-		$this->plugins = Plugins::get_instance();
-		$this->export_functions = new FunctionsExport();
-		$this->import_functions = new FunctionsImport();
+		$this->admin              = new Admin( $this->assets );
+		$this->frontend           = new Frontend();
+		$this->plugins            = Plugins::get_instance();
+		$this->export_functions   = new FunctionsExport();
+		$this->import_functions   = new FunctionsImport();
 		$this->settings_functions = new FunctionsSettings( new FunctionsPlugins() );
 
 		$this->loader->add_action( 'init', $this->includes, 'init' );
@@ -344,5 +342,4 @@ class LicencePress {
 	public function get_version() {
 		return $this->version;
 	}
-
 }

@@ -1,5 +1,8 @@
 <?php
 
+// phpcs:disable WordPress.Files.FileName, WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.json_encode_json_encode, WordPress.WP.AlternativeFunctions.parse_url_parse_url, WordPress.WP.AlternativeFunctions.strip_tags_strip_tags, WordPress.WP.GlobalVariablesOverride.Prohibited, Generic.CodeAnalysis.UnusedFunctionParameter, PEAR.NamingConventions.ValidClassName, Squiz.Commenting.VariableComment, Squiz.Commenting.ClassComment, Squiz.Commenting.FileComment, Squiz.Classes.ClassNamePrefix
+// phpcs:disable Generic.Files.OneObjectStructurePerFile, Universal.Files.SeparateFunctionsFromOO.Mixed
+
 declare( strict_types=1 );
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -92,17 +95,18 @@ if ( ! defined( 'ARRAY_A' ) ) {
 	define( 'ARRAY_A', 1 );
 }
 
+// phpcs:ignore Generic.Files.OneObjectStructurePerFile
 if ( ! class_exists( 'wpdb' ) ) {
 	class wpdb {
 		public string $prefix = 'wp_';
 		public int $insert_id = 0;
-		public array $tables = [];
+		public array $tables  = array();
 
 		public function prepare( $query, ...$args ) {
 			$formatted = $query;
 			foreach ( $args as $arg ) {
 				$replacement = is_numeric( $arg ) ? (string) $arg : "'" . addslashes( (string) $arg ) . "'";
-				$formatted = preg_replace( '/%s|%d/', $replacement, $formatted, 1 );
+				$formatted   = preg_replace( '/%s|%d/', $replacement, $formatted, 1 );
 			}
 			return $formatted;
 		}
@@ -113,10 +117,10 @@ if ( ! class_exists( 'wpdb' ) ) {
 		}
 
 		public function get_var( $query ) {
-			$matches = [];
+			$matches = array();
 			if ( preg_match( '/FROM\s+`?([A-Za-z0-9_]+)`?/i', $query, $matches ) ) {
 				$table = $matches[1];
-				$rows = $this->tables[ $table ] ?? [];
+				$rows  = $this->tables[ $table ] ?? array();
 				if ( empty( $rows ) ) {
 					return null;
 				}
@@ -130,15 +134,15 @@ if ( ! class_exists( 'wpdb' ) ) {
 		}
 
 		public function get_results( $query, $output = ARRAY_A ) {
-			$matches = [];
+			$matches = array();
 			if ( ! preg_match( '/FROM\s+`?([A-Za-z0-9_]+)`?/i', $query, $matches ) ) {
-				return [];
+				return array();
 			}
 
 			$table = $matches[1];
-			$rows  = $this->tables[ $table ] ?? [];
+			$rows  = $this->tables[ $table ] ?? array();
 			if ( empty( $rows ) ) {
-				return [];
+				return array();
 			}
 
 			if ( stripos( $query, 'WHERE' ) !== false && stripos( $query, 'token_hash' ) !== false ) {
@@ -146,16 +150,16 @@ if ( ! class_exists( 'wpdb' ) ) {
 				$expected = $matches[1] ?? '';
 				foreach ( $rows as $row ) {
 					if ( ( $row['token_hash'] ?? '' ) === $expected ) {
-						return [ $row ];
+						return array( $row );
 					}
 				}
-				return [];
+				return array();
 			}
 
 			if ( stripos( $query, 'WHERE' ) !== false && stripos( $query, 'customer_id' ) !== false ) {
 				preg_match( "/customer_id\s*=\s*'([^']+)'/i", $query, $matches );
 				$expected = $matches[1] ?? '';
-				$filtered = [];
+				$filtered = array();
 				foreach ( $rows as $row ) {
 					if ( ( $row['customer_id'] ?? '' ) === $expected ) {
 						$filtered[] = $row;
@@ -167,21 +171,21 @@ if ( ! class_exists( 'wpdb' ) ) {
 			return $rows;
 		}
 
-		public function insert( $table, $data, $format = [] ) {
-			$rows = $this->tables[ $table ] ?? [];
-			$id = count( $rows ) + 1;
-			$record = [ 'id' => $id ];
+		public function insert( $table, $data, $format = array() ) {
+			$rows   = $this->tables[ $table ] ?? array();
+			$id     = count( $rows ) + 1;
+			$record = array( 'id' => $id );
 			foreach ( $data as $key => $value ) {
 				$record[ $key ] = $value;
 			}
-			$rows[] = $record;
+			$rows[]                 = $record;
 			$this->tables[ $table ] = $rows;
-			$this->insert_id = $id;
+			$this->insert_id        = $id;
 			return $id;
 		}
 
-		public function update( $table, $data, $where, $format = [], $where_format = [] ) {
-			$rows = $this->tables[ $table ] ?? [];
+		public function update( $table, $data, $where, $format = array(), $where_format = array() ) {
+			$rows = $this->tables[ $table ] ?? array();
 			foreach ( $rows as $index => $row ) {
 				if ( (int) ( $where['id'] ?? 0 ) === (int) ( $row['id'] ?? 0 ) ) {
 					foreach ( $data as $key => $value ) {
@@ -194,13 +198,13 @@ if ( ! class_exists( 'wpdb' ) ) {
 			return 0;
 		}
 
-		public function replace( $table, $data, $format = [] ) {
-			$rows = $this->tables[ $table ] ?? [];
+		public function replace( $table, $data, $format = array() ) {
+			$rows  = $this->tables[ $table ] ?? array();
 			$found = false;
 			foreach ( $rows as $index => $row ) {
 				if ( ( $row['setting_group'] ?? '' ) === ( $data['setting_group'] ?? '' ) ) {
 					$rows[ $index ] = array_merge( $row, $data );
-					$found = true;
+					$found          = true;
 					break;
 				}
 			}
@@ -211,9 +215,9 @@ if ( ! class_exists( 'wpdb' ) ) {
 			return 1;
 		}
 
-		public function delete( $table, $where, $where_format = [] ) {
-			$rows = $this->tables[ $table ] ?? [];
-			$filtered = [];
+		public function delete( $table, $where, $where_format = array() ) {
+			$rows     = $this->tables[ $table ] ?? array();
+			$filtered = array();
 			foreach ( $rows as $row ) {
 				if ( ( $where['setting_group'] ?? '' ) !== ( $row['setting_group'] ?? '' ) ) {
 					$filtered[] = $row;

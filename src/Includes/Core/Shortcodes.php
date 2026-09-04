@@ -11,21 +11,21 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Shortcodes {
 	/** @var array<string, array<string, mixed>> */
-	private array $definitions = [];
+	private array $definitions = array();
 
 	/**
 	 * @param array<string, mixed> $definition Shortcode definition.
 	 */
 	public function register( array $definition, bool $replace = false ): bool {
 		$definition = $this->normalize_definition( $definition );
-		$tag = $definition['tag'];
+		$tag        = $definition['tag'];
 
 		if ( isset( $this->definitions[ $tag ] ) && ! $replace ) {
 			return false;
 		}
 
 		$this->definitions[ $tag ] = $definition;
-		add_shortcode( $tag, [ $this, 'process' ] );
+		add_shortcode( $tag, array( $this, 'process' ) );
 
 		return true;
 	}
@@ -35,7 +35,7 @@ final class Shortcodes {
 	 * @return array<int, string> Registered tags.
 	 */
 	public function register_many( array $definitions, bool $replace = false ): array {
-		$registered = [];
+		$registered = array();
 
 		foreach ( $definitions as $definition ) {
 			if ( $this->register( $definition, $replace ) ) {
@@ -79,50 +79,57 @@ final class Shortcodes {
 	 * @param string|null  $content Enclosed content, or null for self-closing use.
 	 * @param string       $tag Shortcode tag.
 	 */
-	public function process( $atts = [], $content = null, string $tag = '' ): string {
-		$tag = $this->normalize_tag( $tag );
+	public function process( $atts = array(), $content = null, string $tag = '' ): string {
+		$tag        = $this->normalize_tag( $tag );
 		$definition = $this->definition( $tag );
 		if ( null === $definition ) {
 			return '';
 		}
 
-		$attributes = is_array( $atts ) ? array_change_key_case( $atts, CASE_LOWER ) : [];
-		$defaults = $definition['attributes'];
+		$attributes = is_array( $atts ) ? array_change_key_case( $atts, CASE_LOWER ) : array();
+		$defaults   = $definition['attributes'];
 		$attributes = function_exists( 'shortcode_atts' )
 			? shortcode_atts( $defaults, $attributes, $tag )
 			: array_merge( $defaults, $attributes );
-		$output = call_user_func( $definition['callback'], $attributes, $content, $tag );
+		$output     = call_user_func( $definition['callback'], $attributes, $content, $tag );
 
 		return is_string( $output ) ? $output : (string) $output;
 	}
 
-	/** @return array<string, mixed> */
+	/**
+	 * @param array<string, mixed> $definition Shortcode definition.
+	 * @return array<string, mixed>
+	 * @throws \InvalidArgumentException If a shortcode definition is invalid.
+	 */
 	private function normalize_definition( array $definition ): array {
 		$tag = $this->normalize_tag( $definition['tag'] ?? '' );
 		if ( '' === $tag ) {
 			throw new \InvalidArgumentException( 'A shortcode tag is required.' );
 		}
 		if ( ! isset( $definition['callback'] ) || ! is_callable( $definition['callback'] ) ) {
-            throw new \InvalidArgumentException( sprintf( 'Shortcode callback for "%s" must be callable.', wp_strip_all_tags( $tag ) ) );
-        }
+			throw new \InvalidArgumentException( sprintf( 'Shortcode callback for "%s" must be callable.', wp_strip_all_tags( $tag ) ) );
+		}
 
-        $attributes = $definition['attributes'] ?? $definition['defaults'] ?? [];
-        if ( ! is_array( $attributes ) ) {
-            throw new \InvalidArgumentException( sprintf( 'Shortcode attributes for "%s" must be an array.', wp_strip_all_tags( $tag ) ) );
-        }
+		$attributes = $definition['attributes'] ?? $definition['defaults'] ?? array();
+		if ( ! is_array( $attributes ) ) {
+			throw new \InvalidArgumentException( sprintf( 'Shortcode attributes for "%s" must be an array.', wp_strip_all_tags( $tag ) ) );
+		}
 
-        return array_merge(
-			[
-				'tag' => $tag,
-				'callback' => $definition['callback'],
-				'attributes' => array_change_key_case( $attributes, CASE_LOWER ),
+		return array_merge(
+			array(
+				'tag'         => $tag,
+				'callback'    => $definition['callback'],
+				'attributes'  => array_change_key_case( $attributes, CASE_LOWER ),
 				'description' => '',
-				'category' => '',
-				'enclosing' => false,
-				'tinymce' => false,
-			],
+				'category'    => '',
+				'enclosing'   => false,
+				'tinymce'     => false,
+			),
 			$definition,
-			[ 'tag' => $tag, 'attributes' => array_change_key_case( $attributes, CASE_LOWER ) ]
+			array(
+				'tag'        => $tag,
+				'attributes' => array_change_key_case( $attributes, CASE_LOWER ),
+			)
 		);
 	}
 

@@ -51,7 +51,11 @@ final class Sidebar {
 								<div id="licencepress-group-<?php echo esc_attr( $key ); ?>" class="collapse <?php echo $expanded ? 'show' : ''; ?>">
 									<div class="nav flex-column licencepress-sidebar-group-items">
 										<?php foreach ( $group['items'] as $slug => $item ) : ?>
-											<?php $page = self::item_page( $slug ); $query = self::item_query( $slug ); $active = self::item_is_active( $page, $query, $current ); ?>
+											<?php
+											$page   = self::item_page( $slug );
+											$query  = self::item_query( $slug );
+											$active = self::item_is_active( $page, $query, $current );
+											?>
 											<a class="nav-link <?php echo $active ? 'active' : ''; ?>" <?php echo $active ? 'aria-current="page"' : ''; ?> href="<?php echo esc_url( self::item_url( $page, $query ) ); ?>"><?php echo self::render_icon_markup( (string) ( $item['icon'] ?? '' ), true ); ?><?php echo esc_html( $item['label'] ); ?></a>
 										<?php endforeach; ?>
 									</div>
@@ -110,7 +114,7 @@ final class Sidebar {
 
 	/** @return array<string, string> */
 	private static function item_query( string $slug ): array {
-		$query = [];
+		$query = array();
 		parse_str( (string) strstr( $slug, '&' ), $query );
 		return $query;
 	}
@@ -118,7 +122,7 @@ final class Sidebar {
 	/** @param array<string, string> $query */
 	private static function item_url( string $page, array $query ): string {
 		$query_string = empty( $query ) ? '' : '?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 );
-		if ( in_array( $page, [ 'edit.php', 'post-new.php' ], true ) ) {
+		if ( in_array( $page, array( 'edit.php', 'post-new.php' ), true ) ) {
 			return admin_url( $page . $query_string );
 		}
 

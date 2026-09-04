@@ -21,32 +21,32 @@ final class Header {
 	 * @return void
 	 */
 	public static function render(): void {
-		$links = [
-					[ 
-					'label' => __( 'Documentation', 'licencepress' ), 
-					'url' => 'https://github.com/TrilB-Dev/LicencePress'
-					],
-					[ 
-					'label' => __( 'Community', 'licencepress' ), 
-					'url' => 'https://github.com/TrilB-Dev/LicencePress/discussions'
-					],
-					[ 
-					'label' => __( 'Extensions', 'licencepress' ), 
-					'url' => 'https://github.com/TrilB-Dev/LicencePress'
-					],
-					[ 
-					'label' => __( 'Support', 'licencepress' ), 
-					'url' => 'https://github.com/TrilB-Dev/LicencePress/issues'
-					],
-					[ 
-					'label' => __( 'Roadmap', 'licencepress' ), 
-					'url' => 'https://github.com/TrilB-Dev/LicencePress/issues'
-					],
-					[ 
-					'label' => __( 'Account', 'licencepress' ), 
-					'url' => 'https://github.com/TrilB-Dev/LicencePress'
-					],
-			];
+		$links = array(
+			array(
+				'label' => __( 'Documentation', 'licencepress' ),
+				'url'   => 'https://github.com/TrilB-Dev/LicencePress',
+			),
+			array(
+				'label' => __( 'Community', 'licencepress' ),
+				'url'   => 'https://github.com/TrilB-Dev/LicencePress/discussions',
+			),
+			array(
+				'label' => __( 'Extensions', 'licencepress' ),
+				'url'   => 'https://github.com/TrilB-Dev/LicencePress',
+			),
+			array(
+				'label' => __( 'Support', 'licencepress' ),
+				'url'   => 'https://github.com/TrilB-Dev/LicencePress/issues',
+			),
+			array(
+				'label' => __( 'Roadmap', 'licencepress' ),
+				'url'   => 'https://github.com/TrilB-Dev/LicencePress/issues',
+			),
+			array(
+				'label' => __( 'Account', 'licencepress' ),
+				'url'   => 'https://github.com/TrilB-Dev/LicencePress',
+			),
+		);
 		?>
 		<header class="licencepress-header border-bottom">
 			<nav class="navbar navbar-expand-lg" aria-label="<?php esc_attr_e( 'LicencePress header navigation', 'licencepress' ); ?>"> 

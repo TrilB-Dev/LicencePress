@@ -17,5 +17,10 @@
         <include>
             <directory suffix=".php">src</directory>
         </include>
+        <exclude>
+            <directory suffix=".php">src/Includes/Plugins/*/Assets</directory>
+            <directory suffix=".php">src/Includes/Plugins/*/Assets/dist</directory>
+            <directory suffix=".php">src/Includes/Plugins/*/Assets/tinymce</directory>
+        </exclude>
     </coverage>
 </phpunit>

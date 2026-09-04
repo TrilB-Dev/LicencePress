@@ -3,7 +3,7 @@
 namespace LicencePress\Includes\Core\WP;
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 /**
@@ -13,49 +13,52 @@ if ( ! defined( 'ABSPATH' ) ) {
  * than modifying the core schema registry.
  */
 final class Database {
-    /** @var array<string, callable> */
-    private static array $registered_tables = [];
+	/** @var array<string, callable> */
+	private static array $registered_tables = array();
 
-    /**
-     * Register an extension table schema for the next installation/update.
-     *
-     * The callback receives the fully prefixed table name and charset/collation
-     * string, and must return a dbDelta-compatible CREATE TABLE statement.
-     *
-     * @param string   $table    Unprefixed LicencePress table suffix.
-     * @param callable $schema   Schema callback.
-     * @return bool Whether the table was registered.
-     */
-    public static function register_table( string $table, callable $schema ): bool {
-        $table = sanitize_key( $table );
-        if ( '' === $table || in_array( $table, [ 'settings', 'analytics' ], true ) ) {
-            return false;
-        }
+	/**
+	 * Register an extension table schema for the next installation/update.
+	 *
+	 * The callback receives the fully prefixed table name and charset/collation
+	 * string, and must return a dbDelta-compatible CREATE TABLE statement.
+	 *
+	 * @param string   $table    Unprefixed LicencePress table suffix.
+	 * @param callable $schema   Schema callback.
+	 * @return bool Whether the table was registered.
+	 */
+	public static function register_table( string $table, callable $schema ): bool {
+		$table = sanitize_key( $table );
+		if ( '' === $table || in_array( $table, array( 'settings', 'analytics' ), true ) ) {
+			return false;
+		}
 
-        self::$registered_tables[ $table ] = $schema;
-        return true;
-    }
+		self::$registered_tables[ $table ] = $schema;
+		return true;
+	}
 
-    /**
-     * Install or update all LicencePress-owned tables.
-     *
-     * @return void
-     */
-    public static function install(): void {
-        global $wpdb;
+	/**
+	 * Install or update all LicencePress-owned tables.
+	 *
+	 * @return void
+	 */
+	public static function install(): void {
+		global $wpdb;
 
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
-        $charset = $wpdb->get_charset_collate();
-        dbDelta( "CREATE TABLE {$wpdb->prefix}licencepress_settings (
+		$charset = $wpdb->get_charset_collate();
+		dbDelta(
+			"CREATE TABLE {$wpdb->prefix}licencepress_settings (
             setting_group varchar(100) NOT NULL,
             setting_value longtext NOT NULL,
             autoload varchar(20) NOT NULL DEFAULT 'yes',
             updated_at datetime NOT NULL,
             PRIMARY KEY  (setting_group)
-        ) {$charset};" );
+        ) {$charset};"
+		);
 
-        dbDelta( "CREATE TABLE {$wpdb->prefix}licencepress_analytics (
+		dbDelta(
+			"CREATE TABLE {$wpdb->prefix}licencepress_analytics (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             post_id bigint(20) unsigned NOT NULL,
             user_id bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -64,26 +67,27 @@ final class Database {
             KEY post_id (post_id),
             KEY viewed_at (viewed_at),
             KEY post_viewed_at (post_id, viewed_at)
-        ) {$charset};" );
+        ) {$charset};"
+		);
 
-        foreach ( self::$registered_tables as $table => $schema ) {
-            $statement = call_user_func( $schema, self::table_name( $table ), $charset );
-            if ( is_string( $statement ) && '' !== trim( $statement ) ) {
-                dbDelta( $statement );
-            }
-        }
+		foreach ( self::$registered_tables as $table => $schema ) {
+			$statement = call_user_func( $schema, self::table_name( $table ), $charset );
+			if ( is_string( $statement ) && '' !== trim( $statement ) ) {
+				dbDelta( $statement );
+			}
+		}
 
-        update_option( 'licencepress_db_version', defined( 'WIKIPRESS_VERSION' ) ? WIKIPRESS_VERSION : '1.0.0' );
-    }
+		update_option( 'licencepress_db_version', defined( 'WIKIPRESS_VERSION' ) ? WIKIPRESS_VERSION : '1.0.0' );
+	}
 
-    /**
-     * Return a prefixed LicencePress table name.
-     *
-     * @param string $table Unprefixed table suffix.
-     * @return string Full table name.
-     */
-    public static function table_name( string $table ): string {
-        global $wpdb;
-        return $wpdb->prefix . 'licencepress_' . sanitize_key( $table );
-    }
+	/**
+	 * Return a prefixed LicencePress table name.
+	 *
+	 * @param string $table Unprefixed table suffix.
+	 * @return string Full table name.
+	 */
+	public static function table_name( string $table ): string {
+		global $wpdb;
+		return $wpdb->prefix . 'licencepress_' . sanitize_key( $table );
+	}
 }

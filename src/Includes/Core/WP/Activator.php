@@ -5,6 +5,7 @@ namespace LicencePress\Includes\Core\WP;
 use LicencePress\Includes\Core\Capabilities;
 use LicencePress\Includes\Plugins\Plugins;
 use LicencePress\Includes\Settings\SettingsManager;
+use LicencePress\Includes\Settings\Settings;
 use LicencePress\Includes\Licence\LicenceRepository;
 use LicencePress\Includes\Licence\KeyManager;
 use LicencePress\Includes\Core\PostType;
@@ -35,6 +36,11 @@ final class Activator {
      * @return void
      */
     public static function activate( ?array $callbacks = null ): void {
+        Settings::register_group( 'setup', [
+            'first_install_complete' => false,
+            'onboarding_steps_complete' => 0,
+        ] );
+
         LicenceRepository::register_schema();
         KeyManager::ensure_configured();
         Plugins::get_instance()->init();

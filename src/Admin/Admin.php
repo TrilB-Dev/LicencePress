@@ -99,6 +99,7 @@ final class Admin {
             [ 'type' => 'action', 'hook' => 'wp_ajax_licencepress_save_licence_type', 'callback' => 'save_licence_type' ],
             [ 'type' => 'action', 'hook' => 'wp_ajax_licencepress_toggle_licence_type_retired', 'callback' => 'toggle_licence_type_retired' ],
             [ 'type' => 'action', 'hook' => 'wp_ajax_licencepress_delete_licence_type', 'callback' => 'delete_licence_type' ],
+            [ 'type' => 'action', 'hook' => 'wp_ajax_licencepress_dismiss_onboarding', 'callback' => 'dismiss_onboarding' ],
         ] );
         $this->loader->register_component( $this->plugname_functions, [
             [ 'type' => 'action', 'hook' => 'wp_ajax_licencepress_save_plugname_settings', 'callback' => 'save_plugname_settings' ],
@@ -128,6 +129,18 @@ final class Admin {
      */
     public function render_dashboard(): void {
         $this->dashboard_manager->render();
+    }
+
+    public function dismiss_onboarding(): void {
+        if ( ! AjaxHelper::authorized( 'licencepress_dismiss_onboarding', 'manage_options' ) ) {
+            AjaxHelper::unauthorized( __( 'You are not authorized to dismiss the LicencePress onboarding modal.', 'licencepress' ) );
+        }
+
+        Settings::register_group( 'setup', [ 'first_install_complete' => false ] );
+        Settings::set( 'first_install_complete', true );
+        Settings::set( 'onboarding_steps_complete', 3 );
+
+        AjaxHelper::success( [ 'dismissed' => true ] );
     }
     /**
      * Render the manage plugnames page.

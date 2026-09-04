@@ -1,6 +1,74 @@
 document.addEventListener('DOMContentLoaded', () => {
   const root = document;
 
+  const onboardingModal = root.getElementById('licencepress-onboarding-modal');
+  if (onboardingModal) {
+    const modal = window.bootstrap?.Modal.getOrCreateInstance(onboardingModal);
+    const steps = [...onboardingModal.querySelectorAll('[data-step]')];
+    const nextButton = onboardingModal.querySelector('[data-role="next"]');
+    const prevButton = onboardingModal.querySelector('[data-role="prev"]');
+    const skipButton = onboardingModal.querySelector('[data-role="skip"]');
+    const finishButton = onboardingModal.querySelector('[data-role="finish"]');
+
+    let currentStep = 1;
+
+    const updateStep = () => {
+      steps.forEach((step) => {
+        const stepNumber = Number(step.dataset.step || 1);
+        step.classList.toggle('d-none', stepNumber !== currentStep);
+      });
+
+      prevButton.classList.toggle('d-none', currentStep === 1);
+      nextButton.classList.toggle('d-none', currentStep === steps.length);
+      finishButton.classList.toggle('d-none', currentStep !== steps.length);
+    };
+
+    const dismissOnboarding = () => {
+      const config = window.licencepressOnboarding || {};
+      const ajaxUrl = config.ajaxUrl || window.ajaxurl || '/wp-admin/admin-ajax.php';
+      const formData = new URLSearchParams({
+        action: 'licencepress_dismiss_onboarding',
+        nonce: config.nonce || '',
+      });
+
+      fetch(ajaxUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        },
+        credentials: 'same-origin',
+        body: formData.toString(),
+      }).catch(() => undefined).finally(() => {
+        modal.hide();
+      });
+    };
+
+    nextButton.addEventListener('click', () => {
+      if (currentStep < steps.length) {
+        currentStep += 1;
+        updateStep();
+        return;
+      }
+
+      dismissOnboarding();
+    });
+
+    prevButton.addEventListener('click', () => {
+      currentStep = Math.max(1, currentStep - 1);
+      updateStep();
+    });
+
+    skipButton.addEventListener('click', dismissOnboarding);
+    finishButton.addEventListener('click', dismissOnboarding);
+    onboardingModal.addEventListener('hidden.bs.modal', () => {
+      onboardingModal.classList.remove('show');
+      onboardingModal.setAttribute('aria-hidden', 'true');
+    });
+
+    updateStep();
+    modal.show();
+  }
+
   const toggleCollapse = (button) => {
     const target = root.querySelector(button.dataset.bsTarget);
     if (!target || target.classList.contains('collapsing')) return;

@@ -11,6 +11,7 @@ use LicencePress\Assets\Assets;
 use LicencePress\Includes\Licence\LicenceManager;
 use LicencePress\Includes\Plugins\DashboardProviderInterface;
 use LicencePress\Includes\Plugins\Plugins;
+use LicencePress\Includes\Settings\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -26,9 +27,106 @@ final class DashboardManager extends Manager {
 
     public function render(): void {
         $this->header( __( 'Licence Dashboard', 'licencepress' ) );
+
+        if ( ! Settings::get_bool( 'first_install_complete', false ) ) {
+            $this->render_onboarding_modal();
+        }
+
         $this->render_summary();
         $this->render_cards();
         $this->footer();
+    }
+
+    private function render_onboarding_modal(): void {
+        Settings::register_group( 'setup', [
+            'first_install_complete' => false,
+            'onboarding_steps_complete' => 0,
+        ] );
+        ?>
+        <div class="modal fade licencepress-onboarding-modal" id="licencepress-onboarding-modal" tabindex="-1" aria-labelledby="licencepress-onboarding-title" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header border-0 pb-0">
+                        <div>
+                            <span class="badge text-bg-primary-subtle text-primary mb-2"><?php esc_html_e( 'First-time setup', 'licencepress' ); ?></span>
+                            <h2 class="h3 mb-0" id="licencepress-onboarding-title"><?php esc_html_e( 'Welcome to LicencePress', 'licencepress' ); ?></h2>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php esc_attr_e( 'Close onboarding', 'licencepress' ); ?>"></button>
+                    </div>
+                    <div class="modal-body py-4">
+                        <div class="licencepress-onboarding-step" data-step="1">
+                            <p class="text-secondary mb-3"><?php esc_html_e( 'Let’s configure the essentials for your first licence workflow.', 'licencepress' ); ?></p>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="card h-100 border-0 bg-light">
+                                        <div class="card-body d-flex flex-column">
+                                            <div class="text-primary mb-2"><span class="dashicons dashicons-admin-generic"></span></div>
+                                            <h3 class="h6"><?php esc_html_e( 'General settings', 'licencepress' ); ?></h3>
+                                            <p class="small text-secondary flex-grow-1 mb-3"><?php esc_html_e( 'Review product defaults, validation rules, and licence behaviour.', 'licencepress' ); ?></p>
+                                            <a class="btn btn-sm btn-outline-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=licencepress-settings&tab=general' ) ); ?>"><?php esc_html_e( 'Open settings', 'licencepress' ); ?></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card h-100 border-0 bg-light">
+                                        <div class="card-body d-flex flex-column">
+                                            <div class="text-primary mb-2"><span class="dashicons dashicons-cart"></span></div>
+                                            <h3 class="h6"><?php esc_html_e( 'Payments', 'licencepress' ); ?></h3>
+                                            <p class="small text-secondary flex-grow-1 mb-3"><?php esc_html_e( 'Connect PayPal to unlock checkout, subscriptions, and payment flows.', 'licencepress' ); ?></p>
+                                            <a class="btn btn-sm btn-outline-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=licencepress-paypal' ) ); ?>"><?php esc_html_e( 'Connect PayPal', 'licencepress' ); ?></a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card h-100 border-0 bg-light">
+                                        <div class="card-body d-flex flex-column">
+                                            <div class="text-primary mb-2"><span class="dashicons dashicons-shield"></span></div>
+                                            <h3 class="h6"><?php esc_html_e( 'Access control', 'licencepress' ); ?></h3>
+                                            <p class="small text-secondary flex-grow-1 mb-3"><?php esc_html_e( 'Define who can issue, manage, and review licences and customer permissions.', 'licencepress' ); ?></p>
+                                            <a class="btn btn-sm btn-outline-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=licencepress-settings&tab=access' ) ); ?>"><?php esc_html_e( 'Manage access', 'licencepress' ); ?></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="licencepress-onboarding-step d-none" data-step="2">
+                            <h3 class="h5 mb-3"><?php esc_html_e( 'Recommended setup checklist', 'licencepress' ); ?></h3>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-3">
+                                    <span><?php esc_html_e( 'Set the default licence and validation settings for your product catalog.', 'licencepress' ); ?></span>
+                                    <a class="btn btn-sm btn-outline-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=licencepress-settings&tab=general' ) ); ?>"><?php esc_html_e( 'Open', 'licencepress' ); ?></a>
+                                </li>
+                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-3">
+                                    <span><?php esc_html_e( 'Review access roles and who can manage licences, tools, and settings.', 'licencepress' ); ?></span>
+                                    <a class="btn btn-sm btn-outline-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=licencepress-settings&tab=access' ) ); ?>"><?php esc_html_e( 'Open', 'licencepress' ); ?></a>
+                                </li>
+                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center gap-3">
+                                    <span><?php esc_html_e( 'Connect your PayPal app to enable checkout and subscription purchase flows.', 'licencepress' ); ?></span>
+                                    <a class="btn btn-sm btn-outline-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=licencepress-paypal' ) ); ?>"><?php esc_html_e( 'Connect', 'licencepress' ); ?></a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="licencepress-onboarding-step d-none" data-step="3">
+                            <h3 class="h5 mb-3"><?php esc_html_e( 'You are ready to launch', 'licencepress' ); ?></h3>
+                            <div class="alert alert-success border-0 bg-success-subtle text-success-emphasis mb-3">
+                                <?php esc_html_e( 'Your licence platform is now configured for first issue, customer validation, and secure product access.', 'licencepress' ); ?>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a class="btn btn-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=licencepress-licences' ) ); ?>"><?php esc_html_e( 'Issue a licence', 'licencepress' ); ?></a>
+                                <a class="btn btn-outline-secondary" href="<?php echo esc_url( admin_url( 'admin.php?page=licencepress-settings&tab=general' ) ); ?>"><?php esc_html_e( 'Review settings', 'licencepress' ); ?></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-link text-secondary" data-role="skip"><?php esc_html_e( 'Skip for now', 'licencepress' ); ?></button>
+                        <button type="button" class="btn btn-outline-secondary" data-role="prev"><?php esc_html_e( 'Back', 'licencepress' ); ?></button>
+                        <button type="button" class="btn btn-primary" data-role="next"><?php esc_html_e( 'Next', 'licencepress' ); ?></button>
+                        <button type="button" class="btn btn-success d-none" data-role="finish"><?php esc_html_e( 'Finish setup', 'licencepress' ); ?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
     }
 
     private function render_summary(): void {

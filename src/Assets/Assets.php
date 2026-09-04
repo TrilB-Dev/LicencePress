@@ -180,6 +180,14 @@ final class Assets {
                 wp_localize_script( $script['handle'], $script['localize']['object_name'], $script['localize']['data'] );
             }
         }
+
+        if ( wp_script_is( 'licencepress-admin-ui', 'enqueued' ) ) {
+            wp_localize_script( 'licencepress-admin-ui', 'licencepressOnboarding', [
+                'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+                'nonce' => wp_create_nonce( 'licencepress_dismiss_onboarding' ),
+            ] );
+        }
+
         if ( 'licencepress-settings' === sanitize_key( $_GET['page'] ?? '' ) ) {
             $settings_config = [
                 'ajaxUrl' => admin_url( 'admin-ajax.php' ),

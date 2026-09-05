@@ -120,7 +120,16 @@ final class FormFieldHelper {
 
 		return self::render_select( $name, $options, $selected, $attributes, false );
 	}
-
+	/**
+	 * Render a select dropdown (internal use).
+	 *
+	 * @param string $name       The name attribute for the select.
+	 * @param array  $options    The options for the select.
+	 * @param mixed  $selected   The selected value(s) for the select.
+	 * @param array  $attributes Additional attributes for the select.
+	 * @param bool   $bootstrap_select Whether to use Bootstrap select styling.
+	 * @return string The HTML markup for the select dropdown.
+	 */
 	private static function render_select( string $name, array $options = array(), $selected = array(), array $attributes = array(), bool $bootstrap_select = false ): string {
 
 		$selected   = array_map( 'strval', (array) $selected );
@@ -525,7 +534,13 @@ final class FormFieldHelper {
 
 		return self::render_bootstrap_select( $name, $options );
 	}
-
+	/**
+	 * Render the Bootstrap Select element.
+	 *
+	 * @param string $name    The name attribute for the select.
+	 * @param array  $options The options and settings for the select.
+	 * @return string The rendered select element.
+	 */
 	private static function render_bootstrap_select( string $name, array $options ): string {
 
 		$settings = array(
@@ -562,13 +577,46 @@ final class FormFieldHelper {
 			$options['class'] = self::bootstrap_select_classes( (string) ( $options['class'] ?? '' ) . ' show-tick' );
 		}
 
-		$select_options = $options['data'] ?? array();
+		$select_options = $options['data'] ?? $options['items'] ?? array();
 		$selected       = $options['selected'] ?? array();
-		unset( $options['icons_base'], $options['tick_icon'], $options['live_search_placeholder'], $options['open_options_text'], $options['selected_text_format'], $options['selected_items_style'], $options['selected_tag_remove_label'], $options['placeholder'], $options['width'], $options['size'], $options['actions_box'], $options['max_options'], $options['live_search_normalize'], $options['live_search_style'], $options['live_search'], $options['show_selected_tags'], $options['open_options'], $options['dropup_auto'], $options['show_tick'], $options['selection_indicator'], $options['data'], $options['selected'] );
+		unset(
+			$options['icons_base'],
+			$options['tick_icon'],
+			$options['live_search_placeholder'],
+			$options['open_options_text'],
+			$options['selected_text_format'],
+			$options['selected_items_style'],
+			$options['selected_tag_remove_label'],
+			$options['placeholder'],
+			$options['width'],
+			$options['size'],
+			$options['actions_box'],
+			$options['max_options'],
+			$options['live_search_normalize'],
+			$options['live_search_style'],
+			$options['live_search'],
+			$options['show_selected_tags'],
+			$options['open_options'],
+			$options['dropup_auto'],
+			$options['show_tick'],
+			$options['selection_indicator'],
+			$options['data'],
+			$options['items'],
+			$options['selected']
+		);
+
+		if ( ! is_array( $select_options ) ) {
+			$select_options = array();
+		}
 
 		return self::render_select( $name, $select_options, $selected, $options, true );
 	}
-
+	/**
+	 * Get the allowed Bootstrap select classes.
+	 *
+	 * @param string $classes The classes to filter.
+	 * @return string The filtered classes.
+	 */
 	private static function bootstrap_select_classes( string $classes ): string {
 
 		$allowed = array( 'selectpicker', 'dropup', 'show-tick' );

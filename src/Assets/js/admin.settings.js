@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   const root = document;
   const panel = root.querySelector('#licencepress-settings-panel');
-  const config = window.licencepressSettingsTabs;
-  if (!panel || !config) return;
+  const config = window.licencepressSettingsTabs || {};
+  if (!panel) return;
 
   const stateFromHash = () => {
     const hash = window.location.hash.replace(/^#/, '') || panel.dataset.currentTab || 'general';
@@ -30,20 +30,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const bindLicencePatternControls = () => {
     const patternType = root.querySelector('select[name="licencepress_general[licence_pattern_type]"]');
     const customPattern = root.querySelector('input[name="licencepress_general[custom_pattern]"]');
-    const letterCaseRow = root.querySelector('[data-licencepress-pattern-mode="custom"] [name="licencepress_general[pattern_letter_case]"]')?.closest('tr');
+    const letterCaseRow = root.querySelector('tr [name="licencepress_general[pattern_letter_case]"]')?.closest('tr');
     const applyPatternState = () => {
       const type = patternType ? patternType.value : 'standard';
       const rows = root.querySelectorAll('[data-licencepress-pattern-mode]');
       rows.forEach((row) => {
-        const shouldShow = 'standard' === type ? 'standard' === row.dataset.licencepressPatternMode : 'custom' === row.dataset.licencepressPatternMode;
+        const rowMode = row.dataset.licencepressPatternMode || 'standard';
+        const shouldShow = 'custom' === type ? 'custom' === rowMode : 'standard' === rowMode;
         row.hidden = !shouldShow;
         row.style.display = shouldShow ? '' : 'none';
       });
 
       if (letterCaseRow && customPattern) {
         const hasPatternToken = /[XA]/i.test(customPattern.value || '');
-        letterCaseRow.hidden = !hasPatternToken;
-        letterCaseRow.style.display = hasPatternToken ? '' : 'none';
+        const shouldShowLetterCase = 'custom' === type && hasPatternToken;
+        letterCaseRow.hidden = !shouldShowLetterCase;
+        letterCaseRow.style.display = shouldShowLetterCase ? '' : 'none';
       }
     };
 

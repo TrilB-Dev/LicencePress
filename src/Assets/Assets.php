@@ -85,6 +85,7 @@ final class Assets {
 				array(
 					'handle' => 'licencepress-wp-override',
 					'src'    => LICENCEPRESS_URL . 'src/Assets/dist/css/wpoverride.css',
+					'version' => '1.0.0',
 					'deps'   => array( 'forms' ),
 				),
 				array(
@@ -139,6 +140,7 @@ final class Assets {
 					array(
 						array(
 							'handle' => 'licencepress-public',
+							'version' => '1.0.0',
 							'src'    => LICENCEPRESS_URL . 'src/Assets/dist/css/public.css',
 						),
 					)
@@ -148,6 +150,7 @@ final class Assets {
 					array(
 						array(
 							'handle'    => 'licencepress-public',
+							'version'   => '1.0.0',
 							'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/public.js',
 							'in_footer' => true,
 						),
@@ -191,6 +194,7 @@ final class Assets {
 						array(
 							'handle'    => 'licencepress-admin-ui',
 							'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/admin.ui.js',
+							'version'   => '1.0.0',
 							'deps'      => array( 'licencepress-bootstrap-select' ),
 							'in_footer' => true,
 						)
@@ -223,6 +227,7 @@ final class Assets {
 				array(
 					'handle' => 'licencepress-admin-' . $assets['styles'],
 					'src'    => LICENCEPRESS_URL . 'src/Assets/dist/css/admin.' . $assets['styles'] . '.css',
+					'version' => '1.0.0',
 				),
 			);
 		}
@@ -231,6 +236,7 @@ final class Assets {
 				array(
 					'handle' => 'licencepress-admin-' . $assets['scripts'],
 					'src'    => LICENCEPRESS_URL . 'src/Assets/dist/js/admin.' . $assets['scripts'] . '.js',
+					'version' => '1.0.0',
 					'deps'   => array( 'licencepress-bootstrap' ),
 				),
 			);

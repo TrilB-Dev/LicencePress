@@ -191,9 +191,9 @@ final class Assets {
 						array(
 							'handle'    => 'licencepress-admin-ui',
 							'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/admin.ui.js',
-							'deps'      => array( 'licencepress-bootstrap' ),
+							'deps'      => array( 'licencepress-bootstrap-select' ),
 							'in_footer' => true,
-						),
+						)
 					),
 					$registered['scripts'] ?? array()
 				),

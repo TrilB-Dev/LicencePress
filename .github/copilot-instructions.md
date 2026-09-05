@@ -113,6 +113,63 @@ All LicencePress and internal-plugin assets must flow through `src/Assets/Assets
 8. Regenerate language catalogs with `npm run i18n:pot` and `npm run i18n:mo` when translatable strings change.
 9. Run `git diff --check` and review generated files, deleted files, and unrelated worktree changes before finishing.
 
+## PHP and WordPress Coding Standards
+
+All code in this plugin must follow the project’s PHP coding standards, PHP compatibility requirements, and the WordPress Coding Standards suite at all times. This is a hard requirement for every changed file, not a suggestion.
+
+- Follow PHP coding standards consistently across all new and modified PHP files.
+- Follow the WordPress Coding Standards set for plugin code, including WordPress, WordPress-Core, WordPress-Docs, and WordPress-Extra where applicable.
+- Keep code aligned with WordPress security, escaping, sanitization, capability checks, and API conventions.
+- Ensure compatibility with the project’s supported PHP versions. Do not introduce syntax or language features that are not supported by the plugin’s declared runtime compatibility.
+- Run PHP compatibility checks as part of validation and fix any issues reported by `php-compatibility` before merge.
+- Do not add code that works around the standards or bypasses them by excluding vendor or third-party code from the project’s own logic.
+- Ensure all plugin-owned code remains clean, readable, and standards-compliant even when third-party dependencies, bundled vendor code, or generated files are present.
+- Fix PHPCS warnings, errors, and notices as they appear during development instead of leaving them for a later pass.
+- Do not merge code that introduces new standards violations, even if the feature is otherwise functional.
+
+## Required Validation and Test Workflow
+
+After creating or modifying code, validate it immediately and fix issues before continuing.
+
+- Run focused validation after each significant code change.
+- Check PHP syntax and linting for changed files before broader validation.
+- Run the relevant PHPCS checks for plugin source files after adding or editing PHP.
+- Run PHP compatibility validation against the supported PHP versions for the project.
+- Fix all warnings and errors surfaced by the standards and compatibility tools before considering the work complete.
+- Re-run validation after each fix to confirm the issue is resolved and no new issue was introduced.
+- Treat code quality checks as part of implementation, not as a final cleanup step.
+
+## WordPress Test Environment with .wp-env
+
+This project includes `.wp-env.json` and it must be used for local WordPress testing when validating plugin behavior and standards in a real WordPress environment.
+
+- Use `.wp-env.json` as the canonical local WordPress test environment for this plugin.
+- Run the WordPress environment before broader validation or suite-based checks.
+- Use the WordPress environment to exercise the plugin under actual WordPress runtime conditions rather than relying only on static analysis.
+- When running the coding standards suite, target the plugin source and exclude third-party or vendor code from the checks so the project is evaluated fairly and without unrelated noise.
+- Keep `.wp-env.json` aligned with the plugin’s expected local development/test setup.
+
+Typical workflow:
+
+```bash
+npm install
+npx wp-env start
+```
+
+Then run the standards suite against the plugin source, for example:
+
+```bash
+vendor/bin/phpcs \
+  --standard=WordPress,WordPress-Core,WordPress-Docs,WordPress-Extra \
+  --extensions=php \
+  --ignore=vendor,dist,node_modules \
+  src
+```
+
+For a full WordPress-oriented validation flow via the local environment, run the plugin under `.wp-env` and execute the WordPress test tooling from there as needed.
+
+The standard is simple: if a change introduces a PHP warning, PHPCS violation, or WordPress coding issue, it must be corrected before the task is considered finished.
+
 ## Documentation References
 
 - [REST API](../Docs/API.md)

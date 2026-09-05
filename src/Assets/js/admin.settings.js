@@ -27,6 +27,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  const bindLicencePatternControls = () => {
+    const patternType = root.querySelector('select[name="licencepress_general[licence_pattern_type]"]');
+    const customPattern = root.querySelector('input[name="licencepress_general[custom_pattern]"]');
+    const letterCaseRow = root.querySelector('[data-licencepress-pattern-mode="custom"] [name="licencepress_general[pattern_letter_case]"]')?.closest('tr');
+    const applyPatternState = () => {
+      const type = patternType ? patternType.value : 'standard';
+      const rows = root.querySelectorAll('[data-licencepress-pattern-mode]');
+      rows.forEach((row) => {
+        const shouldShow = 'standard' === type ? 'standard' === row.dataset.licencepressPatternMode : 'custom' === row.dataset.licencepressPatternMode;
+        row.hidden = !shouldShow;
+        row.style.display = shouldShow ? '' : 'none';
+      });
+
+      if (letterCaseRow && customPattern) {
+        const hasPatternToken = /[XA]/i.test(customPattern.value || '');
+        letterCaseRow.hidden = !hasPatternToken;
+        letterCaseRow.style.display = hasPatternToken ? '' : 'none';
+      }
+    };
+
+    if (patternType) patternType.addEventListener('change', applyPatternState);
+    if (customPattern) customPattern.addEventListener('input', applyPatternState);
+    applyPatternState();
+  };
+
   const activateLayoutTab = (button) => {
     const target = root.querySelector(button.dataset.bsTarget);
     if (!target) return;
@@ -113,4 +138,5 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (window.location.hash && 'layout' !== initial.tab && (initial.tab !== panel.dataset.currentTab || initial.section !== panel.dataset.currentSection)) loadTab(initial.tab, initial.section, false);
   bindForms();
+  bindLicencePatternControls();
 });

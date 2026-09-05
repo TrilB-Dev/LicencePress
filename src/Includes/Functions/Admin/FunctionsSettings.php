@@ -51,17 +51,42 @@ final class FunctionsSettings {
 		if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
 			return (array) Settings::get_group( Settings::GENERAL, array() );
 		}
-		$input           = is_array( $input ) ? $input : array();
-		$rewrite_changed = false;
-		foreach ( array( 'root_name', 'root_description', 'archive_title', 'archive_description', 'root_slug', 'category_slug', 'tag_slug', 'permalink', 'enable_schema' ) as $key ) {
-			$value           = in_array( $key, array( 'root_slug', 'category_slug', 'tag_slug' ), true ) ? sanitize_title( $input[ $key ] ?? '' ) : ( 'permalink' === $key ? PermalinkHelper::sanitize_pattern( $input[ $key ] ?? '' ) : ( 'enable_schema' === $key ? ! empty( $input[ $key ] ) : sanitize_textarea_field( $input[ $key ] ?? '' ) ) );
-			$rewrite_changed = $rewrite_changed || $value !== (string) Settings::get( $key, '' );
-			$input[ $key ]   = $value;
-			Settings::set( $key, $input[ $key ] );
+
+		$input = is_array( $input ) ? $input : array();
+
+		$allowed_entity_types = array( 'company', 'organization', 'group', 'individual' );
+		$allowed_renewal_modes = array( 'default', 'custom' );
+		$allowed_pattern_types = array( 'standard', 'custom' );
+		$allowed_patterns = array( 'alphanumeric', 'letters', 'numbers' );
+		$allowed_cases = array( 'uppercase', 'lowercase', 'mixedcase' );
+		$allowed_separators = array( '-', ':', '.', 'none' );
+
+		$general = array(
+			'entity_type'                 => in_array( $input['entity_type'] ?? 'individual', $allowed_entity_types, true ) ? sanitize_key( $input['entity_type'] ?? 'individual' ) : 'individual',
+			'licence_name'                => sanitize_text_field( $input['licence_name'] ?? '' ),
+			'country'                     => sanitize_text_field( $input['country'] ?? '' ),
+			'currency'                    => sanitize_text_field( $input['currency'] ?? '' ),
+			'licence_prefix'              => preg_match( '/^[A-Za-z0-9_-]{1,7}$/', (string) ( $input['licence_prefix'] ?? '' ) ) ? sanitize_text_field( $input['licence_prefix'] ?? '' ) : '',
+			'licence_usage'               => array_values( array_unique( array_filter( array_map( 'sanitize_key', is_array( $input['licence_usage'] ?? array() ) ? $input['licence_usage'] : array( $input['licence_usage'] ?? '' ) ) ) ) ),
+			'renewal_policy_mode'         => in_array( $input['renewal_policy_mode'] ?? 'default', $allowed_renewal_modes, true ) ? sanitize_key( $input['renewal_policy_mode'] ?? 'default' ) : 'default',
+			'renewal_policy_page'         => absint( $input['renewal_policy_page'] ?? 0 ),
+			'licence_pattern_type'        => in_array( $input['licence_pattern_type'] ?? 'standard', $allowed_pattern_types, true ) ? sanitize_key( $input['licence_pattern_type'] ?? 'standard' ) : 'standard',
+			'licence_pattern_format'      => in_array( (string) ( $input['licence_pattern_format'] ?? 'alphanumeric' ), $allowed_patterns, true ) ? sanitize_key( (string) ( $input['licence_pattern_format'] ?? 'alphanumeric' ) ) : 'alphanumeric',
+			'exclude_ambiguous_characters' => ! empty( $input['exclude_ambiguous_characters'] ),
+			'pattern_letter_case'         => in_array( (string) ( $input['pattern_letter_case'] ?? 'uppercase' ), $allowed_cases, true ) ? sanitize_key( (string) ( $input['pattern_letter_case'] ?? 'uppercase' ) ) : 'uppercase',
+			'pattern_separator'           => in_array( (string) ( $input['pattern_separator'] ?? '-' ), $allowed_separators, true ) ? (string) $input['pattern_separator'] : '-',
+			'custom_pattern'              => sanitize_text_field( $input['custom_pattern'] ?? '' ),
+		);
+
+		if ( 'custom' === $general['licence_pattern_type'] && ! preg_match( '/[XA]/i', $general['custom_pattern'] ) ) {
+			$general['pattern_letter_case'] = '';
 		}
-		if ( $rewrite_changed ) {
-			flush_rewrite_rules();
+
+		foreach ( $general as $key => $value ) {
+			$input[ $key ] = $value;
+			Settings::set( $key, $value );
 		}
+
 		return $input;
 	}
 

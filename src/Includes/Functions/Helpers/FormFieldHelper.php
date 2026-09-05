@@ -589,7 +589,7 @@ final class FormFieldHelper {
 	public static function label( string $for, string $text, array $options = array() ): string {
 
 		$attributes = array_merge( $options['attributes'] ?? array(), $options );
-		unset( $attributes['attributes'], $attributes['class'], $attributes['key'], $attributes['label'], $attributes['type'], $attributes['default'], $attributes['options'], $attributes['description'], $attributes['tooltip'], $attributes['tooltip_icon'], $attributes['tooltip_type'] );
+		unset( $attributes['attributes'], $attributes['class'], $attributes['key'], $attributes['label'], $attributes['type'], $attributes['default'], $attributes['options'], $attributes['description'], $attributes['tooltip'], $attributes['tooltip_icon'], $attributes['tooltip_type'], $attributes['items'], $attributes['help'] );
 		$attributes['class'] = self::classes( array( 'form-label', $options['class'] ?? '' ) );
 		$attributes['for']   = $for;
 

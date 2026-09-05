@@ -30,15 +30,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const bindLicencePatternControls = () => {
     const patternType = root.querySelector('select[name="licencepress_general[licence_pattern_type]"]');
     const customPattern = root.querySelector('input[name="licencepress_general[custom_pattern]"]');
-    const letterCaseRow = root.querySelector('tr [name="licencepress_general[pattern_letter_case]"]')?.closest('tr');
+    const letterCaseRow = root.querySelector('select[name="licencepress_general[pattern_letter_case]"]')?.closest('tr');
+    const customRows = root.querySelectorAll('[data-licencepress-pattern-mode="custom"]');
+    const standardRows = root.querySelectorAll('[data-licencepress-pattern-mode="standard"]');
     const applyPatternState = () => {
-      const type = patternType ? patternType.value : 'standard';
-      const rows = root.querySelectorAll('[data-licencepress-pattern-mode]');
-      rows.forEach((row) => {
-        const rowMode = row.dataset.licencepressPatternMode || 'standard';
-        const shouldShow = 'custom' === type ? 'custom' === rowMode : 'standard' === rowMode;
-        row.hidden = !shouldShow;
-        row.style.display = shouldShow ? '' : 'none';
+      const type = patternType ? (patternType.value || 'standard') : 'standard';
+      standardRows.forEach((row) => {
+        row.hidden = false;
+        row.style.display = '';
+      });
+      customRows.forEach((row) => {
+        const isCustom = 'custom' === type;
+        row.hidden = !isCustom;
+        row.style.display = isCustom ? '' : 'none';
       });
 
       if (letterCaseRow && customPattern) {

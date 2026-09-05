@@ -17,6 +17,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class SettingsGeneral {
+	/**
+	 * Render the general settings fields.
+	 *
+	 * @param array $values The current values for the settings fields.
+	 */	
 	public function render( array $values ): void {
 		$entity_type = $values['entity_type'] ?? 'individual';
 		$usage       = $values['licence_usage'] ?? array();
@@ -149,6 +154,15 @@ final class SettingsGeneral {
 			}
 			if ( in_array( $key, array( 'entity_type', 'licence_name', 'country', 'currency', 'licence_prefix', 'licence_usage', 'renewal_policy_mode', 'renewal_policy_page', 'licence_pattern_type' ), true ) ) {
 				$mode = 'standard';
+			}
+			if ( 'licence_pattern_type' === $key && '' === (string) $value ) {
+				$value = 'standard';
+			}
+			if ( 'pattern_letter_case' === $key && '' === (string) $value ) {
+				$value = 'uppercase';
+			}
+			if ( 'pattern_separator' === $key && '' === (string) $value ) {
+				$value = '-';
 			}
 			?>
 			<tr data-licencepress-pattern-mode="<?php echo esc_attr( $mode ); ?>">

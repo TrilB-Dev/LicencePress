@@ -9,6 +9,10 @@ const entries = {
   ],
   'admin.ui': [
     './src/Assets/js/admin.ui.js',
+    './src/Assets/js/admin.settings.js',
+    './src/Assets/js/admin.plugins.js',
+    './src/Assets/js/admin.page.js',
+    './src/Assets/js/admin.dashboard.js',
     './src/Assets/scss/admin.ui.scss',
   ],
   'wpoverride': './src/Assets/scss/wpoverride.scss',

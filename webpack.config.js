@@ -67,7 +67,13 @@ const shared = {
         test: /\.scss$/,
         use: [
           MiniCssExtractPlugin.loader,
-          'css-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              url: false,
+              import: false,
+            },
+          },
           {
             loader: 'sass-loader',
             options: {
@@ -82,7 +88,16 @@ const shared = {
       },
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [
+          MiniCssExtractPlugin.loader,
+          {
+            loader: 'css-loader',
+            options: {
+              url: false,
+              import: false,
+            },
+          },
+        ],
       },
       {
         test: /\.js$/,

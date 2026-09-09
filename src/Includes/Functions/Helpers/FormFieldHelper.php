@@ -573,6 +573,41 @@ final class FormFieldHelper {
 			}
 		}
 
+		$country_data = $options['country_data'] ?? array();
+		if ( is_array( $country_data ) ) {
+			foreach (
+				array(
+					'type'     => 'data-bscd-type',
+					'group'    => 'data-bscd-group',
+					'grouping' => 'data-bscd-group',
+					'flags'    => 'data-bscd-flags',
+					'flag'     => 'data-bscd-flags',
+				) as $key => $attribute
+			) {
+				if ( array_key_exists( $key, $country_data ) && null !== $country_data[ $key ] ) {
+					$options[ $attribute ] = is_bool( $country_data[ $key ] ) ? ( $country_data[ $key ] ? 'true' : 'false' ) : (string) $country_data[ $key ];
+				}
+			}
+		}
+
+		foreach (
+			array(
+				'bscd_type'      => 'data-bscd-type',
+				'bscd_group'     => 'data-bscd-group',
+				'bscd_grouping'  => 'data-bscd-group',
+				'bscd_flags'     => 'data-bscd-flags',
+				'bscd_flag'      => 'data-bscd-flags',
+				'country_type'    => 'data-bscd-type',
+				'country_group'   => 'data-bscd-group',
+				'country_flags'   => 'data-bscd-flags',
+				'country_flag'    => 'data-bscd-flags',
+			) as $key => $attribute
+		) {
+			if ( array_key_exists( $key, $options ) && null !== $options[ $key ] ) {
+				$options[ $attribute ] = is_bool( $options[ $key ] ) ? ( $options[ $key ] ? 'true' : 'false' ) : (string) $options[ $key ];
+			}
+		}
+
 		if ( true === ( $options['show_tick'] ?? false ) ) {
 			$options['class'] = self::bootstrap_select_classes( (string) ( $options['class'] ?? '' ) . ' show-tick' );
 		}
@@ -600,6 +635,16 @@ final class FormFieldHelper {
 			$options['dropup_auto'],
 			$options['show_tick'],
 			$options['selection_indicator'],
+			$options['country_data'],
+			$options['bscd_type'],
+			$options['bscd_group'],
+			$options['bscd_grouping'],
+			$options['bscd_flags'],
+			$options['bscd_flag'],
+			$options['country_type'],
+			$options['country_group'],
+			$options['country_flags'],
+			$options['country_flag'],
 			$options['data'],
 			$options['items'],
 			$options['selected']

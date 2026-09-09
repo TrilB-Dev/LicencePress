@@ -52,14 +52,10 @@ final class SettingsGeneral {
 				'description' => __( 'Select the country the default licensor is based in.', 'licencepress' ),
 				'tooltip'  => __( 'The country of the default licensor is used for legal and administrative purposes.', 'licencepress' ),
 				'type'  => 'select',
-				'items' => array(
-					'gb' => 'United Kingdom',
-					'us' => 'United States',
-					'ca' => 'Canada',
-					'au' => 'Australia',
-					'de' => 'Germany',
-					'fr' => 'France',
-				),
+				'items' => array(),
+				'country_type' => 'country',
+				'country_group' => true,
+				'country_flags' => true,
 			),
 			'currency' => array(
 				'label' => __( 'Currency', 'licencepress' ),
@@ -211,16 +207,18 @@ final class SettingsGeneral {
 							);
 							break;
 						case 'select':
-							echo FormFieldHelper::bootstrap_select(
-								$name,
-								array(
-									'data'    => $field['items'],
-									'selected'=> $value,
-									'live_search' => true,
-									'width' => '100%',
-									'id' => $id,
-								)
+							$select_options = array(
+								'data'          => $field['items'] ?? array(),
+								'selected'      => $value,
+								'live_search'   => true,
+								'width'         => '100%',
+								'id'            => $id,
+								'country_type'  => $field['country_type'] ?? null,
+								'country_group' => $field['country_group'] ?? null,
+								'country_flags' => $field['country_flags'] ?? null,
 							);
+
+							echo FormFieldHelper::bootstrap_select( $name, $select_options );
 							break;
 						default:
 							echo FormFieldHelper::text_input(

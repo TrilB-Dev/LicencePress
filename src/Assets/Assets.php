@@ -100,6 +100,12 @@ final class Assets {
 					'version' => '1.2.2',
 					'deps'    => array( 'licencepress-bootstrap' ),
 				),
+				array(
+					'handle'  => 'licencepress-bootstrap-select-country-data',
+					'src'     => LICENCEPRESS_URL . 'src/Assets/dist/css/bs-country-data.css',
+					'version' => '1.0.3',
+					'deps'    => array( 'licencepress-bootstrap-select' ),
+				),
 			),
 			'scripts' => array(
 				array(
@@ -113,6 +119,13 @@ final class Assets {
 					'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/bootstrap-select.js',
 					'version'   => '1.2.2',
 					'deps'      => array( 'licencepress-bootstrap' ),
+					'in_footer' => true,
+				),
+				array(
+					'handle'    => 'licencepress-bootstrap-select-country-data',
+					'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/bs-country-data.js',
+					'version'   => '1.0.3',
+					'deps'      => array( 'licencepress-bootstrap-select' ),
 					'in_footer' => true,
 				),
 			),

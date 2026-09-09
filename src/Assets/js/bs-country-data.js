@@ -1,1 +1,0 @@
-import '../../../node_modules/@trilbdev/boostrap-select-country-data/dist/js/bs-country-data.js';

@@ -19,11 +19,7 @@ const entries = {
   'bootstrap-select': [
     './src/Assets/js/bootstrap-select.js',
     './src/Assets/scss/bootstrap-select.scss',
-  ],
-  'bs-country-data': [
-    './src/Assets/js/bs-country-data.js',
-    './src/Assets/scss/bs-country-data.scss',
-  ],
+  ]
 };
 
 const fontAwesomeEntries = {

@@ -1,4 +1,4 @@
 @use "../../../node_modules/@trilbdev/boostrap-select-country-data/src/scss/bs-country-data" with (
   // Override path to flags directory
-  $flag-icons-path: "./src/Assets/images/flags" !default
+  $flag-icons-path: "./src/Assets/images/flags"
 );

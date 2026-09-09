@@ -1,4 +1,3 @@
-@use "../../../node_modules/@trilbdev/boostrap-select-country-data/src/scss/bs-country-data" with (
+@import "../../../node_modules/@trilbdev/boostrap-select-country-data/src/scss/bs-country-data";
   // Override path to flags directory
-  $flag-icons-path: "./src/Assets/images/flags"
-);
+  $flag-icons-path: "./src/Assets/images/flags";

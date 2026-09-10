@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { copyFileSync, mkdirSync } = require('fs');
+const { copyFileSync, mkdirSync, readFileSync, writeFileSync } = require('fs');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 class CopyUnprocessedAssetPlugin {
@@ -15,6 +15,13 @@ class CopyUnprocessedAssetPlugin {
         const dest = path.resolve(__dirname, to);
 
         mkdirSync(path.dirname(dest), { recursive: true });
+
+        if (path.basename(dest) === 'bs-country-data.min.css') {
+          const css = readFileSync(src, 'utf8').replace(/url\(\s*['"]?\.\.\/images\//g, 'url(../../images/');
+          writeFileSync(dest, css);
+          return;
+        }
+
         copyFileSync(src, dest);
       });
     });

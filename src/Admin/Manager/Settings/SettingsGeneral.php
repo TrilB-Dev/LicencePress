@@ -8,7 +8,6 @@
  */
 namespace LicencePress\Admin\Manager\Settings;
 
-use LicencePress\Includes\Functions\Helpers\AlertHelper;
 use LicencePress\Includes\Functions\Helpers\FormFieldHelper;
 use LicencePress\Includes\Functions\Helpers\SanitizationHelper;
 
@@ -30,16 +29,8 @@ final class SettingsGeneral {
 		$custom      = $values['custom_pattern'] ?? '';
 		$separator   = $values['pattern_separator'] ?? '-';
 
-		AlertHelper::render_admin_notice(
-			__( 'These defaults will be used for all newly generated licences unless a more specific value is set elsewhere.', 'licencepress' ),
-			'info'
-		);
-		AlertHelper::render_admin_notice(
-			__( 'Review the legal and licence defaults before saving; changes apply to future licence generation.', 'licencepress' ),
-			'warning'
-		);
 		?>
-		<form method="post" action="">
+		<form method="post" action="" class="licencepress-settings-form">
 			<?php echo FormFieldHelper::input( 
 				'action', 
 				'licencepress_save_general_settings', 
@@ -73,7 +64,9 @@ final class SettingsGeneral {
 								(string) ( $values['default_licensor_name'] ?? '' ), 
 								array( 
 									'id' => 'licencepress-general-default-licensor-name', 
-									'class' => 'w-100', 
+									'class' => 'w-100',
+									'data-licencepress-validate' => true,
+									'data-licencepress-required' => true,
 									'validation' => array( 
 										'state' => 'invalid', 
 										'message' => __( 'Please enter the default licensor name.', 'licencepress' ) 
@@ -414,7 +407,9 @@ final class SettingsGeneral {
 								(string) ( $custom ), 
 								array( 
 									'id' => 'licencepress-general-custom-pattern', 
-									'class' => 'w-100', 
+									'class' => 'w-100',
+									'data-licencepress-validate' => true,
+									'data-licencepress-required' => true,
 									'validation' => array( 
 										'state' => 'invalid', 
 										'message' => __( 'Please define the custom licence pattern.', 'licencepress' ) 

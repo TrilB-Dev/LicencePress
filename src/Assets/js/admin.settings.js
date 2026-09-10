@@ -20,12 +20,95 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  const showSaveAlert = (form, type, message) => {
+    const existing = form.parentElement?.querySelector('[data-licencepress-save-alert]');
+    if (existing) existing.remove();
+
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type === 'success' ? 'success' : 'danger'} d-flex align-items-center fade show`;
+    alert.setAttribute('role', 'alert');
+    alert.setAttribute('data-licencepress-save-alert', 'true');
+    alert.innerHTML = `<i class="flex-shrink-0 me-2 fa-solid fa-${type === 'success' ? 'check-circle' : 'times-circle'}" aria-hidden="true"></i><span>${message}</span>`;
+    form.parentElement?.insertBefore(alert, form);
+  };
+
   const bindForms = () => root.querySelectorAll('.licencepress-settings-form, .licencepress-import-form').forEach((form) => {
-    form.addEventListener('submit', () => {
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const requiredFields = form.querySelectorAll('[data-licencepress-required="true"]');
+      const invalidFields = Array.from(requiredFields).filter((field) => field.value.trim() === '');
+
+      if (invalidFields.length > 0) {
+        showSaveAlert(form, 'error', 'Settings could not be saved.');
+        return;
+      }
+
+      const regexFields = form.querySelectorAll('[data-licencepress-validate="true"][pattern]');
+      const invalidRegexFields = Array.from(regexFields).filter((field) => {
+        const pattern = field.getAttribute('pattern');
+        if (!pattern) return false;
+        try {
+          return !new RegExp(pattern).test(field.value.trim());
+        } catch (error) {
+          return false;
+        }
+      });
+
+      if (invalidRegexFields.length > 0) {
+        showSaveAlert(form, 'error', 'Settings could not be saved.');
+        return;
+      }
+
       const submit = form.querySelector('[type="submit"]');
       if (submit) submit.disabled = true;
+      showSaveAlert(form, 'success', 'Settings saved successfully.');
+      setTimeout(() => { if (submit) submit.disabled = false; }, 600);
     });
   });
+
+  const bindFieldValidation = () => {
+    root.querySelectorAll('[data-licencepress-validate="true"]').forEach((field) => {
+      const feedback = field.nextElementSibling;
+
+      if (!feedback || !feedback.classList?.contains('invalid-feedback')) {
+        return;
+      }
+
+      const validate = () => {
+        const value = field.value.trim();
+        if (value.length === 0) {
+          field.classList.remove('is-invalid', 'is-valid');
+          feedback.style.display = 'none';
+          return;
+        }
+
+        const pattern = field.getAttribute('pattern');
+        const valid = !pattern || (() => {
+          try {
+            return new RegExp(pattern).test(value);
+          } catch (error) {
+            return true;
+          }
+        })();
+
+        field.classList.toggle('is-invalid', !valid);
+        field.classList.toggle('is-valid', valid);
+        feedback.style.display = valid ? 'none' : 'block';
+      };
+
+      field.addEventListener('blur', () => {
+        if (field.value.trim().length === 0) {
+          field.classList.remove('is-invalid', 'is-valid');
+          if (feedback) feedback.style.display = 'none';
+          return;
+        }
+
+        field.dataset.licencepressTouched = 'true';
+        validate();
+      });
+    });
+  };
 
   const bindLicencePatternControls = () => {
     const patternType = root.querySelector('select[name="licencepress_general[licence_pattern_type]"]');
@@ -96,6 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setActive(response.data.tab, response.data.layout_section);
         if (updateHash) window.history.pushState({}, '', `${window.location.pathname}${window.location.search}#${response.data.tab === 'layout' ? `layout-${response.data.layout_section}` : response.data.tab}`);
         bindForms();
+        bindFieldValidation();
         const nextContent = panel.querySelector('.licencepress-settings-tab-content');
         if (nextContent) requestAnimationFrame(() => nextContent.classList.remove('is-loading'));
       })
@@ -144,5 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (window.location.hash && 'layout' !== initial.tab && (initial.tab !== panel.dataset.currentTab || initial.section !== panel.dataset.currentSection)) loadTab(initial.tab, initial.section, false);
   bindForms();
+  bindFieldValidation();
   bindLicencePatternControls();
 });

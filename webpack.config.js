@@ -35,10 +35,6 @@ const entries = {
     './src/Assets/scss/admin.ui.scss',
   ],
   'wpoverride': './src/Assets/scss/wpoverride.scss',
-  'bootstrap-select': [
-    './src/Assets/js/bootstrap-select.js',
-    './src/Assets/scss/bootstrap-select.scss',
-  ]
 };
 
 const fontAwesomeEntries = {
@@ -136,6 +132,14 @@ module.exports = [
     plugins: [
       new MiniCssExtractPlugin({ filename: 'css/[name].css' }),
       new CopyUnprocessedAssetPlugin([
+        {
+          from: 'node_modules/@crestapps/bootstrap-select/dist/css/bootstrap-select.min.css',
+          to: 'src/Assets/dist/css/bootstrap-select.min.css',
+        },
+        {
+          from: 'node_modules/@crestapps/bootstrap-select/dist/js/bootstrap-select.min.js',
+          to: 'src/Assets/dist/js/bootstrap-select.min.js',
+        },
         {
           from: 'node_modules/@trilbdev/boostrap-select-country-data/dist/js/bs-country-data.min.js',
           to: 'src/Assets/dist/js/bs-country-data.min.js',

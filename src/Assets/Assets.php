@@ -96,7 +96,7 @@ final class Assets {
 				),
 				array(
 					'handle'  => 'licencepress-bootstrap-select',
-					'src'     => LICENCEPRESS_URL . 'src/Assets/dist/css/bootstrap-select.css',
+					'src'     => LICENCEPRESS_URL . 'src/Assets/dist/css/bootstrap-select.min.css',
 					'version' => '1.2.2',
 					'deps'    => array( 'licencepress-bootstrap' ),
 				),
@@ -116,7 +116,7 @@ final class Assets {
 				),
 				array(
 					'handle'    => 'licencepress-bootstrap-select',
-					'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/bootstrap-select.js',
+					'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/bootstrap-select.min.js',
 					'version'   => '1.2.2',
 					'deps'      => array( 'licencepress-bootstrap' ),
 					'in_footer' => true,

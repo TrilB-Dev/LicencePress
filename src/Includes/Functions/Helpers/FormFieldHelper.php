@@ -543,33 +543,35 @@ final class FormFieldHelper {
 	 */
 	private static function render_bootstrap_select( string $name, array $options ): string {
 
-		$settings = array(
-			'icons_base'                => array( 'icons-base', 'fa-solid' ),
-			'tick_icon'                 => array( 'tick-icon', 'fa-check' ),
-			'live_search'               => array( 'live-search', true ),
-			'show_selected_tags'        => array( 'show-selected-tags', true ),
-			'open_options'              => array( 'open-options', false ),
-			'dropup_auto'               => array( 'dropup-auto', true ),
-			'show_tick'                 => array( 'show-tick', null ),
-			'selection_indicator'       => array( 'selection-indicator', null ),
-			'live_search_placeholder'   => array( 'live-search-placeholder', __( 'Search or create', 'licencepress' ) ),
-			'open_options_text'         => array( 'open-options-text', __( 'Create "{0}"', 'licencepress' ) ),
-			'selected_text_format'      => array( 'selected-text-format', 'count' ),
-			'selected_items_style'      => array( 'selected-items-style', 'tags' ),
-			'selected_tag_remove_label' => array( 'selected-tag-remove-label', __( 'Remove', 'licencepress' ) ),
-			'placeholder'               => array( 'placeholder', __( 'Select options', 'licencepress' ) ),
-			'width'                     => array( 'width', '100%' ),
-			'size'                      => array( 'size', null ),
-			'actions_box'               => array( 'actions-box', null ),
-			'max_options'               => array( 'max-options', null ),
-			'live_search_normalize'     => array( 'live-search-normalize', null ),
-			'live_search_style'         => array( 'live-search-style', null ),
+		$explicit_data = array(
+			'icons_base'                => 'data-icons-base',
+			'tick_icon'                 => 'data-tick-icon',
+			'live_search'               => 'data-live-search',
+			'show_selected_tags'        => 'data-show-selected-tags',
+			'open_options'              => 'data-open-options',
+			'dropup_auto'               => 'data-dropup-auto',
+			'show_tick'                 => 'data-show-tick',
+			'selection_indicator'       => 'data-selection-indicator',
+			'live_search_placeholder'   => 'data-live-search-placeholder',
+			'open_options_text'         => 'data-open-options-text',
+			'selected_text_format'      => 'data-selected-text-format',
+			'selected_items_style'      => 'data-selected-items-style',
+			'selected_tag_remove_label' => 'data-selected-tag-remove-label',
+			'placeholder'               => 'data-placeholder',
+			'width'                     => 'data-width',
+			'size'                      => 'data-size',
+			'actions_box'               => 'data-actions-box',
+			'max_options'               => 'data-max-options',
+			'live_search_normalize'     => 'data-live-search-normalize',
+			'live_search_style'         => 'data-live-search-style',
+			'bscd_type'                 => 'data-bscd-type',
+			'bscd_group'                => 'data-bscd-group',
+			'bscd_flags'                => 'data-bscd-flags',
 		);
 
-		foreach ( $settings as $option_key => [ $attribute, $default ] ) {
-			$value = $options[ $option_key ] ?? $default;
-			if ( null !== $value ) {
-				$options[ 'data-' . $attribute ] = is_bool( $value ) ? ( $value ? 'true' : 'false' ) : $value;
+		foreach ( $explicit_data as $option_key => $attribute ) {
+			if ( array_key_exists( $option_key, $options ) && null !== $options[ $option_key ] ) {
+				$options[ $attribute ] = is_bool( $options[ $option_key ] ) ? ( $options[ $option_key ] ? 'true' : 'false' ) : (string) $options[ $option_key ];
 			}
 		}
 
@@ -577,34 +579,14 @@ final class FormFieldHelper {
 		if ( is_array( $country_data ) ) {
 			foreach (
 				array(
-					'type'     => 'data-bscd-type',
-					'group'    => 'data-bscd-group',
-					'grouping' => 'data-bscd-group',
-					'flags'    => 'data-bscd-flags',
-					'flag'     => 'data-bscd-flags',
-				) as $key => $attribute
+					'type'  => 'data-bscd-type',
+					'group' => 'data-bscd-group',
+					'flags' => 'data-bscd-flags',
+				) as $country_key => $country_attribute
 			) {
-				if ( array_key_exists( $key, $country_data ) && null !== $country_data[ $key ] ) {
-					$options[ $attribute ] = is_bool( $country_data[ $key ] ) ? ( $country_data[ $key ] ? 'true' : 'false' ) : (string) $country_data[ $key ];
+				if ( array_key_exists( $country_key, $country_data ) && null !== $country_data[ $country_key ] ) {
+					$options[ $country_attribute ] = is_bool( $country_data[ $country_key ] ) ? ( $country_data[ $country_key ] ? 'true' : 'false' ) : (string) $country_data[ $country_key ];
 				}
-			}
-		}
-
-		foreach (
-			array(
-				'bscd_type'      => 'data-bscd-type',
-				'bscd_group'     => 'data-bscd-group',
-				'bscd_grouping'  => 'data-bscd-group',
-				'bscd_flags'     => 'data-bscd-flags',
-				'bscd_flag'      => 'data-bscd-flags',
-				'country_type'    => 'data-bscd-type',
-				'country_group'   => 'data-bscd-group',
-				'country_flags'   => 'data-bscd-flags',
-				'country_flag'    => 'data-bscd-flags',
-			) as $key => $attribute
-		) {
-			if ( array_key_exists( $key, $options ) && null !== $options[ $key ] ) {
-				$options[ $attribute ] = is_bool( $options[ $key ] ) ? ( $options[ $key ] ? 'true' : 'false' ) : (string) $options[ $key ];
 			}
 		}
 
@@ -617,6 +599,12 @@ final class FormFieldHelper {
 		unset(
 			$options['icons_base'],
 			$options['tick_icon'],
+			$options['live_search'],
+			$options['show_selected_tags'],
+			$options['open_options'],
+			$options['dropup_auto'],
+			$options['show_tick'],
+			$options['selection_indicator'],
 			$options['live_search_placeholder'],
 			$options['open_options_text'],
 			$options['selected_text_format'],
@@ -629,22 +617,10 @@ final class FormFieldHelper {
 			$options['max_options'],
 			$options['live_search_normalize'],
 			$options['live_search_style'],
-			$options['live_search'],
-			$options['show_selected_tags'],
-			$options['open_options'],
-			$options['dropup_auto'],
-			$options['show_tick'],
-			$options['selection_indicator'],
-			$options['country_data'],
 			$options['bscd_type'],
 			$options['bscd_group'],
-			$options['bscd_grouping'],
 			$options['bscd_flags'],
-			$options['bscd_flag'],
-			$options['country_type'],
-			$options['country_group'],
-			$options['country_flags'],
-			$options['country_flag'],
+			$options['country_data'],
 			$options['data'],
 			$options['items'],
 			$options['selected']

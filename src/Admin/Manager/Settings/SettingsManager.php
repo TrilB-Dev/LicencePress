@@ -141,7 +141,7 @@ final class SettingsManager extends Manager {
 		$settings_assets              = $this->assets( 'settings' );
 		$settings_assets['scripts'][] = array(
 			'handle'    => 'licencepress-admin-plugins',
-			'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/plugins.admin.js',
+			'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/admin.plugins.js',
 			'deps'      => array( 'licencepress-bootstrap' ),
 			'in_footer' => true,
 		);

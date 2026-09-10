@@ -102,7 +102,7 @@ final class Assets {
 				),
 				array(
 					'handle'  => 'licencepress-bootstrap-select-country-data',
-					'src'     => LICENCEPRESS_URL . 'src/Assets/dist/css/bs-country-data.css',
+					'src'     => LICENCEPRESS_URL . 'src/Assets/dist/css/bs-country-data.min.css',
 					'version' => '1.0.3',
 					'deps'    => array( 'licencepress-bootstrap-select' ),
 				),
@@ -123,7 +123,7 @@ final class Assets {
 				),
 				array(
 					'handle'    => 'licencepress-bootstrap-select-country-data',
-					'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/bs-country-data.js',
+					'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/bs-country-data.min.js',
 					'version'   => '1.0.3',
 					'deps'      => array( 'licencepress-bootstrap-select' ),
 					'in_footer' => true,

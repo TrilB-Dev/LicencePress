@@ -13,6 +13,7 @@ use LicencePress\Includes\Functions\Admin\FunctionsPlugins;
 use LicencePress\Includes\Functions\Helpers\AjaxHelper;
 use LicencePress\Includes\Core\Capabilities;
 use LicencePress\Includes\Functions\Helpers\LoaderHelper;
+use LicencePress\Includes\Functions\Helpers\LoggerHelper;
 use LicencePress\Includes\Functions\Helpers\RequestHelper;
 use LicencePress\Includes\Functions\Helpers\SanitizationHelper;
 use LicencePress\Includes\Functions\Admin\FunctionsSidebar;
@@ -190,7 +191,9 @@ final class Admin {
 	 * @since 1.0.0
 	 */
 	public function register_admin_menu(): void {
+		LoggerHelper::write_log( 'LicencePress admin menu registration started.' );
 		FunctionsSidebar::register_admin_menu( $this );
+		LoggerHelper::write_log( 'LicencePress admin menu registration complete.' );
 	}
 	/**
 	 * Render the dashboard page.
@@ -200,19 +203,24 @@ final class Admin {
 	 */
 	public function render_dashboard(): void {
 		$group = RequestHelper::get_key( 'group', '' );
+		LoggerHelper::write_log( sprintf( 'LicencePress dashboard render triggered. Group=%s', $group ) );
 
 		switch ( $group ) {
 			case 'customers':
 			case 'licences':
+				LoggerHelper::write_log( 'LicencePress dashboard routed to licences page.' );
 				$this->render_licences();
 				return;
 			case 'settings':
+				LoggerHelper::write_log( 'LicencePress dashboard routed to settings page.' );
 				$this->render_settings();
 				return;
 			case 'tools':
+				LoggerHelper::write_log( 'LicencePress dashboard routed to tools page.' );
 				$this->render_tools();
 				return;
 			default:
+				LoggerHelper::write_log( 'LicencePress dashboard default render path selected.' );
 				$this->dashboard_manager->render();
 		}
 	}
@@ -239,7 +247,9 @@ final class Admin {
 	 * It delegates the rendering to the LicencesManager instance.
 	 */
 	public function render_licences(): void {
+		LoggerHelper::write_log( 'LicencePress licences render started.' );
 		$this->licences_manager->render();
+		LoggerHelper::write_log( 'LicencePress licences render complete.' );
 	}
 	/**
 	 * Render the add licence type page.
@@ -248,7 +258,9 @@ final class Admin {
 	 * It delegates the rendering to the LicencesManager instance.
 	 */
 	public function render_licence_type_add(): void {
+		LoggerHelper::write_log( 'LicencePress add licence type page render started.' );
 		$this->licences_manager->render_add_type();
+		LoggerHelper::write_log( 'LicencePress add licence type page render complete.' );
 	}
 	/**
 	 * Render the manage licence types page.
@@ -257,7 +269,9 @@ final class Admin {
 	 * It delegates the rendering to the LicencesManager instance.
 	 */
 	public function render_licence_types(): void {
+		LoggerHelper::write_log( 'LicencePress manage licence types page render started.' );
 		$this->licences_manager->render_manage_types();
+		LoggerHelper::write_log( 'LicencePress manage licence types page render complete.' );
 	}
 	/**
 	 * Render the manage licences page.
@@ -266,7 +280,9 @@ final class Admin {
 	 * It delegates the rendering to the LicencesManager instance.
 	 */
 	public function render_licence_management(): void {
+		LoggerHelper::write_log( 'LicencePress licence management page render started.' );
 		$this->licences_manager->render_manage_licences();
+		LoggerHelper::write_log( 'LicencePress licence management page render complete.' );
 	}
 	/**
 	 * Render the settings page.
@@ -275,7 +291,9 @@ final class Admin {
 	 * It delegates the rendering to the SettingsManager instance.
 	 */
 	public function render_settings(): void {
+		LoggerHelper::write_log( 'LicencePress settings page render started.' );
 		$this->settings_manager->render();
+		LoggerHelper::write_log( 'LicencePress settings page render complete.' );
 	}
 	/**
 	 * Render the tools page.
@@ -283,7 +301,9 @@ final class Admin {
 	 * @return void
 	 */
 	public function render_tools(): void {
+		LoggerHelper::write_log( 'LicencePress tools page render started.' );
 		$this->tools_manager->render();
+		LoggerHelper::write_log( 'LicencePress tools page render complete.' );
 	}
 	/**
 	 * Render the analytics page.

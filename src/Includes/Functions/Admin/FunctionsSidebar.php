@@ -242,8 +242,11 @@ final class FunctionsSidebar {
 		$capability = sanitize_key( (string) ( $menu['capability'] ?? 'manage_options' ) );
 
 		if ( '' === $slug || '' === $name || ! is_callable( $callback ) ) {
+			LoggerHelper::write_log( sprintf( 'LicencePress skipped menu registration for empty or invalid page: %s', $raw_slug ) );
 			return;
 		}
+
+		LoggerHelper::write_log( sprintf( 'LicencePress registering admin menu: %s (slug=%s, parent=%s, capability=%s)', $name, $slug, $parent, $capability ) );
 
 		if ( '' === $parent ) {
 			add_menu_page( $name, $name, $capability, $slug, $callback, $menu['icon'] ?? 'dashicons-admin-generic', $menu['position'] ?? null );
@@ -251,6 +254,7 @@ final class FunctionsSidebar {
 		}
 
 		if ( $slug === $parent ) {
+			LoggerHelper::write_log( sprintf( 'LicencePress skipped submenu registration because slug matches parent: %s', $slug ) );
 			return;
 		}
 

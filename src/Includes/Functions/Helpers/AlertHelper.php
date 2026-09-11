@@ -10,7 +10,13 @@ namespace LicencePress\Includes\Functions\Helpers;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-
+/**
+ * Alert helper class for rendering admin notices.
+ *
+ * @package LicencePress
+ * @subpackage Includes\Functions\Helpers
+ * @since 1.0.0
+ */
 class AlertHelper {
 	/**
 	 * Renders an admin error notice.

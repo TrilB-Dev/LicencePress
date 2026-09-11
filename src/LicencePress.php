@@ -226,8 +226,8 @@ class LicencePress {
 		$this->loader->add_action( 'init', $this->plugins, 'init', -10 );
 		$this->loader->add_action( 'admin_menu', $this->admin, 'register_admin_menu' );
 		$this->loader->add_action( 'admin_init', $this->settings_functions, 'register_settings' );
-		$this->loader->add_action( 'admin_post_wikipress_export', $this->export_functions, 'export_data' );
-		$this->loader->add_action( 'admin_post_wikipress_import', $this->import_functions, 'import_data' );
+		$this->loader->add_action( 'admin_post_licencepress_export', $this->export_functions, 'export_data' );
+		$this->loader->add_action( 'admin_post_licencepress_import', $this->import_functions, 'import_data' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $this->assets, 'enqueue_admin' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $this->assets, 'enqueue_frontend' );
 		if ( class_exists( Analytics::class ) && method_exists( Analytics::class, 'track_view' ) ) {

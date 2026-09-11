@@ -33,14 +33,23 @@ final class ShortcodeHelper {
 		);
 	}
 
-	/** @param array<string, mixed> $definition */
+	/**
+	 * Register a single shortcode definition.
+	 *
+	 * @param array<string, mixed> $definition The shortcode definition.
+	 * @param bool $replace Optional. Whether to replace an existing shortcode with the same tag. Default false.
+	 * @return bool True if the shortcode was registered successfully, false otherwise.
+	 */
 	public static function register( array $definition, bool $replace = false ): bool {
 		return Includes::get_instance()->core()->shortcodes()->register( $definition, $replace );
 	}
 
 	/**
-	 * @param array<int, array<string, mixed>> $definitions
-	 * @return array<int, string>
+	 * Register multiple shortcode definitions at once.
+	 *
+	 * @param array<int, array<string, mixed>> $definitions The shortcode definitions.
+	 * @param bool $replace Optional. Whether to replace existing shortcodes with the same tags. Default false.
+	 * @return array<int, string> The tags of the successfully registered shortcodes.
 	 */
 	public static function register_many( array $definitions, bool $replace = false ): array {
 		return Includes::get_instance()->core()->shortcodes()->register_many( $definitions, $replace );

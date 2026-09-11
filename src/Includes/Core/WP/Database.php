@@ -44,6 +44,9 @@ final class Database {
 	public static function install(): void {
 		global $wpdb;
 
+		\LicencePress\Includes\Licence\LicenceRepository::register_schema();
+		\LicencePress\Includes\Licence\LicenceTypeManager::register_schema();
+
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		$charset = $wpdb->get_charset_collate();
@@ -77,7 +80,7 @@ final class Database {
 			}
 		}
 
-		update_option( 'licencepress_db_version', defined( 'WIKIPRESS_VERSION' ) ? WIKIPRESS_VERSION : '1.0.0' );
+		update_option( 'licencepress_db_version', defined( 'LICENCEPRESS_VERSION' ) ? LICENCEPRESS_VERSION : '1.0.0' );
 	}
 
 	/**

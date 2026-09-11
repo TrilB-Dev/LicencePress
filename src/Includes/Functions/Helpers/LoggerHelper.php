@@ -2,8 +2,8 @@
 /**
  * This file contains the core logging & debugging functions for the plugin.
  *
- * @package    Wikipress
- * @subpackage Wikipress/Includes
+ * @package    LicencePress
+ * @subpackage LicencePress/Includes
  * @since      1.0.0
  * @author     MrTrilB <
  */

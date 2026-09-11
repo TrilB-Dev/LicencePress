@@ -15,6 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class EncryptionService {
+	/**
+	 * Encrypt a value using the runtime key.
+	 *
+	 * @param string $value The value to encrypt.
+	 * @return string|null The encrypted value or null on failure.
+	 */
 	public static function encrypt( string $value ): ?string {
 		if ( '' === $value ) {
 			return '';
@@ -32,6 +38,12 @@ final class EncryptionService {
 		}
 	}
 
+	/**
+	 * Decrypt a value using the runtime key.
+	 *
+	 * @param string|null $value The value to decrypt.
+	 * @return string|null The decrypted value or null on failure.
+	 */
 	public static function decrypt( ?string $value ): ?string {
 		if ( null === $value || '' === $value ) {
 			return $value ?? '';
@@ -49,6 +61,11 @@ final class EncryptionService {
 		}
 	}
 
+	/**
+	 * Load the runtime encryption key.
+	 *
+	 * @return Key|null The loaded key or null on failure.
+	 */
 	public static function load_key(): ?Key {
 		$runtime_key = KeyManager::runtime_key();
 		if ( null === $runtime_key || '' === $runtime_key ) {

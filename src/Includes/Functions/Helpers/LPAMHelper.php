@@ -14,6 +14,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class LPAMHelper {
+	/**
+	 * The filter hook for modifying the admin menus.
+	 *
+	 * @var string
+	 */
 	public const FILTER = 'licencepress_admin_menus';
 
 	/**

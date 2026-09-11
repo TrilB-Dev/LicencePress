@@ -10,11 +10,20 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Register and process LicencePress shortcode definitions.
  */
 final class Shortcodes {
-	/** @var array<string, array<string, mixed>> */
+	/**
+	 * Definitions of registered shortcodes.
+	 * 
+	 * @var array<string, array<string, mixed>> Shortcode definitions keyed by their tags.
+	 */
 	private array $definitions = array();
 
 	/**
+	 * Register a single shortcode.
+	 *
 	 * @param array<string, mixed> $definition Shortcode definition.
+	 * @param bool $replace Whether to replace an existing shortcode with the same tag.
+	 *
+	 * @return bool True if the shortcode was registered, false otherwise.
 	 */
 	public function register( array $definition, bool $replace = false ): bool {
 		$definition = $this->normalize_definition( $definition );
@@ -31,7 +40,11 @@ final class Shortcodes {
 	}
 
 	/**
+	 * Register multiple shortcodes at once.
+	 *
 	 * @param array<int, array<string, mixed>> $definitions Shortcode definitions.
+	 * @param bool $replace Whether to replace existing shortcodes with the same tag.
+	 *
 	 * @return array<int, string> Registered tags.
 	 */
 	public function register_many( array $definitions, bool $replace = false ): array {
@@ -45,7 +58,13 @@ final class Shortcodes {
 
 		return $registered;
 	}
-
+	/**
+	 * Unregister a shortcode by its tag.
+	 *
+	 * @param string $tag Shortcode tag.
+	 *
+	 * @return bool True if the shortcode was unregistered, false otherwise.
+	 */
 	public function unregister( string $tag ): bool {
 		$tag = $this->normalize_tag( $tag );
 		if ( ! isset( $this->definitions[ $tag ] ) ) {
@@ -58,16 +77,33 @@ final class Shortcodes {
 		return true;
 	}
 
-	/** @return array<string, array<string, mixed>> */
+	/**
+	 * Get all registered shortcode definitions.
+	 *
+	 * @return array<string, array<string, mixed>> Shortcode definitions keyed by their tags.
+	 */
 	public function definitions(): array {
 		return $this->definitions;
 	}
 
-	/** @return array<string, mixed>|null */
+	/**
+	 * Get the definition of a specific shortcode by its tag.
+	 *
+	 * @param string $tag Shortcode tag.
+	 *
+	 * @return array<string, mixed>|null Shortcode definition or null if not found.
+	 */
 	public function definition( string $tag ): ?array {
 		return $this->definitions[ $this->normalize_tag( $tag ) ] ?? null;
 	}
 
+	/**
+	 * Check if a shortcode with the given tag is registered.
+	 *
+	 * @param string $tag Shortcode tag.
+	 *
+	 * @return bool True if the shortcode is registered, false otherwise.
+	 */
 	public function has( string $tag ): bool {
 		return isset( $this->definitions[ $this->normalize_tag( $tag ) ] );
 	}
@@ -78,6 +114,8 @@ final class Shortcodes {
 	 * @param array|string $atts Shortcode attributes.
 	 * @param string|null  $content Enclosed content, or null for self-closing use.
 	 * @param string       $tag Shortcode tag.
+	 *
+	 * @return string Shortcode output.
 	 */
 	public function process( $atts = array(), $content = null, string $tag = '' ): string {
 		$tag        = $this->normalize_tag( $tag );
@@ -97,8 +135,10 @@ final class Shortcodes {
 	}
 
 	/**
+	 * Normalize a shortcode definition to ensure it has all required fields.
+	 *
 	 * @param array<string, mixed> $definition Shortcode definition.
-	 * @return array<string, mixed>
+	 * @return array<string, mixed> Normalized shortcode definition.
 	 * @throws \InvalidArgumentException If a shortcode definition is invalid.
 	 */
 	private function normalize_definition( array $definition ): array {
@@ -132,7 +172,13 @@ final class Shortcodes {
 			)
 		);
 	}
-
+	/**
+	 * Normalize a shortcode tag by trimming and converting it to lowercase.
+	 *
+	 * @param string $tag Shortcode tag.
+	 *
+	 * @return string Normalized shortcode tag.
+	 */
 	private function normalize_tag( $tag ): string {
 		return strtolower( trim( (string) $tag ) );
 	}

@@ -1,5 +1,10 @@
 <?php
-
+/**
+ * Post type definitions for LicencePress.
+ * 
+ * Defines the custom post types used by LicencePress.
+ * @since 1.0.0
+ */
 namespace LicencePress\Includes\Core;
 
 use LicencePress\Includes\Settings\Settings;
@@ -10,68 +15,104 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class PostType {
-	public const WIKI                   = 'licencepress';
-	public const PAGE                   = 'licencepress';
-	public const WIKI_CAPABILITY        = 'licencepress_wiki';
-	public const WIKI_CAPABILITY_PLURAL = 'licencepress_wikis';
-	public const PAGE_CAPABILITY        = 'licencepress_page';
-	public const PAGE_CAPABILITY_PLURAL = 'licencepress_pages';
-
+	/**
+	 * Register the custom post types.
+	 *
+	 * @return void
+	 */
+	public const LICENCE_TYPE                   			 = 'licencepress_licence_type';
+	/**
+	 * Post type for the Wiki container.
+	 * 
+	 * Post type for the variants of a Wiki container.
+	 * @return mixed
+	 */
+	public const LICENCE_TYPE_VARIANT                   	 = 'licencepress_licence_type_variant';
+	/**
+	 * Capability for the Wiki container post type.
+	 */
+	public const LICENCEPRESS_TYPE_CAPABILITY        		 = 'licencepress_licence_type';
+	/**
+	 * Capability for the Wiki container variant post type.
+	 */
+	public const LICENCEPRESS_TYPE_CAPABILITY_PLURAL 		 = 'licencepress_licence_types';
+	/**
+	 * Capability for the Wiki container variant post type.
+	 */
+	public const LICENCEPRESS_TYPE_VARIANT_CAPABILITY        = 'licencepress_licence_type_variant';
+	/**
+	 * Capability for the plural form of the Wiki container variant post type.
+	 */
+	public const LICENCEPRESS_TYPE_VARIANT_CAPABILITY_PLURAL = 'licencepress_licence_type_variants';
+	/**
+	 * Register the custom post types.
+	 *
+	 * @return void
+	 */
 	public function register(): void {
-		register_post_type( self::WIKI, self::wiki_args() );
-		register_post_type( self::PAGE, self::page_args() );
+		register_post_type( self::LICENCE_TYPE, self::wiki_args() );
+		register_post_type( self::LICENCE_TYPE_VARIANT, self::page_args() );
 		add_filter( 'post_type_link', array( PermalinkHelper::class, 'filter_page_permalink' ), 10, 2 );
 		PermalinkHelper::rewrite_rule();
 	}
-
+	/**
+	 * Get the post type name for the public licence type variant.
+	 *
+	 * @return string
+	 */
 	public static function get_post_type_name(): string {
-		return self::PAGE;
+		return self::LICENCE_TYPE_VARIANT;
 	}
 
+	/**
+	 * Get the rewrite slug for the public licence type variant pages.
+	 *
+	 * @return string
+	 */
 	public static function page_rewrite_slug(): string {
 		return self::setting_slug( 'root_slug', 'wiki' );
 	}
 
 	/**
-	 * Build the Wiki container post type definition.
+	 * Build the licence type post type definition.
 	 *
 	 * @return array<string, mixed> Registration arguments.
 	 */
 	public static function wiki_args(): array {
 		return apply_filters(
-			'licencepress_wiki_post_type_args',
+			'licencepress_licence_type_post_type_args',
 			array(
 				'labels'          => array(
-					'name'          => __( 'Wikis', 'licencepress' ),
-					'singular_name' => __( 'Wiki', 'licencepress' ),
-					'add_new_item'  => __( 'Add New Wiki', 'licencepress' ),
-					'edit_item'     => __( 'Edit Wiki', 'licencepress' ),
+					'name'          => __( 'Licence Types', 'licencepress' ),
+					'singular_name' => __( 'Licence Type', 'licencepress' ),
+					'add_new_item'  => __( 'Add New Licence Type', 'licencepress' ),
+					'edit_item'     => __( 'Edit Licence Type', 'licencepress' ),
 				),
 				'public'          => false,
 				'show_ui'         => false,
 				'show_in_rest'    => true,
 				'supports'        => array( 'title', 'editor', 'author', 'thumbnail', 'revisions' ),
-				'capability_type' => array( self::WIKI_CAPABILITY, self::WIKI_CAPABILITY_PLURAL ),
+				'capability_type' => array( self::LICENCEPRESS_TYPE_CAPABILITY, self::LICENCEPRESS_TYPE_CAPABILITY_PLURAL ),
 				'map_meta_cap'    => true,
 			),
-			self::WIKI
+			self::LICENCE_TYPE
 		);
 	}
 
 	/**
-	 * Build the public Wiki page post type definition.
+	 * Build the public licence type variant post type definition.
 	 *
 	 * @return array<string, mixed> Registration arguments.
 	 */
 	public static function page_args(): array {
 		return apply_filters(
-			'licencepress_page_post_type_args',
+			'licencepress_licence_type_variant_post_type_args',
 			array(
 				'labels'          => array(
-					'name'          => __( 'Wiki Pages', 'licencepress' ),
-					'singular_name' => __( 'Wiki Page', 'licencepress' ),
-					'add_new_item'  => __( 'Add New Wiki Page', 'licencepress' ),
-					'edit_item'     => __( 'Edit Wiki Page', 'licencepress' ),
+					'name'          => __( 'Licence Type Variants', 'licencepress' ),
+					'singular_name' => __( 'Licence Type Variant', 'licencepress' ),
+					'add_new_item'  => __( 'Add New Licence Type Variant', 'licencepress' ),
+					'edit_item'     => __( 'Edit Licence Type Variant', 'licencepress' ),
 				),
 				'public'          => true,
 				'show_ui'         => false,
@@ -79,19 +120,36 @@ final class PostType {
 				'has_archive'     => false,
 				'rewrite'         => array( 'slug' => self::page_rewrite_slug() ),
 				'supports'        => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'revisions', 'page-attributes' ),
-				'capability_type' => array( self::PAGE_CAPABILITY, self::PAGE_CAPABILITY_PLURAL ),
+				'capability_type' => array( self::LICENCEPRESS_TYPE_VARIANT_CAPABILITY, self::LICENCEPRESS_TYPE_VARIANT_CAPABILITY_PLURAL ),
 				'map_meta_cap'    => true,
 			),
-			self::PAGE
+			self::LICENCE_TYPE_VARIANT
 		);
 	}
-
+	/**
+	 * Get all registered post type names.
+	 *
+	 * @return array<string> Post type names.
+	 */
 	public static function get_post_type_names(): array {
-		return array( self::WIKI, self::PAGE );
+		return array( self::LICENCE_TYPE, self::LICENCE_TYPE_VARIANT );
 	}
-
+	/**
+	 * Get the slug for a specific setting, with a fallback.
+	 *
+	 * @param string $key     Setting key.
+	 * @param string $fallback Fallback value.
+	 *
+	 * @return string
+	 */
 	private static function setting_slug( string $key, string $fallback ): string {
-		$value = sanitize_title( (string) Settings::get( $key, $fallback ) );
+		$value = (string) Settings::get( $key, $fallback );
+		if ( function_exists( 'sanitize_title' ) ) {
+			$value = sanitize_title( $value );
+		} else {
+			$value = strtolower( preg_replace( '/[^a-z0-9]+/i', '-', $value ) );
+			$value = trim( $value, '-' );
+		}
 		return $value !== '' ? $value : $fallback;
 	}
 }

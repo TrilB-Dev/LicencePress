@@ -11,6 +11,11 @@
 namespace LicencePress\Includes\Functions\Admin;
 
 class FunctionsDebug {
+	/**
+	 * Retrieve debug information about the WordPress environment.
+	 *
+	 * @return array<string, mixed> An associative array containing debug information.
+	 */
 	public static function debug_info(): array {
 		return array(
 			'php_version'         => phpversion(),

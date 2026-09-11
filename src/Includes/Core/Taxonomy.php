@@ -9,55 +9,55 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class Taxonomy {
-	public const CATEGORY = 'licencepress_category';
-	public const TAG      = 'licencepress_tag';
+	public const CATEGORY = 'licence_type_categories';
+	public const TAG      = 'licence_type_tags';
 
 	public function register(): void {
-		register_taxonomy( self::CATEGORY, array( PostType::WIKI, PostType::PAGE ), self::category_args() );
-		register_taxonomy( self::TAG, array( PostType::WIKI, PostType::PAGE ), self::tag_args() );
+		register_taxonomy( self::CATEGORY, array( PostType::LICENCE_TYPE, PostType::LICENCE_TYPE_VARIANT ), self::category_args() );
+		register_taxonomy( self::TAG, array( PostType::LICENCE_TYPE, PostType::LICENCE_TYPE_VARIANT ), self::tag_args() );
 	}
 
 	/**
-	 * Build the hierarchical Wiki category taxonomy definition.
+	 * Build the hierarchical licence type category taxonomy definition.
 	 *
 	 * @return array<string, mixed> Registration arguments.
 	 */
 	public static function category_args(): array {
 		return apply_filters(
-			'licencepress_category_taxonomy_args',
+			'licencepress_licence_type_categories_taxonomy_args',
 			array(
 				'labels'       => array(
-					'name'          => __( 'Wiki Categories', 'licencepress' ),
-					'singular_name' => __( 'Wiki Category', 'licencepress' ),
+					'name'          => __( 'Licence Type Categories', 'licencepress' ),
+					'singular_name' => __( 'Licence Type Category', 'licencepress' ),
 				),
 				'hierarchical' => true,
 				'public'       => true,
 				'show_ui'      => false,
 				'show_in_rest' => true,
-				'rewrite'      => array( 'slug' => self::setting_slug( 'category_slug', 'wiki-category' ) ),
+				'rewrite'      => array( 'slug' => self::setting_slug( 'category_slug', 'licence-type-category' ) ),
 			),
 			self::CATEGORY
 		);
 	}
 
 	/**
-	 * Build the non-hierarchical Wiki tag taxonomy definition.
+	 * Build the non-hierarchical licence type tag taxonomy definition.
 	 *
 	 * @return array<string, mixed> Registration arguments.
 	 */
 	public static function tag_args(): array {
 		return apply_filters(
-			'licencepress_tag_taxonomy_args',
+			'licencepress_licence_type_tags_taxonomy_args',
 			array(
 				'labels'       => array(
-					'name'          => __( 'Wiki Tags', 'licencepress' ),
-					'singular_name' => __( 'Wiki Tag', 'licencepress' ),
+					'name'          => __( 'Licence Type Tags', 'licencepress' ),
+					'singular_name' => __( 'Licence Type Tag', 'licencepress' ),
 				),
 				'hierarchical' => false,
 				'public'       => true,
 				'show_ui'      => false,
 				'show_in_rest' => true,
-				'rewrite'      => array( 'slug' => self::setting_slug( 'tag_slug', 'wiki-tag' ) ),
+				'rewrite'      => array( 'slug' => self::setting_slug( 'tag_slug', 'licence-type-tag' ) ),
 			),
 			self::TAG
 		);
@@ -68,7 +68,13 @@ final class Taxonomy {
 	}
 
 	private static function setting_slug( string $key, string $fallback ): string {
-		$value = sanitize_title( (string) Settings::get( $key, $fallback ) );
+		$value = (string) Settings::get( $key, $fallback );
+		if ( function_exists( 'sanitize_title' ) ) {
+			$value = sanitize_title( $value );
+		} else {
+			$value = strtolower( preg_replace( '/[^a-z0-9]+/i', '-', $value ) );
+			$value = trim( $value, '-' );
+		}
 		return $value !== '' ? $value : $fallback;
 	}
 }

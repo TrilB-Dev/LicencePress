@@ -5,6 +5,9 @@
 namespace LicencePress\Test\Unit;
 
 use Defuse\Crypto\Key;
+use LicencePress\Includes\Core\PostType;
+use LicencePress\Includes\Core\Taxonomy;
+use LicencePress\Includes\Functions\Helpers\LicenceHelper;
 use LicencePress\Includes\Licence\EncryptionService;
 use LicencePress\Includes\Licence\KeyManager;
 use LicencePress\Includes\Licence\LicenceGenerator;
@@ -60,6 +63,14 @@ final class LicenceCoreTest extends TestCase {
 		}
 	}
 
+	public function test_licencepress_post_types_and_taxonomies_use_current_names(): void {
+		$this->assertSame( 'licencepress_licence_type', PostType::LICENCE_TYPE );
+		$this->assertSame( 'licencepress_licence_type_variant', PostType::LICENCE_TYPE_VARIANT );
+		$this->assertSame( 'licence_type_categories', Taxonomy::CATEGORY );
+		$this->assertSame( 'licence_type_tags', Taxonomy::TAG );
+		$this->assertSame( 'licence-types', PostType::page_rewrite_slug() );
+	}
+
 	public function test_generates_and_validates_a_license(): void {
 		$product_id = 'core-pro-' . uniqid( '', true );
 		$site_url   = 'https://example.com';
@@ -76,6 +87,50 @@ final class LicenceCoreTest extends TestCase {
 
 		$this->assertNotSame( $plaintext, $ciphertext );
 		$this->assertSame( $plaintext, EncryptionService::decrypt( $ciphertext ) );
+	}
+
+	public function test_licence_helper_respects_default_settings_and_per_licence_overrides(): void {
+		$default_settings = array(
+			'licence_prefix'                     => 'LP',
+			'licence_pattern_type'               => 'custom',
+			'custom_licence_pattern'             => 'XX-XX-XX',
+			'licence_pattern_format'             => 'alphanumeric',
+			'licence_pattern_letter_case'        => 'uppercase',
+			'licence_pattern_separator'          => '-',
+			'exclude_ambiguous_characters'      => array( '0', 'O', '1', 'i', 'l', 'I' ),
+			'licensor_name'                      => 'Acme Ltd',
+			'licensor_country'                   => 'United Kingdom',
+		);
+
+		$licence_settings = array(
+			'use_default_licence_prefix'        => false,
+			'licence_prefix'                    => 'DEV',
+			'use_default_licence_pattern_type' => false,
+			'licence_pattern_type'              => 'custom',
+			'custom_licence_pattern'            => 'AN-NN-AN',
+			'use_default_exclude_ambiguous_characters' => false,
+			'exclude_ambiguous_characters'      => array( '0', '1' ),
+			'use_default_licence_pattern_format' => false,
+			'licence_pattern_format'            => 'alphanumeric',
+			'use_default_licence_pattern_letter_case' => false,
+			'licence_pattern_letter_case'       => 'uppercase',
+			'use_default_licence_pattern_separator' => false,
+			'licence_pattern_separator'         => '-',
+			'use_default_licensor_name'         => false,
+			'licensor_name'                     => 'Northwind',
+			'use_default_licensor_country'      => false,
+			'licensor_country'                  => 'France',
+		);
+
+		$result = LicenceHelper::generate( $default_settings, $licence_settings, array( 'table_name' => 'wp_licencepress_licence' ) );
+
+		$this->assertNotEmpty( $result['licence'] );
+		$this->assertStringStartsWith( 'DEV-', $result['licence'] );
+		$this->assertMatchesRegularExpression( '/^DEV-[A-Z0-9-]+$/', $result['licence'] );
+		$this->assertNotSame( '', $result['encrypted_licence'] );
+		$this->assertSame( 'Northwind', $result['settings']['licensor_name'] );
+		$this->assertSame( 'France', $result['settings']['licensor_country'] );
+		$this->assertStringNotContainsString( '0', $result['licence'] );
 	}
 
 	public function test_manager_creates_and_revokes_a_license(): void {
@@ -136,6 +191,73 @@ final class LicenceCoreTest extends TestCase {
 		$deleted = LicenceTypeManager::delete_type( $created );
 		$this->assertTrue( $deleted );
 		$this->assertNull( LicenceTypeManager::get_type( $created ) );
+	}
+
+	public function test_licence_type_extended_configuration_persists_in_metadata(): void {
+		$config = array(
+			'name'           => 'Extended Licence Type',
+			'slug'           => 'extended-licence-type',
+			'prefix'         => 'EXT',
+			'length'         => 18,
+			'pattern'        => 'prefix-segment-segment',
+			'licensor_name'  => 'Acme Studio',
+			'renewal_window' => 45,
+			'licence_platforms' => array( 'website', 'windows_software' ),
+			'capability_groups' => array(
+				array(
+					'name' => 'Product Access',
+					'capabilities' => array( 'feature_access', 'support_priority' ),
+				),
+			),
+		);
+
+		$id = LicenceTypeManager::create_type( $config );
+		$this->assertGreaterThan( 0, $id );
+
+		$loaded = LicenceTypeManager::get_type( $id );
+		$this->assertNotNull( $loaded );
+		$this->assertNotEmpty( $loaded['metadata'] );
+		$this->assertSame( 'Acme Studio', maybe_unserialize( $loaded['metadata'] )['licensor_name'] ?? '' );
+		$this->assertSame( 45, (int) ( maybe_unserialize( $loaded['metadata'] )['renewal_window'] ?? 0 ) );
+
+		$updated = LicenceTypeManager::update_type(
+			$id,
+			array(
+				'renewal_window' => 60,
+				'licence_platforms' => array( 'website', 'ios_devices' ),
+			)
+		);
+
+		$this->assertTrue( $updated );
+		$metadata = maybe_unserialize( LicenceTypeManager::get_type( $id )['metadata'] );
+		$this->assertSame( 60, (int) ( $metadata['renewal_window'] ?? 0 ) );
+		$this->assertContains( 'ios_devices', $metadata['licence_platforms'] ?? array() );
+	}
+
+	public function test_licence_type_metadata_is_hydrated_on_load_for_editing(): void {
+		$id = LicenceTypeManager::create_type(
+			array(
+				'name'           => 'Hydrated Licence Type',
+				'slug'           => 'hydrated-licence-type',
+				'prefix'         => 'HDT',
+				'length'         => 16,
+				'pattern'        => 'prefix-segment-segment',
+				'renewal_window' => 45,
+				'licence_platforms' => array( 'website', 'windows_software' ),
+				'capability_groups' => array(
+					array(
+						'name'        => 'Product Access',
+						'capabilities' => array( 'feature_access', 'updates' ),
+					),
+				),
+			)
+		);
+
+		$loaded = LicenceTypeManager::get_type( $id );
+		$this->assertNotNull( $loaded );
+		$this->assertSame( 45, (int) ( $loaded['renewal_window'] ?? 0 ) );
+		$this->assertContains( 'windows_software', $loaded['licence_platforms'] ?? array() );
+		$this->assertSame( 'Product Access', ( $loaded['capability_groups'][0]['name'] ?? '' ) );
 	}
 
 	public function test_retired_licence_types_block_new_issues_but_keep_existing_licences_valid(): void {

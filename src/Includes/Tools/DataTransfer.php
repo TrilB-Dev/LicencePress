@@ -19,14 +19,14 @@ final class DataTransfer {
 	public static function export(): array {
 		$data  = array(
 			'version'    => self::VERSION,
-			'wikis'      => array(),
-			'pages'      => array(),
-			'categories' => array(),
-			'tags'       => array(),
+			'licence_types' => array(),
+			'variants'      => array(),
+			'categories'    => array(),
+			'tags'          => array(),
 		);
 		$query = QueryHelper::posts(
 			array(
-				'post_type'      => array( PostType::WIKI, PostType::PAGE ),
+				'post_type'      => array( PostType::LICENCE_TYPE, PostType::LICENCE_TYPE_VARIANT ),
 				'post_status'    => 'any',
 				'posts_per_page' => -1,
 			)
@@ -44,11 +44,11 @@ final class DataTransfer {
 				'content'    => $post->post_content,
 				'excerpt'    => $post->post_excerpt,
 				'status'     => $post->post_status,
-				'wiki_id'    => absint( get_post_meta( $post->ID, '_wikipress_wiki_id', true ) ),
+				'licence_type_id' => absint( get_post_meta( $post->ID, '_licencepress_licence_type_id', true ) ),
 				'categories' => TaxonomyHelper::names( TaxonomyHelper::terms( Taxonomy::CATEGORY, $post->ID ) ),
 				'tags'       => TaxonomyHelper::names( TaxonomyHelper::terms( Taxonomy::TAG, $post->ID ) ),
 			);
-			$data[ $post->post_type === PostType::WIKI ? 'wikis' : 'pages' ][] = $item;
+			$data[ $post->post_type === PostType::LICENCE_TYPE ? 'licence_types' : 'variants' ][] = $item;
 		}
 		wp_reset_postdata();
 		foreach ( array(
@@ -77,16 +77,16 @@ final class DataTransfer {
 		if ( ! is_array( $data ) ) {
 			return array(
 				'valid'  => false,
-				'errors' => array( __( 'The import data must be an object.', 'wikipress' ) ),
+				'errors' => array( __( 'The import data must be an object.', 'licencepress' ) ),
 			);
 		}
 		if ( absint( $data['version'] ?? 0 ) !== self::VERSION ) {
-			$errors[] = __( 'This LicencePress export version is not supported.', 'wikipress' );
+			$errors[] = __( 'This LicencePress export version is not supported.', 'licencepress' );
 		}
-		foreach ( array( 'wikis', 'pages', 'categories', 'tags' ) as $key ) {
+		foreach ( array( 'licence_types', 'variants', 'categories', 'tags' ) as $key ) {
 			if ( isset( $data[ $key ] ) && ! is_array( $data[ $key ] ) ) {
 				/* translators: %s is the name of the export section. */
-				$errors[] = sprintf( esc_html__( 'The %s export section must be an array.', 'wikipress' ), $key );
+				$errors[] = sprintf( esc_html__( 'The %s export section must be an array.', 'licencepress' ), $key );
 			}
 		}
 
@@ -109,49 +109,49 @@ final class DataTransfer {
 			'tags'       => 0,
 			'errors'     => array(),
 		);
-		foreach ( (array) ( $data['wikis'] ?? array() ) as $wiki ) {
-			if ( ! is_array( $wiki ) ) {
-				$result['errors'][] = __( 'A Wiki entry was skipped because it was invalid.', 'wikipress' );
+		foreach ( (array) ( $data['licence_types'] ?? array() ) as $licence_type ) {
+			if ( ! is_array( $licence_type ) ) {
+				$result['errors'][] = __( 'A licence type entry was skipped because it was invalid.', 'licencepress' );
 				continue;
 			}
 			$id = wp_insert_post(
 				array(
-					'post_type'    => PostType::WIKI,
-					'post_title'   => SanitizationHelper::text( $wiki['title'] ?? '' ),
-					'post_content' => self::content( $wiki['content'] ?? '' ),
-					'post_status'  => self::status( $wiki['status'] ?? 'draft' ),
+					'post_type'    => PostType::LICENCE_TYPE,
+					'post_title'   => SanitizationHelper::text( $licence_type['title'] ?? '' ),
+					'post_content' => self::content( $licence_type['content'] ?? '' ),
+					'post_status'  => self::status( $licence_type['status'] ?? 'draft' ),
 				),
 				true
 			);
 			if ( ! is_wp_error( $id ) ) {
-				$wiki_map[ absint( $wiki['id'] ?? 0 ) ] = (int) $id;
-				++$result['wikis'];
+				$wiki_map[ absint( $licence_type['id'] ?? 0 ) ] = (int) $id;
+				++$result['licence_types'];
 			} else {
 				$result['errors'][] = $id->get_error_message();
 			}
 		}
-		foreach ( (array) ( $data['pages'] ?? array() ) as $page ) {
-			if ( ! is_array( $page ) ) {
-				$result['errors'][] = __( 'A page entry was skipped because it was invalid.', 'wikipress' );
+		foreach ( (array) ( $data['variants'] ?? array() ) as $variant ) {
+			if ( ! is_array( $variant ) ) {
+				$result['errors'][] = __( 'A variant entry was skipped because it was invalid.', 'licencepress' );
 				continue;
 			}
 			$id = wp_insert_post(
 				array(
-					'post_type'    => PostType::PAGE,
-					'post_title'   => SanitizationHelper::text( $page['title'] ?? '' ),
-					'post_content' => self::content( $page['content'] ?? '' ),
-					'post_excerpt' => SanitizationHelper::text( $page['excerpt'] ?? '' ),
-					'post_status'  => self::status( $page['status'] ?? 'draft' ),
+					'post_type'    => PostType::LICENCE_TYPE_VARIANT,
+					'post_title'   => SanitizationHelper::text( $variant['title'] ?? '' ),
+					'post_content' => self::content( $variant['content'] ?? '' ),
+					'post_excerpt' => SanitizationHelper::text( $variant['excerpt'] ?? '' ),
+					'post_status'  => self::status( $variant['status'] ?? 'draft' ),
 				),
 				true
 			);
 			if ( ! is_wp_error( $id ) ) {
-				++$result['pages'];
-				if ( ! empty( $wiki_map[ absint( $page['wiki_id'] ?? 0 ) ] ) ) {
-					update_post_meta( (int) $id, '_wikipress_wiki_id', $wiki_map[ absint( $page['wiki_id'] ?? 0 ) ] );
+				++$result['variants'];
+				if ( ! empty( $wiki_map[ absint( $variant['licence_type_id'] ?? 0 ) ] ) ) {
+					update_post_meta( (int) $id, '_licencepress_licence_type_id', $wiki_map[ absint( $variant['licence_type_id'] ?? 0 ) ] );
 				}
-				self::set_terms( (int) $id, $page['categories'] ?? array(), Taxonomy::CATEGORY );
-				self::set_terms( (int) $id, $page['tags'] ?? array(), Taxonomy::TAG );
+				self::set_terms( (int) $id, $variant['categories'] ?? array(), Taxonomy::CATEGORY );
+				self::set_terms( (int) $id, $variant['tags'] ?? array(), Taxonomy::TAG );
 			} else {
 				$result['errors'][] = $id->get_error_message();
 			}

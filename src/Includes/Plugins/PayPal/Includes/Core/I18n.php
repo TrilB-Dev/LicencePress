@@ -8,6 +8,8 @@
  */
 namespace LicencePress\Includes\Plugins\PayPal\Includes;
 
+use LicencePress\Includes\Core\WP\I18n as CoreI18n;
+
 class I18n {
 	/**
 	 * Loads the plugin's text domain for translation.
@@ -16,7 +18,7 @@ class I18n {
 		load_plugin_textdomain(
 			'licencepress',
 			false,
-			dirname( plugin_basename( LICENCEPRESS_FILE ) ) . '/src/Includes/Plugins/PayPal/Language/'
+			dirname( plugin_basename( LICENCEPRESS_PLUGINS ) ) . '/PayPal/Language/'
 		);
 	}
 }

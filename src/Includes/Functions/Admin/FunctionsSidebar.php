@@ -90,7 +90,12 @@ final class FunctionsSidebar {
 		return admin_url( 'admin.php?page=' . $slug );
 	}
 
-	/** @return array<int, array<string, mixed>> */
+	/**
+	 * Get the core WordPress menus for the admin sidebar.
+	 *
+	 * @param Admin $admin Core admin callbacks and capability resolver.
+	 * @return array<int, array<string, mixed>> The core WordPress menus.
+	 */
 	private static function core_wordpress_menus( Admin $admin ): array {
 		return array(
 			array(
@@ -154,7 +159,11 @@ final class FunctionsSidebar {
 		);
 	}
 
-	/** @return array<string, array<string, mixed>> */
+	/**
+	 * Get the core sidebar groups for the admin sidebar.
+	 *
+	 * @return array<string, array<string, mixed>> The core sidebar groups.
+	 */
 	private static function core_sidebar_groups(): array {
 		return array(
 			'licences' => array(
@@ -247,7 +256,12 @@ final class FunctionsSidebar {
 			),
 		);
 	}
-
+	/**
+	 * Register a WordPress menu.
+	 *
+	 * @param array<string, mixed> $menu The menu definition.
+	 * @return void
+	 */
 	private static function register_wordpress_menu( array $menu ): void {
 		$callback   = $menu['callback'] ?? null;
 		$slug       = sanitize_key( (string) ( $menu['slug'] ?? '' ) );
@@ -267,7 +281,11 @@ final class FunctionsSidebar {
 		add_submenu_page( $parent, $name, $name, $capability, $slug, $callback, $menu['position'] ?? null );
 	}
 
-	/** @return array<int, array<string, mixed>> */
+	/**
+	 * Get the WordPress menus provided by active LicencePress plugins.
+	 *
+	 * @return array<int, array<string, mixed>> The WordPress menus.
+	*/
 	private static function plugin_wordpress_menus(): array {
 		$menus = array();
 
@@ -298,7 +316,12 @@ final class FunctionsSidebar {
 		return array_values( array_filter( $menus, static fn ( $menu ): bool => is_array( $menu ) ) );
 	}
 
-	/** @param array<string, mixed> $definition @return array<string, mixed> */
+	/**
+	 * Normalize a WordPress menu definition.
+	 *
+	 * @param array<string, mixed> $definition The menu definition.
+	 * @return array<string, mixed> The normalized menu.
+	 */
 	private static function normalize_wordpress_menu( array $definition ): array {
 		return array(
 			'name'       => $definition['menu_title'] ?? $definition['page_title'] ?? '',
@@ -310,13 +333,22 @@ final class FunctionsSidebar {
 			'position'   => $definition['position'] ?? null,
 		);
 	}
-
+	/**
+	 * Sanitize an admin parent slug.
+	 *
+	 * @param string $parent The parent slug to sanitize.
+	 * @return string The sanitized parent slug.
+	 */
 	private static function admin_parent_slug( string $parent ): string {
 		$parent = strtolower( sanitize_text_field( $parent ) );
 		return (string) preg_replace( '/[^a-z0-9._-]/', '', $parent );
 	}
 
-	/** @return array<int, array<string, mixed>> */
+	/**
+	 * Get the sidebar menus provided by active LicencePress plugins.
+	 *
+	 * @return array<int, array<string, mixed>> The sidebar menus.
+	 */
 	private static function plugin_sidebar_menus(): array {
 		$menus = array();
 
@@ -351,7 +383,12 @@ final class FunctionsSidebar {
 		return $menus;
 	}
 
-	/** @param array<string, mixed> $definition */
+	/**
+	 * Generate a sidebar slug from a menu definition.
+	 *
+	 * @param array<string, mixed> $definition The menu definition.
+	 * @return string The generated sidebar slug.
+	 */
 	private static function sidebar_slug( array $definition ): string {
 		$page  = (string) ( $definition['page'] ?? $definition['slug'] ?? '' );
 		$query = $definition['query'] ?? array();
@@ -363,7 +400,13 @@ final class FunctionsSidebar {
 		return $page . '&' . http_build_query( array_filter( $query, 'is_scalar' ), '', '&', PHP_QUERY_RFC3986 );
 	}
 
-	/** @param array<string, array<string, mixed>> $groups @param array<string, mixed> $menu */
+	/**
+	 * Add a sidebar group to the collection of groups.
+	 *
+	 * @param array<string, array<string, mixed>> $groups The collection of sidebar groups.
+	 * @param array<string, mixed> $menu The menu definition for the group.
+	 * @return void
+	 */
 	private static function add_sidebar_group( array &$groups, array $menu ): void {
 		$slug  = self::menu_slug( $menu );
 		$label = (string) ( $menu['name'] ?? '' );
@@ -378,7 +421,14 @@ final class FunctionsSidebar {
 		}
 	}
 
-	/** @param array<string, array<string, mixed>> $groups @param array<string, mixed> $menu */
+	/**
+	 * Add a sidebar item to a parent group.
+	 *
+	 * @param array<string, array<string, mixed>> $groups The collection of sidebar groups.
+	 * @param string $parent The parent group slug.
+	 * @param array<string, mixed> $menu The menu definition for the item.
+	 * @return void
+	 */
 	private static function add_sidebar_item( array &$groups, string $parent, array $menu ): void {
 		$slug  = (string) ( $menu['slug'] ?? '' );
 		$label = (string) ( $menu['name'] ?? '' );
@@ -394,12 +444,22 @@ final class FunctionsSidebar {
 		}
 	}
 
-	/** @param array<string, mixed> $menu */
+	/**
+	 * Get the parent slug from a menu definition.
+	 *
+	 * @param array<string, mixed> $menu The menu definition.
+	 * @return string The parent slug.
+	 */
 	private static function parent_slug( array $menu ): string {
 		return sanitize_key( (string) ( $menu['parent'] ?? '' ) );
 	}
 
-	/** @param array<string, mixed> $menu */
+	/**
+	 * Get the menu slug from a menu definition.
+	 *
+	 * @param array<string, mixed> $menu The menu definition.
+	 * @return string The menu slug.
+	 */
 	private static function menu_slug( array $menu ): string {
 		return sanitize_key( (string) ( $menu['slug'] ?? '' ) );
 	}

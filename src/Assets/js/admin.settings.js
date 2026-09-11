@@ -112,7 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const bindLicencePatternControls = () => {
     const patternType = root.querySelector('select[name="licencepress_general[licence_pattern_type]"]');
+    const defaultPatternType = root.querySelector('select[name="licencepress_general[default_licence_pattern_type]"]');
     const customPattern = root.querySelector('input[name="licencepress_general[custom_pattern]"]');
+    const defaultCustomPatternRow = root.querySelector('#licencepress-default-custom-pattern-row');
+    const defaultCustomPatternInput = root.querySelector('input[name="licencepress_general[default_custom_pattern]"]');
     const letterCaseRow = root.querySelector('select[name="licencepress_general[pattern_letter_case]"]')?.closest('tr');
     const customRows = root.querySelectorAll('[data-licencepress-pattern-mode="custom"]');
     const standardRows = root.querySelectorAll('[data-licencepress-pattern-mode="standard"]');
@@ -128,17 +131,50 @@ document.addEventListener('DOMContentLoaded', () => {
         row.style.display = isCustom ? '' : 'none';
       });
 
+      if (defaultPatternType && defaultCustomPatternRow) {
+        const defaultCustom = defaultPatternType.value === 'custom';
+        defaultCustomPatternRow.hidden = !defaultCustom;
+        defaultCustomPatternRow.style.display = defaultCustom ? '' : 'none';
+      }
+
       if (letterCaseRow && customPattern) {
         const hasPatternToken = /[XA]/i.test(customPattern.value || '');
         const shouldShowLetterCase = 'custom' === type && hasPatternToken;
         letterCaseRow.hidden = !shouldShowLetterCase;
         letterCaseRow.style.display = shouldShowLetterCase ? '' : 'none';
       }
+
+      if (defaultCustomPatternInput && defaultCustomPatternRow) {
+        const hasDefaultPatternToken = /[XA]/i.test(defaultCustomPatternInput.value || '');
+        const shouldShowDefaultLetterCase = defaultPatternType && defaultPatternType.value === 'custom' && hasDefaultPatternToken;
+        const defaultLetterCaseRow = root.querySelector('select[name="licencepress_general[pattern_letter_case]"]')?.closest('tr');
+        if (defaultLetterCaseRow) {
+          defaultLetterCaseRow.hidden = !shouldShowDefaultLetterCase;
+          defaultLetterCaseRow.style.display = shouldShowDefaultLetterCase ? '' : 'none';
+        }
+      }
     };
 
     if (patternType) patternType.addEventListener('change', applyPatternState);
+    if (defaultPatternType) defaultPatternType.addEventListener('change', applyPatternState);
     if (customPattern) customPattern.addEventListener('input', applyPatternState);
+    if (defaultCustomPatternInput) defaultCustomPatternInput.addEventListener('input', applyPatternState);
     applyPatternState();
+  };
+
+  const bindRenewalPolicyControls = () => {
+    const renewalMode = root.querySelector('select[name="licencepress_general[default_renewal_policy_mode]"]');
+    const customRenewalRow = root.querySelector('#licencepress-custom-renewal-row');
+    if (!renewalMode || !customRenewalRow) return;
+
+    const applyRenewalPolicyState = () => {
+      const isCustom = renewalMode.value === 'custom';
+      customRenewalRow.hidden = !isCustom;
+      customRenewalRow.style.display = isCustom ? '' : 'none';
+    };
+
+    renewalMode.addEventListener('change', applyRenewalPolicyState);
+    applyRenewalPolicyState();
   };
 
   const activateLayoutTab = (button) => {
@@ -180,6 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (updateHash) window.history.pushState({}, '', `${window.location.pathname}${window.location.search}#${response.data.tab === 'layout' ? `layout-${response.data.layout_section}` : response.data.tab}`);
         bindForms();
         bindFieldValidation();
+        bindLicencePatternControls();
+        bindRenewalPolicyControls();
         const nextContent = panel.querySelector('.licencepress-settings-tab-content');
         if (nextContent) requestAnimationFrame(() => nextContent.classList.remove('is-loading'));
       })
@@ -230,4 +268,5 @@ document.addEventListener('DOMContentLoaded', () => {
   bindForms();
   bindFieldValidation();
   bindLicencePatternControls();
+  bindRenewalPolicyControls();
 });

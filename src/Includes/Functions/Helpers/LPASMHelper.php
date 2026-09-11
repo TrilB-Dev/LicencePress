@@ -13,6 +13,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class LPASMHelper {
+	/**
+	 * The filter hook for modifying the admin sidebar menus.
+	 *
+	 * @var string
+	 */
 	public const FILTER = 'licencepress_admin_sidebar_menus';
 
 	/**
@@ -44,11 +49,21 @@ final class LPASMHelper {
 		$filtered = apply_filters( self::FILTER, $menus );
 		return is_array( $filtered ) ? array_values( array_filter( $filtered, 'is_array' ) ) : $menus;
 	}
-
+	/**
+	 * Retrieve the URL for a sidebar menu item based on its slug.
+	 *
+	 * @param string $slug The menu slug.
+	 * @return string The URL for the menu item.
+	 */
 	public static function get_url( string $slug ): string {
 		return admin_url( 'admin.php?page=' . self::sanitize_slug( $slug ) );
 	}
-
+	/**
+	 * Sanitize a sidebar menu slug.
+	 *
+	 * @param string $slug The menu slug.
+	 * @return string The sanitized slug.
+	 */
 	private static function sanitize_slug( string $slug ): string {
 		$parts = explode( '&', $slug, 2 );
 		$page  = sanitize_key( $parts[0] );

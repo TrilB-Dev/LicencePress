@@ -22,7 +22,11 @@ final class FunctionsSettings {
 	 * @var FunctionsPlugins
 	 */
 	private FunctionsPlugins $plugin_functions;
-
+	/**
+	 * Constructor for the FunctionsSettings class.
+	 *
+	 * @param FunctionsPlugins $plugin_functions The plugin functions instance.
+	 */
 	public function __construct( FunctionsPlugins $plugin_functions ) {
 		$this->plugin_functions = $plugin_functions;
 	}
@@ -46,7 +50,12 @@ final class FunctionsSettings {
 			);
 		}
 	}
-
+	/**
+	 * Sanitize the general settings input.
+	 *
+	 * @param array<string, mixed> $input The input data to sanitize.
+	 * @return array<string, mixed> The sanitized general settings.
+	 */
 	public function sanitize_general( $input ): array {
 		if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
 			return (array) Settings::get_group( Settings::GENERAL, array() );
@@ -60,22 +69,27 @@ final class FunctionsSettings {
 		$allowed_patterns = array( 'alphanumeric', 'letters', 'numbers' );
 		$allowed_cases = array( 'uppercase', 'lowercase', 'mixedcase' );
 		$allowed_separators = array( '-', ':', '.', 'none' );
+		$allowed_ambiguous_chars = array( '0', 'O', '1', 'i', 'l', 'I' );
+
+		$ambiguous_characters = is_array( $input['default_exclude_ambiguous_characters'] ?? null ) ? (array) $input['default_exclude_ambiguous_characters'] : ( is_array( $input['exclude_ambiguous_characters'] ?? null ) ? (array) $input['exclude_ambiguous_characters'] : array() );
+		$ambiguous_characters = array_values( array_unique( array_intersect( $allowed_ambiguous_chars, array_map( 'strval', $ambiguous_characters ) ) ) );
 
 		$general = array(
-			'entity_type'                 => in_array( $input['entity_type'] ?? 'individual', $allowed_entity_types, true ) ? sanitize_key( $input['entity_type'] ?? 'individual' ) : 'individual',
-			'licence_name'                => sanitize_text_field( $input['licence_name'] ?? '' ),
-			'country'                     => sanitize_text_field( $input['country'] ?? '' ),
-			'currency'                    => sanitize_text_field( $input['currency'] ?? '' ),
-			'licence_prefix'              => preg_match( '/^[A-Za-z0-9_-]{1,7}$/', (string) ( $input['licence_prefix'] ?? '' ) ) ? sanitize_text_field( $input['licence_prefix'] ?? '' ) : '',
-			'licence_usage'               => array_values( array_unique( array_filter( array_map( 'sanitize_key', is_array( $input['licence_usage'] ?? array() ) ? $input['licence_usage'] : array( $input['licence_usage'] ?? '' ) ) ) ) ),
-			'renewal_policy_mode'         => in_array( $input['renewal_policy_mode'] ?? 'default', $allowed_renewal_modes, true ) ? sanitize_key( $input['renewal_policy_mode'] ?? 'default' ) : 'default',
-			'renewal_policy_page'         => absint( $input['renewal_policy_page'] ?? 0 ),
-			'licence_pattern_type'        => in_array( $input['licence_pattern_type'] ?? 'standard', $allowed_pattern_types, true ) ? sanitize_key( $input['licence_pattern_type'] ?? 'standard' ) : 'standard',
-			'licence_pattern_format'      => in_array( (string) ( $input['licence_pattern_format'] ?? 'alphanumeric' ), $allowed_patterns, true ) ? sanitize_key( (string) ( $input['licence_pattern_format'] ?? 'alphanumeric' ) ) : 'alphanumeric',
-			'exclude_ambiguous_characters' => ! empty( $input['exclude_ambiguous_characters'] ),
-			'pattern_letter_case'         => in_array( (string) ( $input['pattern_letter_case'] ?? 'uppercase' ), $allowed_cases, true ) ? sanitize_key( (string) ( $input['pattern_letter_case'] ?? 'uppercase' ) ) : 'uppercase',
-			'pattern_separator'           => in_array( (string) ( $input['pattern_separator'] ?? '-' ), $allowed_separators, true ) ? (string) $input['pattern_separator'] : '-',
-			'custom_pattern'              => sanitize_text_field( $input['custom_pattern'] ?? '' ),
+			'entity_type'                        => in_array( $input['entity_type'] ?? 'individual', $allowed_entity_types, true ) ? sanitize_key( $input['entity_type'] ?? 'individual' ) : 'individual',
+			'licence_name'                       => sanitize_text_field( $input['licence_name'] ?? '' ),
+			'country'                            => sanitize_text_field( $input['country'] ?? '' ),
+			'currency'                           => sanitize_text_field( $input['currency'] ?? '' ),
+			'licence_prefix'                     => preg_match( '/^[A-Za-z0-9_-]{1,7}$/', (string) ( $input['licence_prefix'] ?? '' ) ) ? sanitize_text_field( $input['licence_prefix'] ?? '' ) : '',
+			'licence_usage'                      => array_values( array_unique( array_filter( array_map( 'sanitize_key', is_array( $input['licence_usage'] ?? array() ) ? $input['licence_usage'] : array( $input['licence_usage'] ?? '' ) ) ) ) ),
+			'renewal_policy_mode'                => in_array( $input['renewal_policy_mode'] ?? 'default', $allowed_renewal_modes, true ) ? sanitize_key( $input['renewal_policy_mode'] ?? 'default' ) : 'default',
+			'renewal_policy_page'                => absint( $input['renewal_policy_page'] ?? 0 ),
+			'licence_pattern_type'               => in_array( $input['licence_pattern_type'] ?? 'standard', $allowed_pattern_types, true ) ? sanitize_key( $input['licence_pattern_type'] ?? 'standard' ) : 'standard',
+			'licence_pattern_format'             => in_array( (string) ( $input['licence_pattern_format'] ?? 'alphanumeric' ), $allowed_patterns, true ) ? sanitize_key( (string) ( $input['licence_pattern_format'] ?? 'alphanumeric' ) ) : 'alphanumeric',
+			'exclude_ambiguous_characters'      => $ambiguous_characters,
+			'default_exclude_ambiguous_characters' => $ambiguous_characters,
+			'pattern_letter_case'                => in_array( (string) ( $input['pattern_letter_case'] ?? 'uppercase' ), $allowed_cases, true ) ? sanitize_key( (string) ( $input['pattern_letter_case'] ?? 'uppercase' ) ) : 'uppercase',
+			'pattern_separator'                  => in_array( (string) ( $input['pattern_separator'] ?? '-' ), $allowed_separators, true ) ? (string) $input['pattern_separator'] : '-',
+			'custom_pattern'                     => sanitize_text_field( $input['custom_pattern'] ?? '' ),
 		);
 
 		if ( 'custom' === $general['licence_pattern_type'] && ! preg_match( '/[XA]/i', $general['custom_pattern'] ) ) {
@@ -89,7 +103,12 @@ final class FunctionsSettings {
 
 		return $input;
 	}
-
+	/**
+	 * Sanitize the layout settings input.
+	 *
+	 * @param array<string, mixed> $input The input data to sanitize.
+	 * @return array<string, mixed> The sanitized layout settings.
+	 */
 	public function sanitize_layout( $input ): array {
 		if ( ! current_user_can( 'licencepress_settings_layout_edit' ) ) {
 			return (array) Settings::get_group( Settings::LAYOUT, array() );
@@ -148,14 +167,19 @@ final class FunctionsSettings {
 		}
 		return $input;
 	}
-
+	/**
+	 * Sanitize the access settings input.
+	 *
+	 * @param array<string, mixed> $input The input data to sanitize.
+	 * @return array<string, mixed> The sanitized access settings.
+	 */
 	public function sanitize_access( $input ): array {
 		if ( ! current_user_can( 'licencepress_settings_access_edit' ) ) {
 			return (array) Settings::get_group( Settings::ACCESS, array() );
 		}
 		$input   = is_array( $input ) ? $input : array();
 		$allowed = array( 'manage_options', 'edit_posts', 'publish_posts' );
-		foreach ( array( 'create_wikis', 'write_pages', 'view_analytics', 'manage_plugins' ) as $key ) {
+		foreach ( array( 'create_licence_types', 'write_licence_type_variants', 'view_analytics', 'manage_plugins' ) as $key ) {
 			$values        = is_array( $input[ $key ] ?? null ) ? $input[ $key ] : array( $input[ $key ] ?? 'manage_options' );
 			$values        = array_values( array_unique( array_intersect( $allowed, array_map( 'sanitize_key', $values ) ) ) );
 			$input[ $key ] = empty( $values ) ? array( 'manage_options' ) : $values;
@@ -164,6 +188,12 @@ final class FunctionsSettings {
 		return $input;
 	}
 
+	/**
+	 * Sanitize the tools settings input.
+	 *
+	 * @param array<string, mixed> $input The input data to sanitize.
+	 * @return array<string, mixed> The sanitized tools settings.
+	 */
 	public function sanitize_tools( $input ): array {
 		$input = is_array( $input ) ? $input : array();
 		foreach ( array( 'debug_logging', 'console_logging' ) as $key ) {

@@ -79,7 +79,12 @@ final class LicenceGenerator {
 			'expires_at'        => $expires_at,
 		);
 	}
-
+	/**
+	 * Normalizes a domain by removing the scheme, www prefix, and converting to lowercase.
+	 *
+	 * @param string $value The domain or URL to normalize.
+	 * @return string The normalized domain.
+	 */
 	private static function normalize_domain( string $value ): string {
 		$host = wp_parse_url( $value, PHP_URL_HOST );
 		if ( is_string( $host ) && '' !== $host ) {

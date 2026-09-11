@@ -33,40 +33,109 @@ class WPLoader {
 	 * @var bool
 	 */
 	protected bool $has_run = false;
-
+	/**
+	 * Constructor.
+	 *
+	 * @param array<int, array<string, mixed>> $actions Initial action hooks.
+	 * @param array<int, array<string, mixed>> $filters Initial filter hooks.
+	 */
 	public function __construct( array $actions = array(), array $filters = array() ) {
 		$this->actions = $actions;
 		$this->filters = $filters;
 	}
-
+	/**
+	 * Registers an action hook.
+	 *
+	 * @param string                $hook          The name of the action hook.
+	 * @param object|string|array   $component     The component (object, class name, or array) containing the callback.
+	 * @param string                $callback      The callback method name.
+	 * @param int                   $priority      The priority of the action hook.
+	 * @param int                   $accepted_args The number of accepted arguments.
+	 *
+	 * @return self
+	 */
 	public function add_action( string $hook, object|string|array $component, string $callback, int $priority = 10, int $accepted_args = 1 ): self {
 		$this->register_record( 'action', $this->component_record( $hook, $component, $callback, $priority, $accepted_args ) );
 		return $this;
 	}
 
+	/**
+	 * Registers a filter hook.
+	 *
+	 * @param string                $hook          The name of the filter hook.
+	 * @param object|string|array   $component     The component (object, class name, or array) containing the callback.
+	 * @param string                $callback      The callback method name.
+	 * @param int                   $priority      The priority of the filter hook.
+	 * @param int                   $accepted_args The number of accepted arguments.
+	 *
+	 * @return self
+	 */
 	public function add_filter( string $hook, object|string|array $component, string $callback, int $priority = 10, int $accepted_args = 1 ): self {
 		$this->register_record( 'filter', $this->component_record( $hook, $component, $callback, $priority, $accepted_args ) );
 		return $this;
 	}
-
+	/**
+	 * Registers a callable action hook.
+	 *
+	 * @param string   $hook          The name of the action hook.
+	 * @param callable $callback      The callback function.
+	 * @param int      $priority      The priority of the action hook.
+	 * @param int      $accepted_args The number of accepted arguments.
+	 *
+	 * @return self
+	 */
 	public function add_callable_action( string $hook, callable $callback, int $priority = 10, int $accepted_args = 1 ): self {
 		$this->register_record( 'action', $this->callable_record( $hook, $callback, $priority, $accepted_args ) );
 		return $this;
 	}
-
+	/**
+	 * Registers a callable filter hook.
+	 *
+	 * @param string   $hook          The name of the filter hook.
+	 * @param callable $callback      The callback function.
+	 * @param int      $priority      The priority of the filter hook.
+	 * @param int      $accepted_args The number of accepted arguments.
+	 *
+	 * @return self
+	 */
 	public function add_callable_filter( string $hook, callable $callback, int $priority = 10, int $accepted_args = 1 ): self {
 		$this->register_record( 'filter', $this->callable_record( $hook, $callback, $priority, $accepted_args ) );
 		return $this;
 	}
-
+	/**
+	 * Removes an action hook.
+	 *
+	 * @param string   $hook     The name of the action hook.
+	 * @param callable $callback The callback function.
+	 * @param int      $priority The priority of the action hook.
+	 *
+	 * @return bool True if the action was removed, false otherwise.
+	 */
 	public function remove_action( string $hook, callable $callback, int $priority = 10 ): bool {
 		return $this->remove( 'action', $hook, $callback, $priority );
 	}
-
+	/**
+	 * Removes a filter hook.
+	 *
+	 * @param string   $hook     The name of the filter hook.
+	 * @param callable $callback The callback function.
+	 * @param int      $priority The priority of the filter hook.
+	 *
+	 * @return bool True if the filter was removed, false otherwise.
+	 */
 	public function remove_filter( string $hook, callable $callback, int $priority = 10 ): bool {
 		return $this->remove( 'filter', $hook, $callback, $priority );
 	}
-
+	/**
+	 * Removes a hook of the specified type.
+	 *
+	 * @param string   $type     The type of the hook ('action' or 'filter').
+	 * @param string   $hook     The name of the hook.
+	 * @param callable $callback The callback function.
+	 * @param int      $priority The priority of the hook.
+	 *
+	 * @return bool True if the hook was removed, false otherwise.
+	 */
 	public function remove( string $type, string $hook, $callback, int $priority = 10 ): bool {
 		if ( ! in_array( $type, array( 'action', 'filter' ), true ) ) {
 			throw new \InvalidArgumentException( 'Hook type must be action or filter.' );
@@ -89,7 +158,13 @@ class WPLoader {
 		);
 		return $removed;
 	}
-
+	/**
+	 * Retrieves all registered hooks of the specified type.
+	 *
+	 * @param string|null $type The type of hooks to retrieve ('action', 'filter', or null for all).
+	 *
+	 * @return array An array of registered hooks.
+	 */
 	public function get_hooks( ?string $type = null ): array {
 		if ( null !== $type && ! in_array( $type, array( 'action', 'filter' ), true ) ) {
 			throw new \InvalidArgumentException( 'Hook type must be action or filter.' );
@@ -102,7 +177,16 @@ class WPLoader {
 		}
 		return array_merge( $this->actions, $this->filters );
 	}
-
+	/**
+	 * Checks if a specific hook is registered.
+	 *
+	 * @param string      $type     The type of the hook ('action' or 'filter').
+	 * @param string      $hook     The name of the hook.
+	 * @param callable|null $callback The callback function (optional).
+	 * @param int|null   $priority The priority of the hook (optional).
+	 *
+	 * @return bool True if the hook is registered, false otherwise.
+	 */
 	public function has_hook( string $type, string $hook, ?callable $callback = null, ?int $priority = null ): bool {
 		foreach ( $this->get_hooks( $type ) as $record ) {
 			if ( $record['hook'] !== $hook || ( null !== $priority && $record['priority'] !== $priority ) ) {
@@ -114,7 +198,11 @@ class WPLoader {
 		}
 		return false;
 	}
-
+	/**
+	 * Executes all registered hooks.
+	 *
+	 * @return void
+	 */
 	public function run(): void {
 		if ( $this->has_run ) {
 			return;
@@ -127,7 +215,17 @@ class WPLoader {
 		}
 		$this->has_run = true;
 	}
-
+	/**
+	 * Creates a record for a component-based hook.
+	 *
+	 * @param string          $hook          The name of the hook.
+	 * @param object|string|array $component     The component (object, class name, or array).
+	 * @param string          $callback      The callback method name.
+	 * @param int             $priority      The priority of the hook.
+	 * @param int             $accepted_args The number of accepted arguments.
+	 *
+	 * @return array The hook record.
+	 */
 	private function component_record( string $hook, object|string|array $component, string $callback, int $priority, int $accepted_args ): array {
 		return array(
 			'hook'          => $hook,
@@ -137,7 +235,16 @@ class WPLoader {
 			'accepted_args' => $accepted_args,
 		);
 	}
-
+	/**
+	 * Creates a record for a callable-based hook.
+	 *
+	 * @param string   $hook          The name of the hook.
+	 * @param callable $callback      The callback function.
+	 * @param int      $priority      The priority of the hook.
+	 * @param int      $accepted_args The number of accepted arguments.
+	 *
+	 * @return array The hook record.
+	 */
 	private function callable_record( string $hook, callable $callback, int $priority, int $accepted_args ): array {
 		return array(
 			'hook'          => $hook,
@@ -147,7 +254,14 @@ class WPLoader {
 			'accepted_args' => $accepted_args,
 		);
 	}
-
+	/**
+	 * Registers a hook record.
+	 *
+	 * @param string $type   The type of the hook ('action' or 'filter').
+	 * @param array  $record The hook record.
+	 *
+	 * @return void
+	 */
 	private function register_record( string $type, array $record ): void {
 		$property            = 'action' === $type ? 'actions' : 'filters';
 		$this->{$property}[] = $record;
@@ -157,7 +271,15 @@ class WPLoader {
 		$callback = $this->record_callback( $record );
 		'action' === $type ? add_action( $record['hook'], $callback, $record['priority'], $record['accepted_args'] ) : add_filter( $record['hook'], $callback, $record['priority'], $record['accepted_args'] );
 	}
-
+	/**
+	 * Retrieves the callback for a hook record.
+	 *
+	 * @param array $record The hook record.
+	 *
+	 * @return callable The callback function.
+	 *
+	 * @throws \InvalidArgumentException If the callback is not callable.
+	 */
 	private function record_callback( array $record ): callable {
 		$component = $record['component'] ?? null;
 		$callback  = $record['callback'] ?? null;

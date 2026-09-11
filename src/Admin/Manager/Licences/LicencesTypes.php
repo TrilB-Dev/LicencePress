@@ -16,17 +16,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class LicencesTypes {
+	/**
+	 * Forms handler for licence types.
+	 * Handles the forms related to licence types within the admin area.
+	 * 
+	 * @since 1.0.0
+	 * @property LicencesForms $forms The forms handler instance for licence types.
+	 */
 	private LicencesForms $forms;
-
+	/**
+	 * Constructor for the licence types manager.
+	 *
+	 * Initializes the forms handler for licence types.
+	 *
+	 * @since 1.0.0
+	 */
 	public function __construct() {
 		$this->forms = new LicencesForms();
 	}
-
+	/**
+	 * Renders the licence types management page.
+	 *
+	 * @since 1.0.0
+	 */
 	public function render(): void {
 		$types = LicenceTypeManager::get_types();
 		?>
 		<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-			<h2 class="h5 mb-0"><?php esc_html_e( 'Licence types', 'licencepress' ); ?></h2>
+			<h5 class="h5 mb-0"><?php esc_html_e( 'Licence types', 'licencepress' ); ?></h5>
 			<div class="btn-group btn-group-sm" role="group" aria-label="Licence type layout toggle">
 				<?php echo FormFieldHelper::button( __( 'Table view', 'licencepress' ), array( 'class' => 'btn-primary', 'data-type-layout' => 'table' ) ); ?>
 				<?php echo FormFieldHelper::button( __( 'Grid view', 'licencepress' ), array( 'class' => 'btn-outline-primary', 'data-type-layout' => 'grid' ) ); ?>
@@ -39,7 +56,7 @@ final class LicencesTypes {
 					<div class="card h-100 shadow-sm border-0">
 						<div class="card-body d-flex flex-column">
 							<div class="d-flex justify-content-between align-items-start gap-2">
-								<h3 class="h6 mb-0"><?php echo esc_html( $type['name'] ?? __( 'Untitled licence type', 'licencepress' ) ); ?></h3>
+								<h6 class="h6 mb-0"><?php echo esc_html( $type['name'] ?? __( 'Untitled licence type', 'licencepress' ) ); ?></h6>
 								<span class="badge text-bg-light text-secondary"><?php echo esc_html( $type['status'] ?? __( 'Standard', 'licencepress' ) ); ?></span>
 							</div>
 							<p class="text-secondary mt-3 mb-3"><?php echo esc_html( $type['description'] ?? __( 'No description available for this licence type.', 'licencepress' ) ); ?></p>
@@ -63,7 +80,7 @@ final class LicencesTypes {
 		<div class="card shadow-sm mt-4" data-licence-type-table>
 			<div class="card-body">
 				<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-					<h3 class="h5 mb-0"><?php esc_html_e( 'Licence variants', 'licencepress' ); ?></h3>
+					<h6 class="h5 mb-0"><?php esc_html_e( 'Licence variants', 'licencepress' ); ?></h6>
 					<?php echo FormFieldHelper::button(
 						__( 'Add variant', 'licencepress' ),
 						array(
@@ -112,11 +129,21 @@ final class LicencesTypes {
 		<?php $this->forms->render_type_modal(); ?>
 		<?php
 	}
-
+	/**
+	 * Renders the editor for licence types.
+	 *
+	 * @since 1.0.0
+	 */
 	public function render_editor(): void {
 		$this->forms->render_type_form();
 	}
-
+	/**
+	 * Retrieves the list of licence variants.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @return array The array of licence variants.
+	 */
 	private function variants(): array {
 		return array(
 			array(

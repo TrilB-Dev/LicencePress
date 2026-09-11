@@ -9,8 +9,8 @@
  * @link       https://https://trilb.dev/MrTrilB
  * @since      1.0.0
  *
- * @package    Wikipress
- * @subpackage Wikipress/Includes
+ * @package    LicencePress
+ * @subpackage LicencePress/Includes
  */
 namespace LicencePress\Includes\Core\WP;
 
@@ -21,8 +21,8 @@ namespace LicencePress\Includes\Core\WP;
  * so that it is ready for translation.
  *
  * @since      1.0.0
- * @package    Wikipress
- * @subpackage Wikipress/Includes
+ * @package    LicencePress
+ * @subpackage LicencePress/Includes
  * @author     MrTrilB <mrtrilb@trilb.dev>
  */
 final class I18n {
@@ -50,7 +50,7 @@ final class I18n {
 	 */
 	public function __construct( string $domain = 'licencepress', ?string $languages_path = null, ?string $plugin_file = null, string $default_locale = self::DEFAULT_LOCALE ) {
 		$this->domain         = sanitize_key( $domain );
-		$plugin_basename      = defined( 'WIKIPRESS_BASENAME' ) ? WIKIPRESS_BASENAME : ( $plugin_file && function_exists( 'plugin_basename' ) ? plugin_basename( $plugin_file ) : null );
+		$plugin_basename      = defined( 'LICENCEPRESS_BASENAME' ) ? LICENCEPRESS_BASENAME : ( $plugin_file && function_exists( 'plugin_basename' ) ? plugin_basename( $plugin_file ) : null );
 		$default_path         = $plugin_basename ? dirname( $plugin_basename ) . '/src/languages' : 'src/languages';
 		$this->languages_path = trim( $languages_path ?? $default_path, '/' );
 		$this->default_locale = str_replace( '-', '_', $default_locale );

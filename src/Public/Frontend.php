@@ -61,7 +61,7 @@ final class Frontend {
 	public function render_search_form(): string {
 		$form  = '<form class="licencepress-search" method="get" action="' . esc_url( home_url( '/' ) ) . '">';
 		$form .= '<label class="screen-reader-text" for="licencepress-search-input">' . esc_html__( 'Search LicencePress', 'licencepress' ) . '</label>';
-		$form .= '<input id="licencepress-search-input" name="s" type="search" minlength="' . esc_attr( (string) Settings::get_int( 'search_min_chars', 2 ) ) . '" placeholder="' . esc_attr( Settings::get_string( 'search_placeholder', __( 'Search the Wiki', 'licencepress' ) ) ) . '">';
+		$form .= '<input id="licencepress-search-input" name="s" type="search" minlength="' . esc_attr( (string) Settings::get_int( 'search_min_chars', 2 ) ) . '" placeholder="' . esc_attr( Settings::get_string( 'search_placeholder', __( 'Search licence types', 'licencepress' ) ) ) . '">';
 		$form .= '<button type="submit">' . esc_html( Settings::get_string( 'search_button_text', __( 'Search', 'licencepress' ) ) ) . '</button>';
 		$form .= '</form>';
 
@@ -86,7 +86,7 @@ final class Frontend {
 	private function render_page_meta(): string {
 		$items = array();
 		if ( Settings::get_bool( 'show_last_updated', true ) ) {
-			/* translators: %s is the date the Wiki page was last updated. */
+			/* translators: %s is the date the licence type variant was last updated. */
 			$items[] = sprintf( esc_html__( 'Updated %s', 'licencepress' ), esc_html( get_the_modified_date() ) );
 		}
 		if ( Settings::get_bool( 'show_author', false ) ) {

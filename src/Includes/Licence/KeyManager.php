@@ -14,13 +14,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class KeyManager {
-	/** @var string|null */
+	/**
+	 * The runtime encryption key.
+	 *
+	 * @var string|null
+	 */
 	private static ?string $runtime_key = null;
-
+	/**
+	 * Set the runtime encryption key.
+	 *
+	 * @param string|null $key The runtime encryption key.
+	 */
 	public static function set_runtime_key( ?string $key ): void {
 		self::$runtime_key = $key;
 	}
 
+	/**
+	 * Get the runtime encryption key.
+	 *
+	 * @return string|null The runtime encryption key or null if not set.
+	 */
 	public static function runtime_key(): ?string {
 		if ( null !== self::$runtime_key ) {
 			return self::$runtime_key;
@@ -34,6 +47,11 @@ final class KeyManager {
 		return null;
 	}
 
+	/**
+	 * Ensure the runtime encryption key is configured.
+	 *
+	 * @return bool True if the key is configured, false otherwise.
+	 */
 	public static function ensure_configured(): bool {
 		if ( null !== self::runtime_key() ) {
 			return true;
@@ -104,7 +122,11 @@ final class KeyManager {
 		self::$runtime_key = $key;
 		return true;
 	}
-
+	/**
+	 * Get the path to the wp-config.php file.
+	 *
+	 * @return string|null The path to the wp-config.php file or null if not found.
+	 */
 	private static function config_path(): ?string {
 		$abspath = defined( 'ABSPATH' ) ? (string) ABSPATH : null;
 		if ( null === $abspath ) {

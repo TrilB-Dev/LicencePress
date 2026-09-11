@@ -131,14 +131,10 @@ final class EncryptionHelper {
 	 * @return string|null The decrypted value or null on failure.
 	 */
 	public static function decrypt( string $value ): ?string {
+
 		return self::decrypt_with_key( $value, self::runtime_key() );
+		
 	}
-	/**
-	 * Decrypt a value using the configured LicencePress encryption key.
-	 *
-	 * @param string $value The value to decrypt.
-	 * @return string|null The decrypted value or null on failure.
-	 */
 	/**
 	 * Check if a runtime encryption key is available.
 	 *

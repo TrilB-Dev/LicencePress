@@ -290,13 +290,13 @@ final class Assets {
 				}
 			}
 		}
-		if ( 'licencepress-manage' === $current_page && wp_script_is( 'licencepress-admin-wiki', 'enqueued' ) ) {
+		if ( 'licencepress-manage' === $current_page && wp_script_is( 'licencepress-admin-ui', 'enqueued' ) ) {
 			LoaderHelper::localize_script(
-				'licencepress-admin-wiki',
-				'licencepressWikiManager',
+				'licencepress-admin-ui',
+				'licencepressManager',
 				array(
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'licencepress_manage_wiki' ),
+					'nonce'   => wp_create_nonce( 'licencepress_manage' ),
 				)
 			);
 		}

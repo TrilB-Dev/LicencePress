@@ -94,7 +94,12 @@ final class FunctionsPlugins {
 			)
 		);
 	}
-
+	/**
+	 * Determine if a plugin is an internal LicencePress plugin.
+	 *
+	 * @param PluginInterface $plugin The plugin instance.
+	 * @return bool True if the plugin is internal, false otherwise.
+	 */
 	private function is_internal_plugin( PluginInterface $plugin ): bool {
 		return 0 === strpos( get_class( $plugin ), 'LicencePress\\Includes\\Plugins\\' );
 	}

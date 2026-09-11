@@ -112,26 +112,6 @@ class Capabilities {
 					'label'       => __( 'Reset Licence Data', 'licencepress' ),
 					'description' => __( 'Allows resetting or clearing licence records and related data.', 'licencepress' ),
 				),
-				'licencepress_paypal_view'               => array(
-					'group'       => 'LicencePress PayPal',
-					'label'       => __( 'View PayPal Dashboard', 'licencepress' ),
-					'description' => __( 'Allows viewing the PayPal operations dashboard and onboarding flow.', 'licencepress' ),
-				),
-				'licencepress_paypal_manage'             => array(
-					'group'       => 'LicencePress PayPal',
-					'label'       => __( 'Manage PayPal Settings', 'licencepress' ),
-					'description' => __( 'Allows changing PayPal connection, checkout, and subscription settings.', 'licencepress' ),
-				),
-				'licencepress_paypal_checkout'           => array(
-					'group'       => 'LicencePress PayPal',
-					'label'       => __( 'Manage PayPal Checkout', 'licencepress' ),
-					'description' => __( 'Allows configuring one-time PayPal checkout flows.', 'licencepress' ),
-				),
-				'licencepress_paypal_subscriptions'      => array(
-					'group'       => 'LicencePress PayPal',
-					'label'       => __( 'Manage PayPal Subscriptions', 'licencepress' ),
-					'description' => __( 'Allows configuring recurring subscription billing.', 'licencepress' ),
-				),
 				'licencepress_settings_plugins_view'     => array(
 					'group'       => 'LicencePress Settings',
 					'label'       => __( 'View Plugin Settings', 'licencepress' ),

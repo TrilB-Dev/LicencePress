@@ -98,13 +98,13 @@ final class SettingsManager {
 		return array(
 			'general' => array(
 				'root_name'           => 'LicencePress',
-				'root_description'    => __( 'A searchable knowledge base powered by LicencePress.', 'wikipress' ),
-				'archive_title'       => __( 'LicencePress Documentation', 'wikipress' ),
-				'archive_description' => __( 'Browse the LicencePress knowledge base.', 'wikipress' ),
-				'root_slug'           => 'wiki',
-				'category_slug'       => 'wiki-category',
-				'tag_slug'            => 'wiki-tag',
-				'permalink'           => '%root%/%root_category%/%wiki%/%wiki_category%/%wiki_tag%/%wiki_page%',
+				'root_description'    => __( 'A licence platform powered by LicencePress.', 'licencepress' ),
+				'archive_title'       => __( 'LicencePress Library', 'licencepress' ),
+				'archive_description' => __( 'Browse the LicencePress licence catalogue.', 'licencepress' ),
+				'root_slug'           => 'licence-types',
+				'category_slug'       => 'licence-type-category',
+				'tag_slug'            => 'licence-type-tag',
+				'permalink'           => '%root%/%root_category%/%licence_type%/%licence_type_category%/%licence_type_tag%/%licence_type_variant%',
 				'enable_schema'       => true,
 			),
 			'layout'  => array(
@@ -117,10 +117,10 @@ final class SettingsManager {
 				'show_feedback'               => true,
 				'show_related_pages'          => true,
 				'related_pages_count'         => 4,
-				'search_placeholder'          => __( 'Search the Wiki', 'wikipress' ),
-				'search_button_text'          => __( 'Search', 'wikipress' ),
+				'search_placeholder'          => __( 'Search licence types', 'licencepress' ),
+				'search_button_text'          => __( 'Search', 'licencepress' ),
 				'search_scope'                => 'all',
-				'search_no_results_message'   => __( 'No Wiki pages found.', 'wikipress' ),
+				'search_no_results_message'   => __( 'No licence types found.', 'licencepress' ),
 				'search_results_count'        => 10,
 				'search_min_chars'            => 2,
 				'search_live_results'         => true,
@@ -204,11 +204,12 @@ final class SettingsManager {
 
 	private static function storage_group( string $group ): string {
 		$group = self::normalize_group( $group );
-		return str_starts_with( $group, 'wikipress_' ) ? $group : 'wikipress_' . $group;
+		return str_starts_with( $group, 'licencepress_' ) ? $group : 'licencepress_' . $group;
 	}
 
 	private static function logical_group( string $group ): string {
-		return str_starts_with( $group, 'wikipress_' ) ? substr( $group, 10 ) : $group;
+		$group = str_starts_with( $group, 'licencepress_' ) ? substr( $group, 13 ) : $group;
+		return $group;
 	}
 
 	private static function get_legacy_group( string $group ): ?array {
@@ -249,7 +250,7 @@ final class SettingsManager {
 		if ( isset( self::$registered_keys[ $key ] ) ) {
 			return self::$registered_keys[ $key ];
 		}
-		if ( in_array( $key, array( 'create_wikis', 'write_pages', 'view_analytics', 'manage_plugins' ), true ) ) {
+		if ( in_array( $key, array( 'create_licence_types', 'write_licence_type_variants', 'view_analytics', 'manage_plugins' ), true ) ) {
 			return 'access';
 		}
 		if ( str_contains( $key, 'layout' ) ) {
@@ -291,7 +292,10 @@ final class SettingsManager {
 
 	private static function normalize_group( string $group ): string {
 		$group = sanitize_key( $group );
-		return str_starts_with( $group, 'wikipress_' ) ? substr( $group, 10 ) : $group;
+		if ( str_starts_with( $group, 'licencepress_' ) ) {
+			return substr( $group, 13 );
+		}
+		return $group;
 	}
 
 	private static function table_ready(): bool {

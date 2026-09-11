@@ -20,18 +20,26 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class Core {
 	/**
+	 * Post type registrar.
+	 * 
 	 * @var PostType Post type registrar.
 	 */
 	private PostType $post_types;
 	/**
+	 * Taxonomy registrar.
+	 * 
 	 * @var Taxonomy Taxonomy registrar.
 	 */
 	private Taxonomy $taxonomies;
 	/**
+	 * Shortcode registrar.
+	 * 
 	 * @var Shortcodes Shortcode registrar.
 	 */
 	private Shortcodes $shortcodes;
 	/**
+	 * Core registration state.
+	 * Tracks whether the core components have been registered.
 	 * @var bool Whether core registration has run.
 	 */
 	private bool $registered = false;
@@ -95,6 +103,11 @@ final class Core {
 		return $this->taxonomies;
 	}
 
+	/**
+	 * Get the shortcode registrar.
+	 *
+	 * @return Shortcodes Shortcode registrar.
+	 */
 	public function shortcodes(): Shortcodes {
 		return $this->shortcodes;
 	}

@@ -82,7 +82,12 @@ final class LicenceValidator {
 
 		return true;
 	}
-
+	/**
+	 * Normalizes a domain by removing the scheme, converting to lowercase, and stripping "www.".
+	 *
+	 * @param string $value The domain or URL to normalize.
+	 * @return string The normalized domain.
+	 */
 	private static function normalize_domain( string $value ): string {
 		$host = wp_parse_url( $value, PHP_URL_HOST );
 		if ( is_string( $host ) && '' !== $host ) {

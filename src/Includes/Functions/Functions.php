@@ -2,10 +2,10 @@
 /**
  * LicencePress - Functions
  *
- * Shared utilities used by Wiki services, pages, and REST routes.
+ * Shared utilities used by the LicencePress content model and REST routes.
  *
- * @package TrilBDev
- * @subpackage Includes\Wiki\Functions
+ * @package LicencePress
+ * @subpackage Includes\Functions
  * @since 1.0.0
  */
 
@@ -22,19 +22,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Backwards-compatible facade for common LicencePress utility operations.
  *
  * New code may use the focused helper classes directly. This facade remains
- * useful to extensions that need one stable entry point for Wiki payloads.
+ * useful to extensions that need one stable entry point for LicencePress data.
  */
 final class Functions {
 	/**
-	 * Default status for Wiki posts.
+	 * Default status for LicencePress content.
 	 */
 	public const DEFAULT_STATUS = 'publish';
 	/**
-	 * Allowed statuses for Wiki posts.
+	 * Allowed statuses for LicencePress content.
 	 */
 	public const ALLOWED_STATUSES = array( 'publish', 'draft', 'private' );
 	/**
-	 * Sanitizes a Wiki payload array for safe use.
+	 * Sanitizes a LicencePress payload array for safe use.
 	 *
 	 * @param array $payload The payload to sanitize.
 	 * @return array The sanitized payload.
@@ -62,37 +62,37 @@ final class Functions {
 		return SanitizationHelper::terms( $terms );
 	}
 	/**
-	 * Checks if a given post is a Wiki post.
+	 * Checks if a given post is a supported LicencePress content post.
 	 *
 	 * @param mixed $post The post to check.
-	 * @return bool True if the post is a Wiki post, false otherwise.
+	 * @return bool True if the post matches the LicencePress content model, false otherwise.
 	 */
 	public static function is_post( $post ): bool {
 		return self::is_page( $post );
 	}
 	/**
-	 * Checks if a given post is a Wiki page.
+	 * Checks if a given post is a LicencePress content object.
 	 *
 	 * @param mixed $post The post to check.
-	 * @return bool True if the post is a Wiki page, false otherwise.
+	 * @return bool True if the post is a LicencePress content object, false otherwise.
 	 */
 	public static function is( $post ): bool {
 		return PostHelper::is( $post );
 	}
 	/**
-	 * Checks if a given post is a Wiki content (either a Wiki post or a Wiki page).
+	 * Checks if a given post is a LicencePress variant page.
 	 *
 	 * @param mixed $post The post to check.
-	 * @return bool True if the post is a Wiki content, false otherwise.
+	 * @return bool True if the post is a LicencePress variant page, false otherwise.
 	 */
 	public static function is_page( $post ): bool {
 		return PostHelper::is_page( $post );
 	}
 	/**
-	 * Checks if a given post is either a Wiki post or a Wiki page.
+	 * Checks if a given post is content owned by the LicencePress model.
 	 *
 	 * @param mixed $post The post to check.
-	 * @return bool True if the post is a Wiki content, false otherwise.
+	 * @return bool True if the post is a LicencePress content object, false otherwise.
 	 */
 	public static function is_content( $post ): bool {
 		return self::is( $post ) || self::is_page( $post );

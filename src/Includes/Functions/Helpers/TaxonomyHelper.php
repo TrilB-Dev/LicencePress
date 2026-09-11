@@ -17,6 +17,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Centralize safe taxonomy lookups used by admin and frontend code.
  */
 final class TaxonomyHelper {
+	/**
+	 * Retrieve terms for a given taxonomy and optional post ID, with support for limiting and searching.
+	 *
+	 * @param string $taxonomy The taxonomy name.
+	 * @param int $post_id Optional. The post ID to filter terms by. Default 0.
+	 * @param int $limit Optional. The maximum number of terms to retrieve. Default 0 (no limit).
+	 * @param string $search Optional. A search string to filter terms by name. Default empty string.
+	 * @return array The retrieved terms.
+	 */
 	public static function terms( string $taxonomy, int $post_id = 0, int $limit = 0, string $search = '' ): array {
 		$args = array(
 			'taxonomy'   => SanitizationHelper::key( $taxonomy ),
@@ -37,6 +46,12 @@ final class TaxonomyHelper {
 		return is_wp_error( $terms ) || ! is_array( $terms ) ? array() : $terms;
 	}
 
+	/**
+	 * Retrieve the IDs of the given terms.
+	 *
+	 * @param mixed $terms Term objects, IDs, or slugs.
+	 * @return array<int> The term IDs.
+	 */
 	public static function ids( $terms ): array {
 		if ( ! is_array( $terms ) ) {
 			$terms = SanitizationHelper::terms( $terms );
@@ -97,7 +112,12 @@ final class TaxonomyHelper {
 
 		return array_values( array_unique( array_filter( $ids ) ) );
 	}
-
+	/**
+	 * Retrieve the names of the given terms.
+	 *
+	 * @param mixed $terms Term objects, IDs, or slugs.
+	 * @return array<string> The term names.
+	 */
 	public static function names( $terms ): array {
 		if ( ! is_array( $terms ) ) {
 			$terms = SanitizationHelper::terms( $terms );

@@ -61,5 +61,3 @@ class AMHelper {
 	}
 }
 
-class_alias( AMHelper::class, 'LicencePress\\Includes\\Functions\\Helpers\\LPAMHelper' );
-

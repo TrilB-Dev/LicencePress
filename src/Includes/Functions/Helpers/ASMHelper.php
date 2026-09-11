@@ -71,5 +71,3 @@ class ASMHelper {
 	}
 }
 
-class_alias( ASMHelper::class, 'LicencePress\\Includes\\Functions\\Helpers\\LPASMHelper' );
-

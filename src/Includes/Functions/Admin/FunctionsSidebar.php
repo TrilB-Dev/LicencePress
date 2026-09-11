@@ -101,7 +101,7 @@ final class FunctionsSidebar {
 			array(
 				'name'       => __( 'LicencePress', 'licencepress' ),
 				'slug'       => 'licencepress',
-				'icon'       => 'dashicons-book-alt',
+				'icon'       => 'dashicons-vault',
 				'parent'     => '',
 				'callback'   => array( $admin, 'render_dashboard' ),
 				'capability' => 'licencepress_admin_view',

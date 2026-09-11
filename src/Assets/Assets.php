@@ -183,9 +183,11 @@ final class Assets {
 			return;
 		}
 
-		$page       = RequestHelper::get_key( 'page', 'licencepress' );
-		$registered = $this->pages[ $page ] ?? array();
-		$base       = apply_filters( 'licencepress_base_assets', array(), 'admin' );
+		$page        = RequestHelper::get_key( 'page', 'licencepress' );
+		$group       = RequestHelper::get_key( 'group', '' );
+		$resolved    = self::resolve_admin_page_key( $page, $group );
+		$registered  = $this->pages[ $resolved ] ?? $this->pages[ $page ] ?? array();
+		$base        = apply_filters( 'licencepress_base_assets', array(), 'admin' );
 		$this->enqueue_registered(
 			'admin',
 			array(
@@ -276,8 +278,10 @@ final class Assets {
 		}
 
 		$current_page = RequestHelper::get_key( 'page', '' );
+		$current_group = RequestHelper::get_key( 'group', '' );
+		$resolved_page = self::resolve_admin_page_key( $current_page, $current_group );
 
-		if ( 'licencepress-settings' === $current_page ) {
+		if ( in_array( $resolved_page, array( 'licencepress-settings', 'licencepress' ), true ) && 'settings' === $current_group ) {
 			$settings_config = array(
 				'ajaxUrl'             => admin_url( 'admin-ajax.php' ),
 				'nonce'               => wp_create_nonce( 'licencepress_settings_tabs' ),
@@ -290,7 +294,7 @@ final class Assets {
 				}
 			}
 		}
-		if ( 'licencepress-manage' === $current_page && wp_script_is( 'licencepress-admin-ui', 'enqueued' ) ) {
+		if ( 'licencepress-manage' === $resolved_page && wp_script_is( 'licencepress-admin-ui', 'enqueued' ) ) {
 			LoaderHelper::localize_script(
 				'licencepress-admin-ui',
 				'licencepressManager',
@@ -300,6 +304,26 @@ final class Assets {
 				)
 			);
 		}
+	}
+	/**
+	 * Resolve the logical admin page key from the new grouped URL format.
+	 *
+	 * @param string $page The page query value.
+	 * @param string $group The group query value.
+	 * @return string
+	 */
+	private static function resolve_admin_page_key( string $page, string $group ): string {
+		if ( 'licencepress' === $page && '' !== $group ) {
+			$map = array(
+				'customers' => 'licencepress-licences',
+				'licences'  => 'licencepress-licences',
+				'settings'  => 'licencepress-settings',
+				'tools'     => 'licencepress-tools',
+			);
+			return $map[ $group ] ?? $page;
+		}
+
+		return $page;
 	}
 	/**
 	 * Retrieves the URL of an image asset.

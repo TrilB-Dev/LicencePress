@@ -20,38 +20,25 @@ final class PostType {
 	 *
 	 * @return void
 	 */
-	public const LICENCE_TYPE                   			 = 'licencepress_licence_type';
+	public const LICENCE_TYPE = 'licencepress_licence_type';
+
 	/**
-	 * Post type for the Wiki container.
-	 * 
-	 * Post type for the variants of a Wiki container.
-	 * @return mixed
+	 * Post type for the licence type container.
+	 *
+	 * Post type for the variants of a licence type container.
+	 *
+	 * @var string
 	 */
-	public const LICENCE_TYPE_VARIANT                   	 = 'licencepress_licence_type_variant';
-	/**
-	 * Capability for the Wiki container post type.
-	 */
-	public const LICENCEPRESS_TYPE_CAPABILITY        		 = 'licencepress_licence_type';
-	/**
-	 * Capability for the Wiki container variant post type.
-	 */
-	public const LICENCEPRESS_TYPE_CAPABILITY_PLURAL 		 = 'licencepress_licence_types';
-	/**
-	 * Capability for the Wiki container variant post type.
-	 */
-	public const LICENCEPRESS_TYPE_VARIANT_CAPABILITY        = 'licencepress_licence_type_variant';
-	/**
-	 * Capability for the plural form of the Wiki container variant post type.
-	 */
-	public const LICENCEPRESS_TYPE_VARIANT_CAPABILITY_PLURAL = 'licencepress_licence_type_variants';
+	public const LICENCE_TYPE_VARIANT = 'licencepress_licence_type_variant';
+
 	/**
 	 * Register the custom post types.
 	 *
 	 * @return void
 	 */
 	public function register(): void {
-		register_post_type( self::LICENCE_TYPE, self::wiki_args() );
-		register_post_type( self::LICENCE_TYPE_VARIANT, self::page_args() );
+		register_post_type( self::LICENCE_TYPE, self::licence_type_args() );
+		register_post_type( self::LICENCE_TYPE_VARIANT, self::licence_type_variant_args() );
 		add_filter( 'post_type_link', array( PermalinkHelper::class, 'filter_page_permalink' ), 10, 2 );
 		PermalinkHelper::rewrite_rule();
 	}
@@ -70,7 +57,39 @@ final class PostType {
 	 * @return string
 	 */
 	public static function page_rewrite_slug(): string {
-		return self::setting_slug( 'root_slug', 'wiki' );
+		return self::setting_slug( 'root_slug', 'licence-types' );
+	}
+	/**
+	 * Get the capabilities for the licence type post type.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function licence_type_capabilities(): array {
+		return array(
+			'edit_post'             => 'licencepress_licence_type_edit',
+			'read_post'             => 'licencepress_licence_type_view',
+			'delete_post'           => 'licencepress_licence_type_delete',
+			'edit_posts'            => 'licencepress_licence_types_edit',
+			'edit_others_posts'     => 'licencepress_licence_type_edit_others',
+			'publish_posts'         => 'licencepress_licence_type_publish',
+			'read_private_posts'    => 'licencepress_licence_type_read_private',
+		);
+	}
+	/**
+	 * Get the capabilities for the licence type variant post type.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function licence_type_variant_capabilities(): array {
+		return array(
+			'edit_post'             => 'licencepress_licence_type_variant_edit',
+			'read_post'             => 'licencepress_licence_type_variant_view',
+			'delete_post'           => 'licencepress_licence_type_variant_delete',
+			'edit_posts'            => 'licencepress_licence_type_variants_edit',
+			'edit_others_posts'     => 'licencepress_licence_type_variant_edit_others',
+			'publish_posts'         => 'licencepress_licence_type_variant_publish',
+			'read_private_posts'    => 'licencepress_licence_type_variant_read_private',
+		);
 	}
 
 	/**
@@ -78,21 +97,21 @@ final class PostType {
 	 *
 	 * @return array<string, mixed> Registration arguments.
 	 */
-	public static function wiki_args(): array {
+	public static function licence_type_args(): array {
 		return apply_filters(
 			'licencepress_licence_type_post_type_args',
 			array(
 				'labels'          => array(
-					'name'          => __( 'Licence Types', 'licencepress' ),
-					'singular_name' => __( 'Licence Type', 'licencepress' ),
-					'add_new_item'  => __( 'Add New Licence Type', 'licencepress' ),
-					'edit_item'     => __( 'Edit Licence Type', 'licencepress' ),
+				'name'            => __( 'Licence Types', 'licencepress' ),
+				'singular_name'   => __( 'Licence Type', 'licencepress' ),
+				'add_new_item'    => __( 'Add New Licence Type', 'licencepress' ),
+				'edit_item'       => __( 'Edit Licence Type', 'licencepress' ),
 				),
 				'public'          => false,
 				'show_ui'         => false,
 				'show_in_rest'    => true,
 				'supports'        => array( 'title', 'editor', 'author', 'thumbnail', 'revisions' ),
-				'capability_type' => array( self::LICENCEPRESS_TYPE_CAPABILITY, self::LICENCEPRESS_TYPE_CAPABILITY_PLURAL ),
+				'capability_type' => self::licence_type_capabilities(),
 				'map_meta_cap'    => true,
 			),
 			self::LICENCE_TYPE
@@ -104,7 +123,7 @@ final class PostType {
 	 *
 	 * @return array<string, mixed> Registration arguments.
 	 */
-	public static function page_args(): array {
+	public static function licence_type_variant_args(): array {
 		return apply_filters(
 			'licencepress_licence_type_variant_post_type_args',
 			array(
@@ -120,7 +139,7 @@ final class PostType {
 				'has_archive'     => false,
 				'rewrite'         => array( 'slug' => self::page_rewrite_slug() ),
 				'supports'        => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'revisions', 'page-attributes' ),
-				'capability_type' => array( self::LICENCEPRESS_TYPE_VARIANT_CAPABILITY, self::LICENCEPRESS_TYPE_VARIANT_CAPABILITY_PLURAL ),
+				'capability_type' => self::licence_type_variant_capabilities(),
 				'map_meta_cap'    => true,
 			),
 			self::LICENCE_TYPE_VARIANT

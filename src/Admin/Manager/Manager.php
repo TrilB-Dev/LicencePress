@@ -40,12 +40,13 @@ abstract class Manager {
 	 */
 	protected function assets( string $bundle ): array {
 		$bundle_name = $this->resolve_bundle_name( $bundle );
+		$style_name  = $this->resolve_style_bundle_name( $bundle );
 
 		return array(
 			'styles'  => array(
 				array(
 					'handle' => 'licencepress-admin-' . $bundle,
-					'src'    => LICENCEPRESS_URL . 'src/Assets/dist/css/' . $bundle_name . '.css',
+					'src'    => LICENCEPRESS_URL . 'src/Assets/dist/css/' . $style_name . '.css',
 					'deps'   => array( 'licencepress-bootstrap', 'licencepress-admin-ui' ),
 				),
 			),
@@ -84,6 +85,22 @@ abstract class Manager {
 		);
 
 		return $mapping[ $bundle ] ?? ( 'admin.' . $bundle );
+	}
+
+	/**
+	 * Map the logical bundle to the shared compiled CSS file.
+	 *
+	 * All admin entry styles are emitted into the shared admin.ui.css bundle.
+	 *
+	 * @param string $bundle Logical bundle name.
+	 * @return string Compiled stylesheet bundle file name.
+	 */
+	protected function resolve_style_bundle_name( string $bundle ): string {
+		if ( '' === trim( $bundle ) ) {
+			return 'admin.ui';
+		}
+
+		return 'admin.ui';
 	}
 
 	/**

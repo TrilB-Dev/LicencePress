@@ -174,8 +174,8 @@ final class LicenceCoreTest extends TestCase {
 
 		$this->assertNotEmpty( $assets['scripts'] );
 		$this->assertStringContainsString( 'admin.dashboard.js', $assets['scripts'][0]['src'] );
-		$this->assertStringContainsString( 'admin.dashboard.css', $assets['styles'][0]['src'] );
-		$this->assertStringNotContainsString( 'dashboard.admin.css', $assets['styles'][0]['src'] );
+		$this->assertStringContainsString( 'admin.ui.css', $assets['styles'][0]['src'] );
+		$this->assertStringNotContainsString( 'admin.dashboard.css', $assets['styles'][0]['src'] );
 	}
 
 	public function test_licence_type_crud_flow_persists_updates_and_removes_records(): void {

@@ -435,7 +435,7 @@ final class FunctionsSidebar {
 		$label = (string) ( $menu['name'] ?? '' );
 		$icon  = (string) ( $menu['icon'] ?? '' );
 
-		if ( '' !== $slug && '' !== $label && '' !== $icon ) {
+		if ( '' !== $slug && ! preg_match( '/^\d+$/', $slug ) && '' !== $label && '' !== $icon ) {
 			$groups[ $slug ] = array(
 				'label' => $label,
 				'icon'  => $icon,
@@ -453,12 +453,12 @@ final class FunctionsSidebar {
 	 * @return void
 	 */
 	private static function add_sidebar_item( array &$groups, string $parent, array $menu ): void {
-		$slug  = (string) ( $menu['slug'] ?? '' );
+		$slug  = trim( (string) ( $menu['slug'] ?? '' ) );
 		$label = (string) ( $menu['name'] ?? '' );
 		$icon  = (string) ( $menu['icon'] ?? '' );
 
 		$capability = sanitize_key( (string) ( $menu['capability'] ?? '' ) );
-		if ( isset( $groups[ $parent ] ) && '' !== $slug && '' !== $label && '' !== $icon && ( '' === $capability || current_user_can( $capability ) ) ) {
+		if ( isset( $groups[ $parent ] ) && '' !== $slug && ! preg_match( '/^\d+$/', $slug ) && '' !== $label && '' !== $icon && ( '' === $capability || current_user_can( $capability ) ) ) {
 			$groups[ $parent ]['items'][ $slug ] = array(
 				'label'      => $label,
 				'icon'       => $icon,

@@ -78,7 +78,13 @@ final class Sidebar {
 		</aside>
 		<?php
 	}
-
+	/**
+	 * Render the icon markup for a sidebar item.
+	 *
+	 * @param string $icon The icon class or URL.
+	 * @param bool $with_spacing Whether to add spacing to the icon.
+	 * @return string The HTML markup for the icon.
+	 */
 	private static function render_icon_markup( string $icon, bool $with_spacing = false ): string {
 		$icon = trim( $icon );
 		if ( '' === $icon ) {
@@ -100,7 +106,14 @@ final class Sidebar {
 		);
 	}
 
-	/** @param array<string, mixed> $group */
+	/**
+	 * Determine if a sidebar group should be expanded.
+	 *
+	 * @param string $key The group key.
+	 * @param array<string, mixed> $group The group configuration.
+	 * @param string $current The current page slug.
+	 * @return bool True if the group should be expanded, false otherwise.
+	 */
 	private static function group_is_expanded( string $key, array $group, string $current ): bool {
 		$current_group = RequestHelper::get_key( 'group', '' );
 		if ( 'settings' === $key ) {
@@ -118,19 +131,35 @@ final class Sidebar {
 
 		return false;
 	}
-
+	/**
+	 * Extract the page part from a sidebar item slug.
+	 *
+	 * @param string $slug The sidebar item slug.
+	 * @return string The page part of the slug.
+	 */
 	private static function item_page( string $slug ): string {
 		return strtok( $slug, '&' );
 	}
 
-	/** @return array<string, string> */
+	/**
+	 * Extract the query part from a sidebar item slug.
+	 *
+	 * @param string $slug The sidebar item slug.
+	 * @return array<string, string> The query parameters as an associative array.
+	 */
 	private static function item_query( string $slug ): array {
 		$query = array();
 		parse_str( (string) strstr( $slug, '&' ), $query );
 		return $query;
 	}
 
-	/** @param array<string, string> $query */
+	/**
+	 * Generate the URL for a sidebar item.
+	 *
+	 * @param string $page The page part of the sidebar item.
+	 * @param array<string, string> $query The query parameters for the sidebar item.
+	 * @return string The generated URL.
+	 */
 	private static function item_url( string $page, array $query ): string {
 		$query_string = empty( $query ) ? '' : '?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 );
 		if ( in_array( $page, array( 'edit.php', 'post-new.php' ), true ) ) {
@@ -140,7 +169,14 @@ final class Sidebar {
 		return admin_url( 'admin.php?page=' . $page . ( empty( $query ) ? '' : '&' . ltrim( $query_string, '?' ) ) );
 	}
 
-	/** @param array<string, string> $query */
+	/**
+	 * Determine if a sidebar item is active.
+	 *
+	 * @param string $page The page part of the sidebar item.
+	 * @param array<string, string> $query The query parameters for the sidebar item.
+	 * @param string $current The current page slug.
+	 * @return bool True if the sidebar item is active, false otherwise.
+	 */
 	private static function item_is_active( string $page, array $query, string $current ): bool {
 		if ( $page !== $current ) {
 			return false;

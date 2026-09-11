@@ -30,12 +30,15 @@ class ASMHelper {
 	 * @return array<string, mixed>
 	 */
 	public static function define( string $name, string $slug, string $icon, string $parent = '', string $capability = '' ): array {
+		$clean_slug = self::sanitize_slug( $slug );
+		$clean_name = trim( (string) $name );
+
 		return array(
-			'parent'     => sanitize_key( $parent ),
-			'name'       => $name,
-			'slug'       => self::sanitize_slug( $slug ),
+			'parent'     => sanitize_key( (string) $parent ),
+			'name'       => $clean_name,
+			'slug'       => $clean_slug,
 			'icon'       => sanitize_text_field( $icon ),
-			'capability' => sanitize_key( $capability ),
+			'capability' => sanitize_key( (string) $capability ),
 		);
 	}
 
@@ -65,8 +68,17 @@ class ASMHelper {
 	 * @return string The sanitized slug.
 	 */
 	private static function sanitize_slug( string $slug ): string {
+		$slug = trim( (string) $slug );
+		if ( '' === $slug || preg_match( '/^\d+$/', $slug ) ) {
+			return '';
+		}
+
 		$parts = explode( '&', $slug, 2 );
 		$page  = sanitize_key( $parts[0] );
+		if ( '' === $page || preg_match( '/^\d+$/', $page ) ) {
+			return '';
+		}
+
 		return $page . ( isset( $parts[1] ) && '' !== $parts[1] ? '&' . sanitize_text_field( $parts[1] ) : '' );
 	}
 }

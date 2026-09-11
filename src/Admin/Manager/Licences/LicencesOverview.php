@@ -16,6 +16,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class LicencesOverview {
+	/**
+	 * Renders the main overview page for licences.
+	 *
+	 * @since 1.0.0
+	 */
 	public function render(): void {
 		$summary = LicenceManager::summary();
 		?>
@@ -136,7 +141,11 @@ final class LicencesOverview {
 		</div>
 		<?php
 	}
-
+	/**
+	 * Generates the statistical cards for the overview page.
+	 *
+	 * @since 1.0.0
+	 */
 	private function stat_cards( array $summary ): array {
 		return array(
 			array(
@@ -157,7 +166,11 @@ final class LicencesOverview {
 			),
 		);
 	}
-
+	/**
+	 * Generates the graph data for the overview page.
+	 *
+	 * @since 1.0.0
+	 */
 	private function graph_data(): array {
 		return array(
 			'Jan' => 48,
@@ -169,6 +182,11 @@ final class LicencesOverview {
 		);
 	}
 
+	/**
+	 * Generates the activity data for the overview page.
+	 *
+	 * @since 1.0.0
+	 */
 	private function activity(): array {
 		return array(
 			array( 'label' => __( 'Generated', 'licencepress' ), 'value' => '184' ),
@@ -178,6 +196,11 @@ final class LicencesOverview {
 		);
 	}
 
+	/**
+	 * Generates the customer statistical cards for the overview page.
+	 *
+	 * @since 1.0.0
+	 */
 	private function customer_cards(): array {
 		return array(
 			array( 'label' => __( 'Registered customers', 'licencepress' ), 'value' => 148 ),
@@ -187,6 +210,11 @@ final class LicencesOverview {
 		);
 	}
 
+	/**
+	 * Generates the customer data for the overview page.
+	 *
+	 * @since 1.0.0
+	 */
 	private function customers(): array {
 		return array(
 			array(

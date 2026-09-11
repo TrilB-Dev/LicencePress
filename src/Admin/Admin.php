@@ -199,7 +199,22 @@ final class Admin {
 	 * It delegates the rendering to the DashboardManager instance.
 	 */
 	public function render_dashboard(): void {
-		$this->dashboard_manager->render();
+		$group = RequestHelper::get_key( 'group', '' );
+
+		switch ( $group ) {
+			case 'customers':
+			case 'licences':
+				$this->render_licences();
+				return;
+			case 'settings':
+				$this->render_settings();
+				return;
+			case 'tools':
+				$this->render_tools();
+				return;
+			default:
+				$this->dashboard_manager->render();
+		}
 	}
 	/**
 	 * Dismiss the onboarding modal.

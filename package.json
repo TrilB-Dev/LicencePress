@@ -12,6 +12,7 @@
     "rename": "node Scripts/rename-plugin.js",
     "i18n:pot": "node scripts/generate-pot.js",
     "i18n:mo": "node scripts/generate-mo.js",
+    "search": "powershell -ExecutionPolicy Bypass -File ./scripts/search.ps1",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

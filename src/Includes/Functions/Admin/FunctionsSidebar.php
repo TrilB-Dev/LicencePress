@@ -10,8 +10,8 @@ namespace LicencePress\Includes\Functions\Admin;
 
 use LicencePress\Admin\Admin;
 use LicencePress\Includes\Functions\Helpers\LoggerHelper;
-use LicencePress\Includes\Functions\Helpers\LPAMHelper;
-use LicencePress\Includes\Functions\Helpers\LPASMHelper;
+use LicencePress\Includes\Functions\Helpers\AMHelper;
+use LicencePress\Includes\Functions\Helpers\ASMHelper;
 use LicencePress\Includes\Plugins\AdminMenuProviderInterface;
 use LicencePress\Includes\Plugins\AdminSidebarProviderInterface;
 use LicencePress\Includes\Plugins\Plugins;
@@ -38,7 +38,7 @@ final class FunctionsSidebar {
 			self::register_wordpress_menu( $menu );
 		}
 
-		foreach ( LPAMHelper::filter( self::plugin_wordpress_menus() ) as $menu ) {
+		foreach ( AMHelper::filter( self::plugin_wordpress_menus() ) as $menu ) {
 			self::register_wordpress_menu( $menu );
 		}
 	}
@@ -50,7 +50,7 @@ final class FunctionsSidebar {
 	 */
 	public static function get_sidebar_groups(): array {
 		$groups = self::core_sidebar_groups();
-		$menus  = LPASMHelper::filter( self::plugin_sidebar_menus() );
+		$menus  = ASMHelper::filter( self::plugin_sidebar_menus() );
 
 		// Create parents first so children can target a parent in any order.
 		foreach ( $menus as $menu ) {
@@ -115,43 +115,29 @@ final class FunctionsSidebar {
 				'capability' => 'licencepress_admin_view',
 			),
 			array(
-				'name'       => __( 'Licences', 'licencepress' ),
-				'slug'       => 'licencepress-licences',
+				'name'       => __( 'Customers', 'licencepress' ),
+				'slug'       => 'licencepress&group=customers&tab=overview',
 				'parent'     => 'licencepress',
 				'callback'   => array( $admin, 'render_licences' ),
 				'capability' => 'licencepress_licence_view',
 			),
 			array(
-				'name'       => __( 'Add Licence Type', 'licencepress' ),
-				'slug'       => 'licencepress-licence-types-add',
-				'parent'     => 'licencepress-licences',
-				'callback'   => array( $admin, 'render_licence_type_add' ),
-				'capability' => 'licencepress_licence_issue',
-			),
-			array(
-				'name'       => __( 'Manage Licence Types', 'licencepress' ),
-				'slug'       => 'licencepress-licence-types',
-				'parent'     => 'licencepress-licences',
+				'name'       => __( 'Licences', 'licencepress' ),
+				'slug'       => 'licencepress&group=licences&tab=overview',
+				'parent'     => 'licencepress',
 				'callback'   => array( $admin, 'render_licence_types' ),
 				'capability' => 'licencepress_licence_view',
 			),
 			array(
-				'name'       => __( 'Manage Licences', 'licencepress' ),
-				'slug'       => 'licencepress-licence-management',
-				'parent'     => 'licencepress-licences',
-				'callback'   => array( $admin, 'render_licence_management' ),
-				'capability' => 'licencepress_licence_view',
-			),
-			array(
 				'name'       => __( 'Settings', 'licencepress' ),
-				'slug'       => 'licencepress-settings',
+				'slug'       => 'licencepress&group=settings&tab=general',
 				'parent'     => 'licencepress',
 				'callback'   => array( $admin, 'render_settings' ),
 				'capability' => 'licencepress_settings_general_view',
 			),
 			array(
 				'name'       => __( 'Tools', 'licencepress' ),
-				'slug'       => 'licencepress-tools',
+				'slug'       => 'licencepress&group=tools&tool=debug',
 				'parent'     => 'licencepress',
 				'callback'   => array( $admin, 'render_tools' ),
 				'capability' => 'licencepress_tools_debug',
@@ -170,58 +156,43 @@ final class FunctionsSidebar {
 				'label' => __( 'Licences', 'licencepress' ),
 				'icon'  => 'fa-solid fa-file-signature',
 				'items' => array(
-					'licencepress-licences'           => array(
+					'licencepress&group=licences&tab=overview'           => array(
 						'label'      => __( 'Overview', 'licencepress' ),
 						'icon'       => 'fa-solid fa-key',
 						'capability' => 'licencepress_licence_view',
 					),
-					'licencepress-licence-types-add'  => array(
-						'label'      => __( 'Add Licence Type', 'licencepress' ),
-						'icon'       => 'fa-solid fa-square-plus',
-						'capability' => 'licencepress_licence_issue',
-					),
-					'licencepress-licence-types'      => array(
+					'licencepress&group=licences&tab=manage-licence-types'      => array(
 						'label'      => __( 'Manage Licence Types', 'licencepress' ),
 						'icon'       => 'fa-solid fa-list',
 						'capability' => 'licencepress_licence_view',
 					),
-					'licencepress-licence-management' => array(
-						'label'      => __( 'Manage Licences', 'licencepress' ),
-						'icon'       => 'fa-solid fa-folder-open',
-						'capability' => 'licencepress_licence_view',
-					),
-					'licencepress-tools&tool=export'  => array(
-						'label'      => __( 'Export', 'licencepress' ),
-						'icon'       => 'fa-solid fa-file-export',
-						'capability' => 'licencepress_tools_export',
-					),
-					'licencepress-tools&tool=import'  => array(
-						'label'      => __( 'Import', 'licencepress' ),
-						'icon'       => 'fa-solid fa-file-import',
-						'capability' => 'licencepress_tools_import',
-					),
+					'licencepress&group=licences&tab=add-licence-type'  => array(
+						'label'      => __( 'Add Licence Type', 'licencepress' ),
+						'icon'       => 'fa-solid fa-square-plus',
+						'capability' => 'licencepress_licence_issue',
+					)
 				),
 			),
 			'settings' => array(
 				'label' => __( 'Settings', 'licencepress' ),
 				'icon'  => 'fa-solid fa-gear',
 				'items' => array(
-					'licencepress-settings&tab=general' => array(
+					'licencepress&group=settings&tab=general' => array(
 						'label'      => __( 'General', 'licencepress' ),
 						'icon'       => 'fa-solid fa-sliders',
 						'capability' => 'licencepress_settings_general_view',
 					),
-					'licencepress-settings&tab=access'  => array(
+					'licencepress&group=settings&tab=access'  => array(
 						'label'      => __( 'Access', 'licencepress' ),
 						'icon'       => 'fa-solid fa-user-shield',
 						'capability' => 'licencepress_settings_access_view',
 					),
-					'licencepress-settings&tab=plugins' => array(
+					'licencepress&group=settings&tab=plugins' => array(
 						'label'      => __( 'Plugins', 'licencepress' ),
 						'icon'       => 'fa-solid fa-puzzle-piece',
 						'capability' => 'licencepress_settings_plugins_view',
 					),
-					'licencepress-settings&tab=third-party' => array(
+					'licencepress&group=settings&tab=third-party' => array(
 						'label'      => __( '3rd Party', 'licencepress' ),
 						'icon'       => 'fa-solid fa-plug',
 						'capability' => 'licencepress_settings_plugins_ext_view',
@@ -229,25 +200,25 @@ final class FunctionsSidebar {
 				),
 			),
 			'tools'    => array(
-				'label' => __( 'Operations', 'licencepress' ),
+				'label' => __( 'Tools', 'licencepress' ),
 				'icon'  => 'fa-solid fa-toolbox',
 				'items' => array(
-					'licencepress-tools&tool=debug'  => array(
+					'licencepress&group=tools&tool=debug'  => array(
 						'label'      => __( 'Debug', 'licencepress' ),
 						'icon'       => 'fa-solid fa-bug-slash',
 						'capability' => 'licencepress_tools_debug',
 					),
-					'licencepress-tools&tool=reset'  => array(
+					'licencepress&group=tools&tool=reset'  => array(
 						'label'      => __( 'Reset', 'licencepress' ),
 						'icon'       => 'fa-solid fa-rotate',
 						'capability' => 'licencepress_tools_reset',
 					),
-					'licencepress-tools&tool=import' => array(
+					'licencepress&group=tools&tool=import' => array(
 						'label'      => __( 'Import', 'licencepress' ),
 						'icon'       => 'fa-solid fa-file-import',
 						'capability' => 'licencepress_tools_import',
 					),
-					'licencepress-tools&tool=export' => array(
+					'licencepress&group=tools&tool=export' => array(
 						'label'      => __( 'Export', 'licencepress' ),
 						'icon'       => 'fa-solid fa-file-export',
 						'capability' => 'licencepress_tools_export',
@@ -264,7 +235,8 @@ final class FunctionsSidebar {
 	 */
 	private static function register_wordpress_menu( array $menu ): void {
 		$callback   = $menu['callback'] ?? null;
-		$slug       = sanitize_key( (string) ( $menu['slug'] ?? '' ) );
+		$raw_slug   = (string) ( $menu['slug'] ?? '' );
+		$slug       = self::menu_page_slug( $raw_slug );
 		$name       = (string) ( $menu['name'] ?? '' );
 		$parent     = self::admin_parent_slug( (string) ( $menu['parent'] ?? '' ) );
 		$capability = sanitize_key( (string) ( $menu['capability'] ?? 'manage_options' ) );
@@ -275,6 +247,10 @@ final class FunctionsSidebar {
 
 		if ( '' === $parent ) {
 			add_menu_page( $name, $name, $capability, $slug, $callback, $menu['icon'] ?? 'dashicons-admin-generic', $menu['position'] ?? null );
+			return;
+		}
+
+		if ( self::has_query_string( $raw_slug ) ) {
 			return;
 		}
 
@@ -344,6 +320,19 @@ final class FunctionsSidebar {
 		return (string) preg_replace( '/[^a-z0-9._-]/', '', $parent );
 	}
 
+	private static function menu_page_slug( string $slug ): string {
+		$slug = trim( (string) $slug );
+		if ( '' === $slug ) {
+			return '';
+		}
+
+		return sanitize_key( strtok( $slug, '&' ) );
+	}
+
+	private static function has_query_string( string $slug ): bool {
+		return false !== strpos( trim( (string) $slug ), '&' );
+	}
+
 	/**
 	 * Get the sidebar menus provided by active LicencePress plugins.
 	 *
@@ -364,16 +353,16 @@ final class FunctionsSidebar {
 					}
 
 					if ( 'group' === ( $definition['type'] ?? '' ) ) {
-						$menus[] = LPASMHelper::define( $definition['label'] ?? '', $definition['slug'] ?? '', $definition['icon'] ?? '', '', $definition['capability'] ?? '' );
+						$menus[] = ASMHelper::define( $definition['label'] ?? '', $definition['slug'] ?? '', $definition['icon'] ?? '', '', $definition['capability'] ?? '' );
 						foreach ( $definition['items'] ?? array() as $child ) {
 							if ( is_array( $child ) ) {
-								$menus[] = LPASMHelper::define( $child['label'] ?? '', self::sidebar_slug( $child ), $child['icon'] ?? '', $definition['slug'] ?? '', $child['capability'] ?? '' );
+								$menus[] = ASMHelper::define( $child['label'] ?? '', self::sidebar_slug( $child ), $child['icon'] ?? '', $definition['slug'] ?? '', $child['capability'] ?? '' );
 							}
 						}
 						continue;
 					}
 
-					$menus[] = LPASMHelper::define( $definition['label'] ?? '', self::sidebar_slug( $definition ), $definition['icon'] ?? '', $definition['parent'] ?? '', $definition['capability'] ?? '' );
+					$menus[] = ASMHelper::define( $definition['label'] ?? '', self::sidebar_slug( $definition ), $definition['icon'] ?? '', $definition['parent'] ?? '', $definition['capability'] ?? '' );
 				}
 			} catch ( \Throwable $e ) {
 				LoggerHelper::write_log( sprintf( 'LicencePress plugin %s failed to provide sidebar menus: %s', $plugin->get_slug(), $e->getMessage() ) );

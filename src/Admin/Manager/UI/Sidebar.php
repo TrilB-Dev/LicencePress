@@ -102,11 +102,12 @@ final class Sidebar {
 
 	/** @param array<string, mixed> $group */
 	private static function group_is_expanded( string $key, array $group, string $current ): bool {
+		$current_group = RequestHelper::get_key( 'group', '' );
 		if ( 'settings' === $key ) {
-			return 'licencepress-settings' === $current;
+			return 'settings' === $current_group;
 		}
 		if ( 'tools' === $key ) {
-			return 'licencepress-tools' === $current;
+			return 'tools' === $current_group;
 		}
 
 		foreach ( $group['items'] as $slug => $item ) {
@@ -146,6 +147,20 @@ final class Sidebar {
 		}
 
 		foreach ( $query as $key => $value ) {
+			if ( 'group' === $key ) {
+				if ( (string) RequestHelper::value( $_GET, 'group', '' ) !== (string) $value ) {
+					return false;
+				}
+				continue;
+			}
+
+			if ( 'tab' === $key ) {
+				if ( (string) RequestHelper::value( $_GET, 'tab', '' ) !== (string) $value ) {
+					return false;
+				}
+				continue;
+			}
+
 			if ( (string) RequestHelper::value( $_GET, $key, '' ) !== (string) $value ) {
 				return false;
 			}

@@ -112,21 +112,21 @@ final class FunctionsSidebar {
 				'slug'       => 'licencepress',
 				'parent'     => 'licencepress',
 				'callback'   => array( $admin, 'render_dashboard' ),
-				'capability' => 'licencepress_admin_view',
+				'capability' => 'licencepress_dashboard_view',
 			),
 			array(
 				'name'       => __( 'Customers', 'licencepress' ),
 				'slug'       => 'licencepress&group=customers&tab=overview',
 				'parent'     => 'licencepress',
 				'callback'   => array( $admin, 'render_licences' ),
-				'capability' => 'licencepress_licence_view',
+				'capability' => 'licencepress_customer_manage',
 			),
 			array(
 				'name'       => __( 'Licences', 'licencepress' ),
 				'slug'       => 'licencepress&group=licences&tab=overview',
 				'parent'     => 'licencepress',
 				'callback'   => array( $admin, 'render_licence_types' ),
-				'capability' => 'licencepress_licence_view',
+				'capability' => 'licencepress_licence_overview_view',
 			),
 			array(
 				'name'       => __( 'Settings', 'licencepress' ),
@@ -159,17 +159,17 @@ final class FunctionsSidebar {
 					'licencepress&group=licences&tab=overview'           => array(
 						'label'      => __( 'Overview', 'licencepress' ),
 						'icon'       => 'fa-solid fa-key',
-						'capability' => 'licencepress_licence_view',
+						'capability' => 'licencepress_licence_overview_view',
 					),
 					'licencepress&group=licences&tab=manage-licence-types'      => array(
 						'label'      => __( 'Manage Licence Types', 'licencepress' ),
 						'icon'       => 'fa-solid fa-list',
-						'capability' => 'licencepress_licence_view',
+						'capability' => 'licencepress_licence_type_view',
 					),
 					'licencepress&group=licences&tab=add-licence-type'  => array(
 						'label'      => __( 'Add Licence Type', 'licencepress' ),
 						'icon'       => 'fa-solid fa-square-plus',
-						'capability' => 'licencepress_licence_issue',
+						'capability' => 'licencepress_licence_type_create',
 					)
 				),
 			),

@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Frontend {
 	public function filter_content( string $content ): string {
-		if ( ! is_singular( PostType::PAGE ) || ! is_main_query() || ! in_the_loop() ) {
+		if ( ! is_singular( PostType::LICENCE_TYPE_VARIANT ) || ! is_main_query() || ! in_the_loop() ) {
 			return $content;
 		}
 
@@ -48,7 +48,7 @@ final class Frontend {
 	}
 
 	public function body_classes( array $classes ): array {
-		if ( is_singular( PostType::PAGE ) ) {
+		if ( is_singular( PostType::LICENCE_TYPE_VARIANT ) ) {
 			$classes[] = 'licencepress-page-template';
 			if ( Settings::get_bool( 'show_search', true ) ) {
 				$classes[] = 'licencepress-search-enabled';
@@ -69,7 +69,7 @@ final class Frontend {
 	}
 
 	private function render_breadcrumbs(): string {
-		$archive_link = get_post_type_archive_link( PostType::PAGE );
+		$archive_link = get_post_type_archive_link( PostType::LICENCE_TYPE_VARIANT );
 		if ( empty( $archive_link ) ) {
 			$archive_link = home_url( '/' );
 		}

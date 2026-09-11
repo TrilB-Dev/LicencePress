@@ -30,10 +30,10 @@ final class Editor {
 			return false;
 		}
 		$page = $licence_type_variant_id ? get_post( $licence_type_variant_id ) : null;
-		if ( ! $licence_type_variant_id && ! current_user_can( 'licencepress_page_create' ) ) {
+		if ( ! $licence_type_variant_id && ! current_user_can( 'licencepress_licence_type_varient_create' ) ) {
 			return false;
 		}
-		if ( $licence_type_variant_id && ( ! $page || PostType::PAGE !== $page->post_type || ! current_user_can( 'licencepress_page_edit' ) || ( (int) $page->post_author !== get_current_user_id() && ! current_user_can( 'licencepress_page_edit_others' ) ) || ( 'publish' === $page->post_status && ! current_user_can( 'licencepress_page_edit_published' ) ) ) ) {
+		if ( $licence_type_variant_id && ( ! $page || PostType::LICENCE_TYPE_VARIANT !== $page->post_type || ! current_user_can( 'licencepress_licence_type_varient_edit' ) || ( (int) $page->post_author !== get_current_user_id() && ! current_user_can( 'licencepress_licence_type_varient_manage' ) ) || ( 'publish' === $page->post_status && ! current_user_can( 'licencepress_licence_type_varient_manage' ) ) ) ) {
 			return false;
 		}
 
@@ -44,14 +44,14 @@ final class Editor {
 			return false;
 		}
 
-		if ( ! current_user_can( 'licencepress_page_publish' ) ) {
+		if ( ! current_user_can( 'licencepress_licence_type_varient_manage' ) ) {
 			return false;
 		}
 
 		$post_id = wp_insert_post(
 			array(
 				'ID'           => $licence_type_variant_id,
-				'post_type'    => PostType::PAGE,
+				'post_type'    => PostType::LICENCE_TYPE_VARIANT,
 				'post_title'   => $title,
 				'post_content' => wp_kses_post( (string) ( $input['content'] ?? '' ) ),
 				'post_status'  => 'publish',

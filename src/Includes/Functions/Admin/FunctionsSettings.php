@@ -110,7 +110,7 @@ final class FunctionsSettings {
 	 * @return array<string, mixed> The sanitized layout settings.
 	 */
 	public function sanitize_layout( $input ): array {
-		if ( ! current_user_can( 'licencepress_settings_layout_edit' ) ) {
+		if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
 			return (array) Settings::get_group( Settings::LAYOUT, array() );
 		}
 		$input   = is_array( $input ) ? $input : array();

@@ -295,7 +295,7 @@ final class Admin {
 		$tab             = RequestHelper::get_key( 'tab', 'general' );
 		$view_capability = array(
 			'general'     => 'licencepress_settings_general_view',
-			'layout'      => 'licencepress_settings_layout_view',
+			'layout'      => 'licencepress_settings_general_view',
 			'access'      => 'licencepress_settings_access_view',
 			'plugins'     => 'licencepress_settings_plugins_view',
 			'third-party' => 'licencepress_settings_plugins_ext_view',
@@ -322,7 +322,7 @@ final class Admin {
 	 * This method handles the AJAX request to preview a licence type based on the provided settings.
 	 */
 	public function preview_licence_type(): void {
-		if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_issue' ) ) {
+		if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_type_manage' ) ) {
 			AjaxHelper::unauthorized( __( 'You are not authorized to preview a LicencePress licence type.', 'licencepress' ) );
 		}
 
@@ -342,7 +342,7 @@ final class Admin {
 	 * This method handles the AJAX request to load a licence type based on the provided ID.
 	 */
 	public function load_licence_type(): void {
-		if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_issue' ) ) {
+		if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_type_manage' ) ) {
 			AjaxHelper::unauthorized( __( 'You are not authorized to load a LicencePress licence type.', 'licencepress' ) );
 		}
 
@@ -361,7 +361,7 @@ final class Admin {
 	 * This method handles the AJAX request to save a licence type based on the provided settings.
 	 */
 	public function save_licence_type(): void {
-		if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_issue' ) ) {
+		if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_type_manage' ) ) {
 			AjaxHelper::unauthorized( __( 'You are not authorized to save a LicencePress licence type.', 'licencepress' ) );
 		}
 
@@ -410,7 +410,7 @@ final class Admin {
 	 * This method handles the AJAX request to toggle the retired status of a licence type based on the provided ID.
 	 */
 	public function toggle_licence_type_retired(): void {
-		if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_issue' ) ) {
+		if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_type_manage' ) ) {
 			AjaxHelper::unauthorized( __( 'You are not authorized to retire a LicencePress licence type.', 'licencepress' ) );
 		}
 
@@ -437,7 +437,7 @@ final class Admin {
 	 * This method handles the AJAX request to delete a licence type based on the provided ID.
 	 */
 	public function delete_licence_type(): void {
-		if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_issue' ) ) {
+		if ( ! AjaxHelper::authorized( 'licencepress_licence_type_form', 'licencepress_licence_type_manage' ) ) {
 			AjaxHelper::unauthorized( __( 'You are not authorized to delete a LicencePress licence type.', 'licencepress' ) );
 		}
 

@@ -32,30 +32,140 @@ class Capabilities {
 					'label'       => __( 'View Licence Dashboard', 'licencepress' ),
 					'description' => __( 'Allows viewing the LicencePress dashboard and summary status.', 'licencepress' ),
 				),
-				'licencepress_licence_view'              => array(
+				'licencepress_licence_overview_view'              => array(
 					'group'       => 'LicencePress Licence',
-					'label'       => __( 'View Licences', 'licencepress' ),
-					'description' => __( 'Allows viewing licence records and customer licence state.', 'licencepress' ),
+					'label'       => __( 'View Licence Overview', 'licencepress' ),
+					'description' => __( 'Allows viewing licence overview.', 'licencepress' ),
 				),
-				'licencepress_licence_issue'             => array(
+				'licencepress_licence_type_view'          => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'View Licence Types', 'licencepress' ),
+					'description' => __( 'Allows viewing the different licence types available.', 'licencepress' ),
+				),
+				'licencepress_licence_type_create'        => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Create Licence Types', 'licencepress' ),
+					'description' => __( 'Allows creating new licence types.', 'licencepress' ),
+				),
+				'licencepress_licence_type_edit'          => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Edit Licence Types', 'licencepress' ),
+					'description' => __( 'Allows editing existing licence types.', 'licencepress' ),
+				),
+				'licencepress_licence_type_delete'        => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Delete Licence Types', 'licencepress' ),
+					'description' => __( 'Allows deleting existing licence types.', 'licencepress' ),
+				),
+				'licencepress_licence_type_retire'        => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Retire Licence Types', 'licencepress' ),
+					'description' => __( 'Allows retiring existing licence types.', 'licencepress' ),
+				),
+				'licencepress_licence_type_manage'        => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Manage Licence Types', 'licencepress' ),
+					'description' => __( 'Allows managing all aspects of licence types.', 'licencepress' ),
+				),
+				'licencepress_licence_type_varient_manage' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Manage Licence Type Variants', 'licencepress' ),
+					'description' => __( 'Allows managing all aspects of licence type variants.', 'licencepress' ),
+				),
+				'licencepress_licence_type_varient_create' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Create Licence Type Variants', 'licencepress' ),
+					'description' => __( 'Allows creating new licence type variants.', 'licencepress' ),
+				),
+				'licencepress_licence_type_varient_edit' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Edit Licence Type Variants', 'licencepress' ),
+					'description' => __( 'Allows editing existing licence type variants.', 'licencepress' ),
+				),
+				'licencepress_licence_type_varient_delete' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Delete Licence Type Variants', 'licencepress' ),
+					'description' => __( 'Allows deleting existing licence type variants.', 'licencepress' ),
+				),
+				'licencepress_licence_type_varient_retire' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Retire Licence Type Variants', 'licencepress' ),
+					'description' => __( 'Allows retiring existing licence type variants.', 'licencepress' ),
+				),
+				'licencepress_customer_manage'             => array(
 					'group'       => 'LicencePress Licence',
 					'label'       => __( 'Issue Licences', 'licencepress' ),
 					'description' => __( 'Allows creating and issuing new licences.', 'licencepress' ),
 				),
-				'licencepress_licence_edit'              => array(
+				'licencepress_customer_edit'              => array(
 					'group'       => 'LicencePress Licence',
-					'label'       => __( 'Edit Licences', 'licencepress' ),
-					'description' => __( 'Allows modifying existing licence metadata.', 'licencepress' ),
+					'label'       => __( 'Edit LicencePress Customers', 'licencepress' ),
+					'description' => __( 'Allows modifying existing LicencePress customer records.', 'licencepress' ),
 				),
-				'licencepress_licence_revoke'            => array(
+				'licencepress_customer_add'            => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Add LicencePress Customers', 'licencepress' ),
+					'description' => __( 'Allows adding new LicencePress customers.', 'licencepress' ),
+				),
+				'licencepress_customer_suspend'            => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Suspend Licences', 'licencepress' ),
+					'description' => __( 'Allows suspending active customer accounts.', 'licencepress' ),
+				),
+				'licencepress_customer_delete'            => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Delete LicencePress Customers', 'licencepress' ),
+					'description' => __( 'Allows deleting existing LicencePress customer records.', 'licencepress' ),
+				),
+				'licencepress_customer_reinstate'            => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Reinstate Licences', 'licencepress' ),
+					'description' => __( 'Allows reinstating suspended customer accounts.', 'licencepress' ),
+				),
+				'licencepress_customer_licence_revoke' => array(
 					'group'       => 'LicencePress Licence',
 					'label'       => __( 'Revoke Licences', 'licencepress' ),
-					'description' => __( 'Allows revoking or disabling active licences.', 'licencepress' ),
+					'description' => __( 'Allows revoking or disabling active licences for customers.', 'licencepress' ),
 				),
-				'licencepress_licence_delete'            => array(
+				'licencepress_customer_licence_validate' => array(
 					'group'       => 'LicencePress Licence',
-					'label'       => __( 'Delete Licences', 'licencepress' ),
-					'description' => __( 'Allows removing licence records from the database.', 'licencepress' ),
+					'label'       => __( 'Validate Customer Licences', 'licencepress' ),
+					'description' => __( 'Allows validating customer licence tokens and checking site binding.', 'licencepress' ),
+				),
+				'licencepress_customer_licence_extend' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Extend Customer Licences', 'licencepress' ),
+					'description' => __( 'Allows extending the duration of active customer licences.', 'licencepress' ),
+				),
+				'licencepress_customer_licence_transfer' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Transfer Customer Licences', 'licencepress' ),
+					'description' => __( 'Allows transferring active customer licences to another account.', 'licencepress' ),
+				),
+				'licencepress_customer_licence_delete' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Delete Customer Licences', 'licencepress' ),
+					'description' => __( 'Allows deleting active customer licences.', 'licencepress' ),
+				),
+				'licencepress_customer_licence_create' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Create Customer Licences', 'licencepress' ),
+					'description' => __( 'Allows creating new customer licences.', 'licencepress' ),
+				),
+				'licencepress_customer_licence_manage' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Manage Customer Licences', 'licencepress' ),
+					'description' => __( 'Allows managing all aspects of customer licences.', 'licencepress' ),
+				),
+				'licencepress_customer_licence_export' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Export Customer Licences', 'licencepress' ),
+					'description' => __( 'Allows exporting customer licence data.', 'licencepress' ),
+				),
+				'licencepress_customer_licence_import' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Import Customer Licences', 'licencepress' ),
+					'description' => __( 'Allows importing customer licence data.', 'licencepress' ),
 				),
 				'licencepress_licence_validate'          => array(
 					'group'       => 'LicencePress Licence',

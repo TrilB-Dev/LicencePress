@@ -250,6 +250,10 @@ final class FunctionsSidebar {
 			return;
 		}
 
+		if ( $slug === $parent ) {
+			return;
+		}
+
 		add_submenu_page( $parent, $name, $name, $capability, $slug, $callback, $menu['position'] ?? null );
 	}
 

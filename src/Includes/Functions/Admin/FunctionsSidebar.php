@@ -248,17 +248,24 @@ final class FunctionsSidebar {
 
 		LoggerHelper::write_log( sprintf( 'LicencePress registering admin menu: %s (slug=%s, parent=%s, capability=%s)', $name, $slug, $parent, $capability ) );
 
-		if ( '' === $parent ) {
-			add_menu_page( $name, $name, $capability, $slug, $callback, $menu['icon'] ?? 'dashicons-admin-generic', $menu['position'] ?? null );
-			return;
-		}
+		try {
+			if ( '' === $parent ) {
+				add_menu_page( $name, $name, $capability, $slug, $callback, $menu['icon'] ?? 'dashicons-admin-generic', $menu['position'] ?? null );
+				return;
+			}
 
-		if ( $slug === $parent ) {
-			LoggerHelper::write_log( sprintf( 'LicencePress skipped submenu registration because slug matches parent: %s', $slug ) );
-			return;
-		}
+			if ( $slug === $parent ) {
+				LoggerHelper::write_log( sprintf( 'LicencePress skipped submenu registration because slug matches parent: %s', $slug ) );
+				return;
+			}
 
-		add_submenu_page( $parent, $name, $name, $capability, $slug, $callback, $menu['position'] ?? null );
+			add_submenu_page( $parent, $name, $name, $capability, $slug, $callback, $menu['position'] ?? null );
+		} catch ( \Throwable $e ) {
+			LoggerHelper::write_log( sprintf( 'LicencePress menu registration failed for %s (%s): %s', $name, $slug, $e->getMessage() ) );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				wp_die( esc_html( $e->getMessage() ), __( 'LicencePress menu registration error', 'licencepress' ), array( 'back_link' => true ) );
+			}
+		}
 	}
 
 	/**

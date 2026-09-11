@@ -192,8 +192,16 @@ final class Admin {
 	 */
 	public function register_admin_menu(): void {
 		LoggerHelper::write_log( 'LicencePress admin menu registration started.' );
-		FunctionsSidebar::register_admin_menu( $this );
-		LoggerHelper::write_log( 'LicencePress admin menu registration complete.' );
+
+		try {
+			FunctionsSidebar::register_admin_menu( $this );
+			LoggerHelper::write_log( 'LicencePress admin menu registration complete.' );
+		} catch ( \Throwable $e ) {
+			LoggerHelper::write_log( 'LicencePress admin menu registration failed: ' . $e->getMessage() );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				wp_die( esc_html( $e->getMessage() ), __( 'LicencePress admin menu error', 'licencepress' ), array( 'back_link' => true ) );
+			}
+		}
 	}
 	/**
 	 * Render the dashboard page.
@@ -205,23 +213,30 @@ final class Admin {
 		$group = RequestHelper::get_key( 'group', '' );
 		LoggerHelper::write_log( sprintf( 'LicencePress dashboard render triggered. Group=%s', $group ) );
 
-		switch ( $group ) {
-			case 'customers':
-			case 'licences':
-				LoggerHelper::write_log( 'LicencePress dashboard routed to licences page.' );
-				$this->render_licences();
-				return;
-			case 'settings':
-				LoggerHelper::write_log( 'LicencePress dashboard routed to settings page.' );
-				$this->render_settings();
-				return;
-			case 'tools':
-				LoggerHelper::write_log( 'LicencePress dashboard routed to tools page.' );
-				$this->render_tools();
-				return;
-			default:
-				LoggerHelper::write_log( 'LicencePress dashboard default render path selected.' );
-				$this->dashboard_manager->render();
+		try {
+			switch ( $group ) {
+				case 'customers':
+				case 'licences':
+					LoggerHelper::write_log( 'LicencePress dashboard routed to licences page.' );
+					$this->render_licences();
+					return;
+				case 'settings':
+					LoggerHelper::write_log( 'LicencePress dashboard routed to settings page.' );
+					$this->render_settings();
+					return;
+				case 'tools':
+					LoggerHelper::write_log( 'LicencePress dashboard routed to tools page.' );
+					$this->render_tools();
+					return;
+				default:
+					LoggerHelper::write_log( 'LicencePress dashboard default render path selected.' );
+					$this->dashboard_manager->render();
+			}
+		} catch ( \Throwable $e ) {
+			LoggerHelper::write_log( 'LicencePress dashboard render failed: ' . $e->getMessage() );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				wp_die( esc_html( $e->getMessage() ), __( 'LicencePress dashboard error', 'licencepress' ), array( 'back_link' => true ) );
+			}
 		}
 	}
 	/**

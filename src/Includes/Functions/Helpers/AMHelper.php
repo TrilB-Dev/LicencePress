@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class LPAMHelper {
+class AMHelper {
 	/**
 	 * The filter hook for modifying the admin menus.
 	 *
@@ -60,3 +60,6 @@ class LPAMHelper {
 		return admin_url( 'admin.php?page=' . $slug );
 	}
 }
+
+class_alias( AMHelper::class, 'LicencePress\\Includes\\Functions\\Helpers\\LPAMHelper' );
+

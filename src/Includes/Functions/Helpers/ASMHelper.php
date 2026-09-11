@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class LPASMHelper {
+class ASMHelper {
 	/**
 	 * The filter hook for modifying the admin sidebar menus.
 	 *
@@ -70,3 +70,6 @@ final class LPASMHelper {
 		return $page . ( isset( $parts[1] ) && '' !== $parts[1] ? '&' . sanitize_text_field( $parts[1] ) : '' );
 	}
 }
+
+class_alias( ASMHelper::class, 'LicencePress\\Includes\\Functions\\Helpers\\LPASMHelper' );
+

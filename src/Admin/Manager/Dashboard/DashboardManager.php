@@ -12,6 +12,7 @@ use LicencePress\Includes\Licence\LicenceManager;
 use LicencePress\Includes\Plugins\DashboardProviderInterface;
 use LicencePress\Includes\Plugins\Plugins;
 use LicencePress\Includes\Settings\Settings;
+use LicencePress\Includes\Functions\Helpers\FormFieldHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

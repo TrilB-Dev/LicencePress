@@ -250,10 +250,6 @@ final class FunctionsSidebar {
 			return;
 		}
 
-		if ( self::has_query_string( $raw_slug ) ) {
-			return;
-		}
-
 		add_submenu_page( $parent, $name, $name, $capability, $slug, $callback, $menu['position'] ?? null );
 	}
 
@@ -326,11 +322,34 @@ final class FunctionsSidebar {
 			return '';
 		}
 
-		return sanitize_key( strtok( $slug, '&' ) );
-	}
+		if ( false === strpos( $slug, '&' ) ) {
+			return sanitize_key( $slug );
+		}
 
-	private static function has_query_string( string $slug ): bool {
-		return false !== strpos( trim( (string) $slug ), '&' );
+		$base = sanitize_key( strtok( $slug, '&' ) );
+		parse_str( substr( $slug, strpos( $slug, '&' ) + 1 ), $query );
+
+		$group = sanitize_key( (string) ( $query['group'] ?? '' ) );
+		$tab   = sanitize_key( (string) ( $query['tab'] ?? '' ) );
+		$tool  = sanitize_key( (string) ( $query['tool'] ?? '' ) );
+
+		if ( '' !== $group && '' !== $tab ) {
+			return $base . '-' . $group . '-' . $tab;
+		}
+		if ( '' !== $group && '' !== $tool ) {
+			return $base . '-' . $group . '-' . $tool;
+		}
+		if ( '' !== $group ) {
+			return $base . '-' . $group;
+		}
+		if ( '' !== $tab ) {
+			return $base . '-' . $tab;
+		}
+		if ( '' !== $tool ) {
+			return $base . '-' . $tool;
+		}
+
+		return $base;
 	}
 
 	/**

@@ -159,6 +159,25 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertMatchesRegularExpression( '/^WPP-[A-Z0-9]{8}-[A-Z0-9]{8}$/', $preview['sample'] );
 	}
 
+	public function test_admin_dashboard_assets_use_real_compiled_bundle_names(): void {
+		if ( ! defined( 'LICENCEPRESS_URL' ) ) {
+			define( 'LICENCEPRESS_URL', 'https://example.com/wp-content/plugins/licencepress/' );
+		}
+
+		$manager = new class() extends \LicencePress\Admin\Manager\Manager {
+			public function expose_assets( string $bundle ): array {
+				return $this->assets( $bundle );
+			}
+		};
+
+		$assets = $manager->expose_assets( 'dashboard' );
+
+		$this->assertNotEmpty( $assets['scripts'] );
+		$this->assertStringContainsString( 'admin.dashboard.js', $assets['scripts'][0]['src'] );
+		$this->assertStringContainsString( 'admin.dashboard.css', $assets['styles'][0]['src'] );
+		$this->assertStringNotContainsString( 'dashboard.admin.css', $assets['styles'][0]['src'] );
+	}
+
 	public function test_licence_type_crud_flow_persists_updates_and_removes_records(): void {
 		$created = LicenceTypeManager::create_type(
 			array(

@@ -67,14 +67,23 @@ abstract class Manager {
 	 * @return string Compiled bundle file name.
 	 */
 	protected function resolve_bundle_name( string $bundle ): string {
+		if ( '' === trim( $bundle ) ) {
+			return 'admin.ui';
+		}
+
+		if ( false !== strpos( $bundle, '.' ) ) {
+			return $bundle;
+		}
+
 		$mapping = array(
-			'dashboard' => 'dashboard.admin',
-			'debug'     => 'debug.admin',
+			'dashboard' => 'admin.dashboard',
+			'debug'     => 'admin.page',
 			'settings'  => 'admin.settings',
-			'plugins'   => 'plugins.admin',
+			'plugins'   => 'admin.plugins',
+			'ui'        => 'admin.ui',
 		);
 
-		return $mapping[ $bundle ] ?? ( $bundle . '.admin' );
+		return $mapping[ $bundle ] ?? ( 'admin.' . $bundle );
 	}
 
 	/**

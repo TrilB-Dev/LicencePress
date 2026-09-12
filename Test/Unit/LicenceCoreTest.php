@@ -161,6 +161,18 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertMatchesRegularExpression( '/^WPP-[A-Z0-9]{8}-[A-Z0-9]{8}$/', $preview['sample'] );
 	}
 
+	public function test_sidebar_links_keep_the_explicit_licencepress_route(): void {
+		$method = new \ReflectionMethod( '\\LicencePress\\Admin\\Manager\\UI\\Sidebar', 'item_link' );
+		$method->setAccessible( true );
+
+		$link = $method->invoke( null, 'general', array( 'link' => 'licencepress&group=settings&tab=general' ) );
+		$this->assertSame( 'licencepress&group=settings&tab=general', $link );
+
+		$page_method = new \ReflectionMethod( '\\LicencePress\\Admin\\Manager\\UI\\Sidebar', 'item_page' );
+		$page_method->setAccessible( true );
+		$this->assertSame( 'licencepress', $page_method->invoke( null, 'licencepress&group=settings&tab=general' ) );
+	}
+
 	public function test_admin_dashboard_assets_use_real_compiled_bundle_names(): void {
 		if ( ! defined( 'LICENCEPRESS_URL' ) ) {
 			define( 'LICENCEPRESS_URL', 'https://example.com/wp-content/plugins/licencepress/' );

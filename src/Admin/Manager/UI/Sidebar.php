@@ -62,8 +62,9 @@ final class Sidebar {
 									<div class="nav flex-column licencepress-sidebar-group-items">
 										<?php foreach ( $group['items'] as $slug => $item ) : ?>
 											<?php
-											$page   = self::item_page( $slug );
-											$query  = self::item_query( $slug );
+										$link   = self::item_link( $slug, $item );
+										$page   = self::item_page( $link );
+										$query  = self::item_query( $link );
 											$active = self::item_is_active( $page, $query, $current );
 											?>
 											<a class="nav-link <?php echo $active ? 'active' : ''; ?>" <?php echo $active ? 'aria-current="page"' : ''; ?> href="<?php echo esc_url( self::item_url( $page, $query ) ); ?>"><?php echo self::render_icon_markup( (string) ( $item['icon'] ?? '' ), true ); ?><?php echo esc_html( $item['label'] ); ?></a>
@@ -124,7 +125,8 @@ final class Sidebar {
 		}
 
 		foreach ( $group['items'] as $slug => $item ) {
-			if ( self::item_is_active( self::item_page( $slug ), self::item_query( $slug ), $current ) ) {
+			$link = self::item_link( $slug, $item );
+			if ( self::item_is_active( self::item_page( $link ), self::item_query( $link ), $current ) ) {
 				return true;
 			}
 		}
@@ -144,6 +146,22 @@ final class Sidebar {
 		}
 
 		return $page;
+	}
+
+	/**
+	 * Resolve the exact sidebar link for an item, preferring a raw link field.
+	 *
+	 * @param string $slug The item key.
+	 * @param array<string, mixed> $item The item definition.
+	 * @return string The exact link target.
+	 */
+	private static function item_link( string $slug, array $item ): string {
+		$link = trim( (string) ( $item['link'] ?? '' ) );
+		if ( '' !== $link ) {
+			return $link;
+		}
+
+		return trim( (string) $slug );
 	}
 
 	/**

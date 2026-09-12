@@ -156,45 +156,52 @@ final class FunctionsSidebar {
 				'label' => __( 'Licences', 'licencepress' ),
 				'icon'  => 'fa-solid fa-file-signature',
 				'items' => array(
-					'licencepress&group=licences&tab=overview'           => array(
+					'overview' => array(
 						'label'      => __( 'Overview', 'licencepress' ),
 						'icon'       => 'fa-solid fa-key',
+						'link'       => 'licencepress&group=licences&tab=overview',
 						'capability' => 'licencepress_licence_overview_view',
 					),
-					'licencepress&group=licences&tab=manage-licence-types'      => array(
+					'manage-licence-types' => array(
 						'label'      => __( 'Manage Licence Types', 'licencepress' ),
 						'icon'       => 'fa-solid fa-list',
+						'link'       => 'licencepress&group=licences&tab=manage-licence-types',
 						'capability' => 'licencepress_licence_type_view',
 					),
-					'licencepress&group=licences&tab=add-licence-type'  => array(
+					'add-licence-type' => array(
 						'label'      => __( 'Add Licence Type', 'licencepress' ),
 						'icon'       => 'fa-solid fa-square-plus',
+						'link'       => 'licencepress&group=licences&tab=add-licence-type',
 						'capability' => 'licencepress_licence_type_create',
-					)
+					),
 				),
 			),
 			'settings' => array(
 				'label' => __( 'Settings', 'licencepress' ),
 				'icon'  => 'fa-solid fa-gear',
 				'items' => array(
-					'licencepress&group=settings&tab=general' => array(
+					'general' => array(
 						'label'      => __( 'General', 'licencepress' ),
 						'icon'       => 'fa-solid fa-sliders',
+						'link'       => 'licencepress&group=settings&tab=general',
 						'capability' => 'licencepress_settings_general_view',
 					),
-					'licencepress&group=settings&tab=access'  => array(
+					'access' => array(
 						'label'      => __( 'Access', 'licencepress' ),
 						'icon'       => 'fa-solid fa-user-shield',
+						'link'       => 'licencepress&group=settings&tab=access',
 						'capability' => 'licencepress_settings_access_view',
 					),
-					'licencepress&group=settings&tab=plugins' => array(
+					'plugins' => array(
 						'label'      => __( 'Plugins', 'licencepress' ),
 						'icon'       => 'fa-solid fa-puzzle-piece',
+						'link'       => 'licencepress&group=settings&tab=plugins',
 						'capability' => 'licencepress_settings_plugins_view',
 					),
-					'licencepress&group=settings&tab=third-party' => array(
+					'third-party' => array(
 						'label'      => __( '3rd Party', 'licencepress' ),
 						'icon'       => 'fa-solid fa-plug',
+						'link'       => 'licencepress&group=settings&tab=third-party',
 						'capability' => 'licencepress_settings_plugins_ext_view',
 					),
 				),
@@ -203,24 +210,28 @@ final class FunctionsSidebar {
 				'label' => __( 'Tools', 'licencepress' ),
 				'icon'  => 'fa-solid fa-toolbox',
 				'items' => array(
-					'licencepress&group=tools&tool=debug'  => array(
+					'debug' => array(
 						'label'      => __( 'Debug', 'licencepress' ),
 						'icon'       => 'fa-solid fa-bug-slash',
+						'link'       => 'licencepress&group=tools&tool=debug',
 						'capability' => 'licencepress_tools_debug',
 					),
-					'licencepress&group=tools&tool=reset'  => array(
+					'reset' => array(
 						'label'      => __( 'Reset', 'licencepress' ),
 						'icon'       => 'fa-solid fa-rotate',
+						'link'       => 'licencepress&group=tools&tool=reset',
 						'capability' => 'licencepress_tools_reset',
 					),
-					'licencepress&group=tools&tool=import' => array(
+					'import' => array(
 						'label'      => __( 'Import', 'licencepress' ),
 						'icon'       => 'fa-solid fa-file-import',
+						'link'       => 'licencepress&group=tools&tool=import',
 						'capability' => 'licencepress_tools_import',
 					),
-					'licencepress&group=tools&tool=export' => array(
+					'export' => array(
 						'label'      => __( 'Export', 'licencepress' ),
 						'icon'       => 'fa-solid fa-file-export',
+						'link'       => 'licencepress&group=tools&tool=export',
 						'capability' => 'licencepress_tools_export',
 					),
 				),

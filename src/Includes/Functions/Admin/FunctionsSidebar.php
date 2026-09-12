@@ -172,7 +172,7 @@ final class FunctionsSidebar {
 						'label'      => __( 'Add Licence Type', 'licencepress' ),
 						'icon'       => 'fa-solid fa-square-plus',
 						'link'       => 'licencepress&group=licences&tab=add-licence-type',
-						'capability' => 'licencepress_licence_type_create',
+						'capability' => 'licencepress_licence_type_edit',
 					),
 				),
 			),

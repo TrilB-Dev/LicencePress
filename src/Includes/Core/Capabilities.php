@@ -42,7 +42,7 @@ class Capabilities {
 					'label'       => __( 'View Licence Types', 'licencepress' ),
 					'description' => __( 'Allows viewing the different licence types available.', 'licencepress' ),
 				),
-				'licencepress_licence_type_create'        => array(
+				'licencepress_licence_types_edit'        => array(
 					'group'       => 'LicencePress Licence',
 					'label'       => __( 'Create Licence Types', 'licencepress' ),
 					'description' => __( 'Allows creating new licence types.', 'licencepress' ),
@@ -62,20 +62,30 @@ class Capabilities {
 					'label'       => __( 'Retire Licence Types', 'licencepress' ),
 					'description' => __( 'Allows retiring existing licence types.', 'licencepress' ),
 				),
-				'licencepress_licence_type_manage'        => array(
+				'licencepress_licence_type_edit_others' => array(
 					'group'       => 'LicencePress Licence',
-					'label'       => __( 'Manage Licence Types', 'licencepress' ),
-					'description' => __( 'Allows managing all aspects of licence types.', 'licencepress' ),
+					'label'       => __( 'Edit Others Licence Types', 'licencepress' ),
+					'description' => __( 'Allows editing licence types created by other users.', 'licencepress' ),
 				),
-				'licencepress_licence_type_varient_manage' => array(
+				'licencepress_licence_type_publish'        => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Publish Licence Types', 'licencepress' ),
+					'description' => __( 'Allows publishing licence types.', 'licencepress' ),
+				),
+				'licencepress_licence_type_read_private' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Read Private Licence Types', 'licencepress' ),
+					'description' => __( 'Allows reading private licence types.', 'licencepress' ),
+				),
+				'licencepress_licence_type_varient_view' => array(
 					'group'       => 'LicencePress Licence',
 					'label'       => __( 'Manage Licence Type Variants', 'licencepress' ),
 					'description' => __( 'Allows managing all aspects of licence type variants.', 'licencepress' ),
 				),
-				'licencepress_licence_type_varient_create' => array(
+				'licencepress_licence_type_varients_edit' => array(
 					'group'       => 'LicencePress Licence',
-					'label'       => __( 'Create Licence Type Variants', 'licencepress' ),
-					'description' => __( 'Allows creating new licence type variants.', 'licencepress' ),
+					'label'       => __( 'Edit Licence Type Variants', 'licencepress' ),
+					'description' => __( 'Allows editing all licence type variants.', 'licencepress' ),
 				),
 				'licencepress_licence_type_varient_edit' => array(
 					'group'       => 'LicencePress Licence',
@@ -86,6 +96,21 @@ class Capabilities {
 					'group'       => 'LicencePress Licence',
 					'label'       => __( 'Delete Licence Type Variants', 'licencepress' ),
 					'description' => __( 'Allows deleting existing licence type variants.', 'licencepress' ),
+				),
+				'licencepress_licence_type_variant_edit_others' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Edit Others Licence Type Variants', 'licencepress' ),
+					'description' => __( 'Allows editing licence type variants created by other users.', 'licencepress' ),
+				),
+				'licencepress_licence_type_variant_publish' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Publish Licence Type Variants', 'licencepress' ),
+					'description' => __( 'Allows publishing licence type variants.', 'licencepress' ),
+				),
+				'licencepress_licence_type_variant_read_private' => array(
+					'group'       => 'LicencePress Licence',
+					'label'       => __( 'Read Private Licence Type Variants', 'licencepress' ),
+					'description' => __( 'Allows reading private licence type variants.', 'licencepress' ),
 				),
 				'licencepress_licence_type_varient_retire' => array(
 					'group'       => 'LicencePress Licence',

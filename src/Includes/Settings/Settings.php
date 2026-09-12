@@ -112,6 +112,69 @@ final class Settings {
 		$parsed = filter_var( $value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
 		return null === $parsed ? $default : $parsed;
 	}
+
+	/**
+	 * Return the core settings group names used by the plugin.
+	 *
+	 * @return array<int, string>
+	 */
+	public static function core_groups(): array {
+		return array( self::GENERAL, 'billing', self::ACCESS, self::TOOLS, 'setup', 'plugins' );
+	}
+
+	/**
+	 * Restore a list of settings groups to their factory defaults.
+	 *
+	 * @param array<int, string> $groups The groups to reset.
+	 * @return bool True if every requested group was reset.
+	 */
+	public static function reset_groups( array $groups ): bool {
+		$defaults = SettingsManager::defaults();
+		$success  = true;
+
+		foreach ( $groups as $group ) {
+			$normalized = self::normalize_group_name( $group );
+			if ( '' === $normalized ) {
+				$success = false;
+				continue;
+			}
+
+			$values = $defaults[ $normalized ] ?? array();
+			if ( ! SettingsManager::set_group( $normalized, $values ) ) {
+				$success = false;
+			}
+		}
+
+		return $success;
+	}
+
+	/**
+	 * Restore all core settings groups to their factory defaults.
+	 *
+	 * @return bool True when the reset succeeds.
+	 */
+	public static function reset_all(): bool {
+		return self::reset_groups( self::core_groups() );
+	}
+
+	/**
+	 * Normalize a raw settings group name.
+	 *
+	 * @param string $group The requested group name.
+	 * @return string The normalized group name.
+	 */
+	private static function normalize_group_name( string $group ): string {
+		$normalized = sanitize_key( $group );
+		if ( '' === $normalized ) {
+			return '';
+		}
+
+		if ( str_starts_with( $normalized, 'licencepress_' ) ) {
+			return substr( $normalized, 13 );
+		}
+
+		return $normalized;
+	}
 	/**
 	 * Set the value of a specific setting key.
 	 *

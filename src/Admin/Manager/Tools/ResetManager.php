@@ -9,6 +9,7 @@
 
 namespace LicencePress\Admin\Manager\Tools;
 
+use LicencePress\Assets\Assets;
 use LicencePress\Includes\Functions\Helpers\AjaxHelper;
 use LicencePress\Includes\Functions\Helpers\AlertHelper;
 use LicencePress\Includes\Functions\Helpers\FormFieldHelper;
@@ -52,6 +53,10 @@ final class ResetManager extends ToolsManager {
 	 * @since 1.0.0
 	 * @return void
 	 */
+	public function register_assets( Assets $assets ): void {
+		$this->register_page_assets( $assets, array( 'licencepress-tools' ), 'debug' );
+	}
+
 	public function render_page_content(): void {
 		if ( '1' === RequestHelper::get_text( 'reset_complete' ) ) {
 			AlertHelper::render_admin_notice( __( 'The selected LicencePress data was reset successfully.', 'licencepress' ), 'success' );

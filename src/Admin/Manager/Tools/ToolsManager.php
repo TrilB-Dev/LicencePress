@@ -139,6 +139,9 @@ class ToolsManager extends Manager {
 	 */
 	public function register_assets( Assets $assets ): void {
 		$this->register_page_assets( $assets, array( 'licencepress-tools' ), 'debug' );
+		if ( isset( $this->reset_manager ) ) {
+			$this->reset_manager->register_assets( $assets );
+		}
 	}
 	/**
 	 * Returns the title for the given tool.

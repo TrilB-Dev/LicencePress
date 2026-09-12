@@ -24,7 +24,11 @@ final class ExportManager extends ToolsManager {
 	public function __construct() {
 		parent::__construct( false );
 	}
-
+	/**
+	 * Render the export form.
+	 *
+	 * @return void
+	 */
 	public function render_page_content(): void {
 		?>
 		<div class="card shadow-sm">
@@ -44,7 +48,11 @@ final class ExportManager extends ToolsManager {
 		</div>
 		<?php
 	}
-
+	/**
+	 * Render the export page content.
+	 *
+	 * @return void
+	 */
 	public function render(): void {
 		?>
 		<tr>

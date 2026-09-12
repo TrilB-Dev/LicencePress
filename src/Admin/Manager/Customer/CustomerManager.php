@@ -10,6 +10,9 @@ namespace LicencePress\Admin\Manager\Customer;
 
 use LicencePress\Admin\Manager\Manager;
 use LicencePress\Assets\Assets;
+use LicencePress\Includes\Licence\LicenceManager;
+use LicencePress\Includes\Core\CustomerRoles;
+use LicencePress\Includes\Licence\LicenceGenerator;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -124,7 +127,12 @@ class CustomerManager extends Manager {
 			'country' => (string) self::meta_value( $meta['country'] ?? '' ),
 		);
 	}
-
+	/**
+	 * Normalize meta value.
+	 *
+	 * @param mixed $value Meta value.
+	 * @return string
+	 */
 	private static function meta_value( $value ) {
 		if ( is_array( $value ) ) {
 			return reset( $value );
@@ -134,15 +142,19 @@ class CustomerManager extends Manager {
 		}
 		return '';
 	}
-
+	/**
+	 * Retrieve all customer profiles.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
 	public static function customer_profiles(): array {
 		$users = isset( $GLOBALS['licencepress_test_users'] ) && is_array( $GLOBALS['licencepress_test_users'] )
 			? $GLOBALS['licencepress_test_users']
 			: ( function_exists( 'get_users' ) ? get_users(
 				array(
 					'role__in' => array(
-						\LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE,
-						\LicencePress\Includes\Core\CustomerRoles::INTERNAL_CUSTOMER_ROLE,
+						CustomerRoles::CUSTOMER_ROLE,
+						CustomerRoles::INTERNAL_CUSTOMER_ROLE,
 					),
 				)
 			) : array() );
@@ -201,8 +213,8 @@ class CustomerManager extends Manager {
 			return array_values( $records );
 		}
 
-		if ( function_exists( '\LicencePress\\Includes\\Licence\\LicenceManager::list_for_customer' ) ) {
-			return \LicencePress\Includes\Licence\LicenceManager::list_for_customer( (string) $user_id );
+		if ( function_exists( 'LicenceManager::list_for_customer' ) ) {
+			return LicenceManager::list_for_customer( (string) $user_id );
 		}
 
 		return array();
@@ -285,7 +297,7 @@ class CustomerManager extends Manager {
 		}
 
 		if ( isset( $GLOBALS['licencepress_test_licences'] ) ) {
-			$record = \LicencePress\Includes\Licence\LicenceGenerator::generate( $product_id, (string) $user_id, $days, $site_url, $features );
+			$record = LicenceGenerator::generate( $product_id, (string) $user_id, $days, $site_url, $features );
 			$record['id'] = isset( $GLOBALS['licencepress_test_licence_id'] ) ? (int) $GLOBALS['licencepress_test_licence_id']++ : ( count( $GLOBALS['licencepress_test_licences'] ) + 1 );
 			$record['customer_id'] = (string) $user_id;
 			$record['product_id'] = $product_id;
@@ -296,7 +308,7 @@ class CustomerManager extends Manager {
 		}
 
 		try {
-			return \LicencePress\Includes\Licence\LicenceManager::create_license(
+			return LicenceManager::create_license(
 				$product_id,
 				(string) $user_id,
 				$days,
@@ -331,7 +343,7 @@ class CustomerManager extends Manager {
 		}
 
 		try {
-			return \LicencePress\Includes\Licence\LicenceManager::revoke_license( $token );
+			return LicenceManager::revoke_license( $token );
 		} catch ( \Throwable $e ) {
 			return false;
 		}

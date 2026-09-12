@@ -429,7 +429,6 @@ final class Admin {
 		$tab             = RequestHelper::get_key( 'tab', 'general' );
 		$view_capability = array(
 			'general'     => 'licencepress_settings_general_view',
-			'layout'      => 'licencepress_settings_general_view',
 			'access'      => 'licencepress_settings_access_view',
 			'plugins'     => 'licencepress_settings_plugins_view',
 			'third-party' => 'licencepress_settings_plugins_ext_view',
@@ -438,15 +437,13 @@ final class Admin {
 			AjaxHelper::unauthorized( __( 'You are not authorized to load LicencePress settings.', 'licencepress' ) );
 		}
 
-		$layout_section = RequestHelper::get_key( 'layout_section', 'general' );
 		ob_start();
-		$this->settings_manager->render_tab_content( $tab, $layout_section );
+		$this->settings_manager->render_tab_content( $tab );
 		$html = (string) ob_get_clean();
 		AjaxHelper::success(
 			array(
-				'html'           => $html,
-				'tab'            => $tab,
-				'layout_section' => $layout_section,
+				'html' => $html,
+				'tab'  => $tab,
 			)
 		);
 	}

@@ -28,20 +28,10 @@ use LicencePress\Includes\Analytics\Analytics;
 use LicencePress\Includes\Licence\LicenceManager;
 use LicencePress\Includes\Plugins\Plugins;
 use LicencePress\Public\Frontend;
-/**
- * The core plugin class.
- *
- * This is used to define internationalization, admin-specific hooks, and
- * public-facing site hooks.
- *
- * Also maintains the unique identifier of this plugin as well as the current
- * version of the plugin.
- *
- * @since      1.0.0
- * @package    LicencePress
- * @subpackage LicencePress/src
- * @author     MrTrilB <mrtrilb@trilb.dev>
- */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 class LicencePress {
 
 	/**

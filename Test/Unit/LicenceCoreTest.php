@@ -21,6 +21,7 @@ use LicencePress\Includes\Licence\LicenceGenerator;
 use LicencePress\Includes\Licence\LicenceManager;
 use LicencePress\Includes\Licence\LicenceTypeManager;
 use LicencePress\Includes\Licence\LicenceValidator;
+use LicencePress\Includes\Settings\Settings;
 use LicencePress\Includes\Settings\SettingsManager;
 use PHPUnit\Framework\TestCase;
 
@@ -205,6 +206,31 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertStringContainsString( 'initializeBootstrapSelects', $script );
 		$this->assertStringContainsString( 'window.licencepressBootstrapSelect?.initialize', $script );
 		$this->assertStringContainsString( 'panel.innerHTML = response.data.html;', $script );
+	}
+
+	public function test_billing_settings_are_saved_to_the_shared_settings_store(): void {
+		$settings = new \LicencePress\Includes\Functions\Admin\FunctionsSettings( new \LicencePress\Includes\Functions\Admin\FunctionsPlugins() );
+		$general = $settings->sanitize_billing(
+			array(
+				'billing_name'      => 'Acme Ltd',
+				'billing_address_1' => '12 Market Street',
+				'town'              => 'London',
+				'country'           => 'United Kingdom',
+				'email_address'     => 'billing@acme.example',
+				'phone_number'      => '+44 20 1234 5678',
+				'invoice_prefix'    => 'INV-',
+			)
+		);
+		$invoice = $settings->sanitize_billing_invoice(
+			array(
+				'invoice_style' => '<p>Thank you for your order.</p>',
+			)
+		);
+
+		$this->assertSame( 'Acme Ltd', $general['billing_name'] );
+		$this->assertSame( 'billing@acme.example', Settings::get( 'email_address' ) );
+		$this->assertSame( '<p>Thank you for your order.</p>', $invoice['invoice_style'] );
+		$this->assertSame( '<p>Thank you for your order.</p>', Settings::get( 'invoice_style' ) );
 	}
 
 	public function test_ambiguous_character_multiselect_shows_visible_tags(): void {

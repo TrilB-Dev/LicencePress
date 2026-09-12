@@ -71,6 +71,25 @@ if ( ! function_exists( 'sanitize_text_field' ) ) {
 	}
 }
 
+if ( ! function_exists( 'sanitize_email' ) ) {
+	function sanitize_email( $email ) {
+		if ( is_array( $email ) ) {
+			return '';
+		}
+		$email = trim( (string) $email );
+		return is_string( $email ) && false !== filter_var( $email, FILTER_VALIDATE_EMAIL ) ? $email : '';
+	}
+}
+
+if ( ! function_exists( 'wp_kses_post' ) ) {
+	function wp_kses_post( $value ) {
+		if ( is_array( $value ) ) {
+			return '';
+		}
+		return trim( (string) $value );
+	}
+}
+
 if ( ! function_exists( '__' ) ) {
 	function __( $text, $domain = null ) {
 		return (string) $text;
@@ -305,10 +324,28 @@ if ( ! class_exists( 'wpdb' ) ) {
 
 		public function get_var( $query ) {
 			$matches = array();
+			if ( stripos( $query, 'SHOW TABLES LIKE' ) !== false ) {
+				preg_match( "/SHOW TABLES LIKE ['\"]?([^'\"]+)['\"]?/i", $query, $matches );
+				$table = $matches[1] ?? '';
+				if ( '' !== $table && array_key_exists( $table, $this->tables ) ) {
+					return $table;
+				}
+				return '' !== $table ? $table : null;
+			}
 			if ( preg_match( '/FROM\s+`?([A-Za-z0-9_]+)`?/i', $query, $matches ) ) {
 				$table = $matches[1];
 				$rows  = $this->tables[ $table ] ?? array();
 				if ( empty( $rows ) ) {
+					return null;
+				}
+				if ( stripos( $query, 'WHERE' ) !== false && stripos( $query, 'setting_group' ) !== false ) {
+					preg_match( "/setting_group\s*=\s*['\"]?([^'\"]+)['\"]?/i", $query, $matches );
+					$expected = $matches[1] ?? '';
+					foreach ( $rows as $row ) {
+						if ( ( $row['setting_group'] ?? '' ) === $expected ) {
+							return $row['setting_value'];
+						}
+					}
 					return null;
 				}
 				foreach ( $rows as $row ) {

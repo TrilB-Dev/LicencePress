@@ -38,9 +38,14 @@ final class FunctionsSettings {
 	 */
 	public function register_settings(): void {
 		register_setting( 'licencepress_settings', 'licencepress_general', array( 'sanitize_callback' => array( $this, 'sanitize_general' ) ) );
-		register_setting( 'licencepress_settings', 'licencepress_layout', array( 'sanitize_callback' => array( $this, 'sanitize_layout' ) ) );
+		register_setting( 'licencepress_settings', 'licencepress_billing', array( 'sanitize_callback' => array( $this, 'sanitize_billing' ) ) );
+		register_setting( 'licencepress_settings', 'licencepress_billing_invoice', array( 'sanitize_callback' => array( $this, 'sanitize_billing_invoice' ) ) );
 		register_setting( 'licencepress_settings', 'licencepress_access', array( 'sanitize_callback' => array( $this, 'sanitize_access' ) ) );
 		register_setting( 'licencepress_settings', 'licencepress_tools', array( 'sanitize_callback' => array( $this, 'sanitize_tools' ) ) );
+
+		if ( 'POST' === strtoupper( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
+			$this->handle_direct_post();
+		}
 
 		foreach ( $this->plugin_functions->plugin_settings_pages() as $page ) {
 			register_setting(
@@ -49,6 +54,91 @@ final class FunctionsSettings {
 				array( 'sanitize_callback' => $page['provider']->sanitize_settings( ... ) )
 			);
 		}
+	}
+	
+	/**
+	 * Process direct form submissions for billing settings.
+	 *
+	 * @return void
+	 */
+	private function handle_direct_post(): void {
+		$action = wp_unslash( $_POST['action'] ?? '' );
+		if ( 'licencepress_save_billing_settings' === $action ) {
+			if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
+				wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );
+			}
+			check_admin_referer( 'licencepress_billing_general', 'licencepress_billing_general_nonce' );
+			$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
+			$this->sanitize_billing( $input );
+			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-settings&tab=billing' ) );
+			exit;
+		}
+
+		if ( 'licencepress_save_billing_invoice_settings' === $action ) {
+			if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
+				wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );
+			}
+			check_admin_referer( 'licencepress_billing_invoice', 'licencepress_billing_invoice_nonce' );
+			$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
+			$this->sanitize_billing_invoice( $input );
+			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-settings&tab=billing&billing_tab=invoice' ) );
+			exit;
+		}
+	}
+	/**
+	 * Sanitize the billing settings input.
+	 *
+	 * @param array<string, mixed> $input The input data to sanitize.
+	 * @return array<string, mixed> The sanitized billing settings.
+	 */
+	public function sanitize_billing( $input ): array {
+		if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
+			return (array) Settings::get_group( 'billing', array() );
+		}
+
+		$input = is_array( $input ) ? $input : array();
+		$billing = array(
+			'billing_name'      => sanitize_text_field( $input['billing_name'] ?? '' ),
+			'billing_address_1' => sanitize_text_field( $input['billing_address_1'] ?? '' ),
+			'billing_address_2' => sanitize_text_field( $input['billing_address_2'] ?? '' ),
+			'town'              => sanitize_text_field( $input['town'] ?? '' ),
+			'county_state'      => sanitize_text_field( $input['county_state'] ?? '' ),
+			'country'           => sanitize_text_field( $input['country'] ?? '' ),
+			'vat_number'        => sanitize_text_field( $input['vat_number'] ?? '' ),
+			'email_address'     => sanitize_email( $input['email_address'] ?? '' ),
+			'phone_number'      => sanitize_text_field( $input['phone_number'] ?? '' ),
+			'invoice_prefix'    => sanitize_text_field( $input['invoice_prefix'] ?? 'INV-' ),
+			'invoice_logo'      => sanitize_text_field( $input['invoice_logo'] ?? '' ),
+		);
+
+		foreach ( $billing as $key => $value ) {
+			Settings::set( $key, $value );
+		}
+
+		return $billing;
+	}
+
+	/**
+	 * Sanitize the invoice settings input.
+	 *
+	 * @param array<string, mixed> $input The input data to sanitize.
+	 * @return array<string, mixed> The sanitized invoice settings.
+	 */
+	public function sanitize_billing_invoice( $input ): array {
+		if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
+			return (array) Settings::get_group( 'billing', array() );
+		}
+
+		$input = is_array( $input ) ? $input : array();
+		$invoice = array(
+			'invoice_style' => wp_kses_post( $input['invoice_style'] ?? '' ),
+		);
+
+		foreach ( $invoice as $key => $value ) {
+			Settings::set( $key, $value );
+		}
+
+		return $invoice;
 	}
 	/**
 	 * Sanitize the general settings input.
@@ -101,70 +191,6 @@ final class FunctionsSettings {
 			Settings::set( $key, $value );
 		}
 
-		return $input;
-	}
-	/**
-	 * Sanitize the layout settings input.
-	 *
-	 * @param array<string, mixed> $input The input data to sanitize.
-	 * @return array<string, mixed> The sanitized layout settings.
-	 */
-	public function sanitize_layout( $input ): array {
-		if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
-			return (array) Settings::get_group( Settings::LAYOUT, array() );
-		}
-		$input   = is_array( $input ) ? $input : array();
-		$section = sanitize_key( $input['layout_section'] ?? 'general' );
-		unset( $input['layout_section'] );
-		$section_keys = array(
-			'general' => array( 'show_search', 'show_breadcrumbs', 'show_sidebar' ),
-			'search'  => array( 'show_search', 'search_placeholder', 'search_button_text', 'search_scope', 'search_no_results_message', 'search_results_count', 'search_min_chars', 'search_live_results' ),
-			'sidebar' => array( 'show_sidebar', 'sidebar_position', 'sidebar_width', 'sidebar_sticky', 'sidebar_show_categories', 'sidebar_show_category_count', 'sidebar_expand_categories', 'sidebar_show_page_count' ),
-			'page'    => array( 'page_show_title', 'show_breadcrumbs', 'page_show_toc', 'page_toc_position', 'toc_min_level', 'toc_max_level', 'show_last_updated', 'show_author', 'show_reading_time', 'reading_time_wpm', 'show_feedback', 'page_show_navigation', 'show_related_pages', 'related_pages_count' ),
-		);
-		$active_keys  = $section_keys[ $section ] ?? array_merge( ...array_values( $section_keys ) );
-		foreach ( array( 'show_search', 'show_toc', 'show_breadcrumbs', 'show_last_updated', 'show_author', 'show_reading_time', 'show_feedback', 'show_related_pages', 'search_live_results', 'show_sidebar', 'sidebar_sticky', 'sidebar_show_categories', 'sidebar_show_category_count', 'sidebar_expand_categories', 'sidebar_show_page_count', 'page_show_title', 'page_show_toc', 'page_show_navigation' ) as $key ) {
-			if ( ! in_array( $key, $active_keys, true ) ) {
-				continue;
-			}
-			$value         = ! empty( $input[ $key ] );
-			$input[ $key ] = $value;
-			Settings::set( $key, $value );
-		}
-		foreach ( array( 'search_placeholder', 'search_button_text', 'search_no_results_message' ) as $key ) {
-			if ( ! in_array( $key, $active_keys, true ) ) {
-				continue;
-			}
-			$input[ $key ] = sanitize_text_field( $input[ $key ] ?? '' );
-			Settings::set( $key, $input[ $key ] );
-		}
-		if ( in_array( 'search_scope', $active_keys, true ) ) {
-			$input['search_scope'] = in_array( $input['search_scope'] ?? '', array( 'all', 'title', 'content' ), true ) ? $input['search_scope'] : 'all';
-			Settings::set( 'search_scope', $input['search_scope'] );
-		}
-		if ( in_array( 'sidebar_position', $active_keys, true ) ) {
-			$input['sidebar_position'] = in_array( $input['sidebar_position'] ?? '', array( 'left', 'right' ), true ) ? $input['sidebar_position'] : 'left';
-			Settings::set( 'sidebar_position', $input['sidebar_position'] );
-		}
-		if ( in_array( 'page_toc_position', $active_keys, true ) ) {
-			$input['page_toc_position'] = in_array( $input['page_toc_position'] ?? '', array( 'sidebar', 'content' ), true ) ? $input['page_toc_position'] : 'sidebar';
-			Settings::set( 'page_toc_position', $input['page_toc_position'] );
-		}
-		foreach ( array(
-			'related_pages_count'  => array( 1, 12 ),
-			'search_results_count' => array( 1, 50 ),
-			'search_min_chars'     => array( 1, 5 ),
-			'sidebar_width'        => array( 180, 480 ),
-			'toc_min_level'        => array( 1, 5 ),
-			'toc_max_level'        => array( 2, 6 ),
-			'reading_time_wpm'     => array( 100, 400 ),
-		) as $key => [ $minimum, $maximum ] ) {
-			if ( ! in_array( $key, $active_keys, true ) ) {
-				continue;
-			}
-			$input[ $key ] = max( $minimum, min( $maximum, absint( $input[ $key ] ?? $minimum ) ) );
-			Settings::set( $key, $input[ $key ] );
-		}
 		return $input;
 	}
 	/**

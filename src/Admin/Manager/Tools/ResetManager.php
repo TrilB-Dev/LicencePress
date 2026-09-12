@@ -125,12 +125,23 @@ final class ResetManager extends ToolsManager {
 		$success = 'all' === $scope ? Settings::reset_all() : ( ! empty( $groups ) && Settings::reset_groups( $groups ) );
 		$this->redirect( $success );
 	}
-
+	/**
+	 * Redirect to the reset page with a success or failure message.
+	 *
+	 * @since 1.0.0
+	 * @param bool $success Whether the reset was successful.
+	 * @return void
+	 */
 	private function redirect( bool $success ): void {
 		wp_safe_redirect( admin_url( 'admin.php?page=licencepress-tools&tool=reset&' . ( $success ? 'reset_complete=1' : 'reset_failed=1' ) ) );
 		exit;
 	}
-
+	/**
+	 * Get the available scope options for the reset action.
+	 *
+	 * @since 1.0.0
+	 * @return array The available scope options.
+	 */
 	private function scope_options(): array {
 		return array(
 			'all'     => __( 'All LicencePress data', 'licencepress' ),
@@ -138,7 +149,12 @@ final class ResetManager extends ToolsManager {
 			'plugins' => __( 'Selected plugins', 'licencepress' ),
 		);
 	}
-
+	/**
+	 * Get the available plugin options for the reset action.
+	 *
+	 * @since 1.0.0
+	 * @return array The available plugin options.
+	 */
 	private function plugin_options(): array {
 		$options = array();
 		foreach ( Plugins::get_instance()->get_registered_plugins() as $plugin ) {
@@ -156,7 +172,14 @@ final class ResetManager extends ToolsManager {
 		}
 		return $options;
 	}
-
+	/**
+	 * Get the groups for the specified scope and plugins.
+	 *
+	 * @since 1.0.0
+	 * @param string $scope   The scope of the reset action.
+	 * @param array  $plugins The selected plugins.
+	 * @return array The groups for the specified scope and plugins.
+	 */
 	private function groups_for_scope( string $scope, array $plugins ): array {
 		if ( 'core' === $scope ) {
 			return Settings::core_groups();

@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * Includes class.
+ *
+ * @package LicencePress\Includes
+ */
 namespace LicencePress\Includes;
 
 use LicencePress\Includes\Core\Core;
@@ -11,20 +15,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class Includes {
-	/** @var self|null */
+	/**
+	 * Singleton instance of the Includes class.
+	 *
+	 * @var self|null
+	 */
 	private static ?self $instance = null;
-	/** @var Core */
+	/**
+	 * Core instance managed by the Includes class.
+	 *
+	 * @var Core
+	 */
 	private Core $core;
-	/** @var array<int, callable> */
+	/**
+	 * List of registered extension initializers.
+	 *
+	 * @var array<int, callable>
+	 */
 	private array $extensions = array();
-	/** @var bool */
+	/**
+	 * Indicates whether the Includes class has been initialized.
+	 *
+	 * @var bool
+	 */
 	private bool $initialized = false;
-
+	/**
+	 * Private constructor to enforce singleton pattern.
+	 */
 	private function __construct() {
 		$this->core = new Core();
 		LoggerHelper::write_log( 'LicencePress core includes initialized.' );
 	}
-
+	/**
+	 * Get the singleton instance of the Includes class.
+	 *
+	 * @return self The singleton instance.
+	 */
 	public static function get_instance(): self {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -32,7 +58,11 @@ final class Includes {
 
 		return self::$instance;
 	}
-
+	/**
+	 * Initialize the Includes class and its extensions.
+	 *
+	 * @return void
+	 */
 	public function init(): void {
 		if ( $this->initialized ) {
 			return;
@@ -45,6 +75,11 @@ final class Includes {
 		$this->initialized = true;
 	}
 
+	/**
+	 * Get the Core instance managed by the Includes class.
+	 *
+	 * @return Core The Core instance.
+	 */
 	public function core(): Core {
 		return $this->core;
 	}
@@ -80,6 +115,11 @@ final class Includes {
 		return $this;
 	}
 
+	/**
+	 * Check if the Includes class has been initialized.
+	 *
+	 * @return bool True if initialized, false otherwise.
+	 */
 	public function is_initialized(): bool {
 		return $this->initialized;
 	}

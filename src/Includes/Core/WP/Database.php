@@ -2,6 +2,9 @@
 
 namespace LicencePress\Includes\Core\WP;
 
+use LicencePress\Includes\Licence\LicenceRepository;
+use LicencePress\Includes\Licence\LicenceTypeManager;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -44,8 +47,8 @@ final class Database {
 	public static function install(): void {
 		global $wpdb;
 
-		\LicencePress\Includes\Licence\LicenceRepository::register_schema();
-		\LicencePress\Includes\Licence\LicenceTypeManager::register_schema();
+		LicenceRepository::register_schema();
+		LicenceTypeManager::register_schema();
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 

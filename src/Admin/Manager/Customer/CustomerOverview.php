@@ -139,6 +139,7 @@ final class CustomerOverview {
 			return;
 		}
 
+		$forms = new CustomerForms();
 		$licences = CustomerManager::customer_licences( $customer_id );
 		$licence_count = count( $licences );
 		$next_renewal = '—';
@@ -169,31 +170,7 @@ final class CustomerOverview {
 				<div class="card shadow-sm border-0">
 					<div class="card-body">
 						<h3 class="h5 mb-3"><?php esc_html_e( 'Customer profile', 'licencepress' ); ?></h3>
-						<form>
-							<div class="row g-3">
-								<div class="col-md-6">
-									<?php echo FormFieldHelper::text_input( 'company_name', (string) $customer['company_name'], array( 'id' => 'customer_company_name', 'class' => 'w-100', 'placeholder' => __( 'Company name', 'licencepress' ) ) ); ?>
-								</div>
-								<div class="col-md-6">
-									<?php echo FormFieldHelper::text_input( 'customer_type', (string) $customer['customer_type'], array( 'id' => 'customer_type', 'class' => 'w-100', 'placeholder' => __( 'Customer type', 'licencepress' ) ) ); ?>
-								</div>
-								<div class="col-md-6">
-									<?php echo FormFieldHelper::text_input( 'primary_contact_name', (string) $customer['primary_contact_name'], array( 'id' => 'customer_primary_contact_name', 'class' => 'w-100', 'placeholder' => __( 'Primary contact name', 'licencepress' ) ) ); ?>
-								</div>
-								<div class="col-md-6">
-									<?php echo FormFieldHelper::text_input( 'primary_contact_email', (string) $customer['primary_contact_email'], array( 'id' => 'customer_primary_contact_email', 'class' => 'w-100', 'placeholder' => __( 'Primary contact email', 'licencepress' ) ) ); ?>
-								</div>
-								<div class="col-md-6">
-									<?php echo FormFieldHelper::text_input( 'phone', (string) $customer['phone'], array( 'id' => 'customer_phone', 'class' => 'w-100', 'placeholder' => __( 'Phone', 'licencepress' ) ) ); ?>
-								</div>
-								<div class="col-md-6">
-									<?php echo FormFieldHelper::text_input( 'payment_method', (string) $customer['payment_method'], array( 'id' => 'customer_payment_method', 'class' => 'w-100', 'placeholder' => __( 'Payment method', 'licencepress' ) ) ); ?>
-								</div>
-								<div class="col-md-12">
-									<?php echo FormFieldHelper::textarea( 'notes', (string) $customer['notes'], array( 'id' => 'customer_notes', 'rows' => 4, 'class' => 'w-100', 'placeholder' => __( 'Notes', 'licencepress' ) ) ); ?>
-								</div>
-							</div>
-						</form>
+						<?php $forms->render_customer_profile_form( $customer ); ?>
 					</div>
 				</div>
 			</div>

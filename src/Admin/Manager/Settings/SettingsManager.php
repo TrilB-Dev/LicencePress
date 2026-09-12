@@ -66,6 +66,7 @@ final class SettingsManager extends Manager {
 		$tab               = $this->normalize_tab( $tab );
 		$view_capabilities = array(
 			'general'     => array( 'licencepress_settings_general_view' ),
+			'billing'     => array( 'licencepress_settings_general_view' ),
 			'access'      => array( 'licencepress_settings_access_view' ),
 			'plugins'     => array( 'licencepress_settings_plugins_view' ),
 			'third-party' => array( 'licencepress_settings_plugins_view', 'licencepress_settings_plugins_ext_view' ),
@@ -100,6 +101,8 @@ final class SettingsManager extends Manager {
 						</tbody></table>
 					</div>
 				</div>
+			<?php elseif ( 'billing' === $tab ) : ?>
+				<?php ( new SettingsBilling() )->render( array() ); ?>
 			<?php elseif ( 'access' === $tab ) : ?>
 				<div class="card shadow-sm">
 					<div class="card-body">
@@ -125,7 +128,7 @@ final class SettingsManager extends Manager {
 	 * @return string The normalized tab.
 	 */
 	private function normalize_tab( string $tab ): string {
-		$allowed = array( 'general', 'access', 'plugins', 'third-party' );
+		$allowed = array( 'general', 'billing', 'access', 'plugins', 'third-party' );
 		if ( in_array( $tab, $allowed, true ) || $this->plugins_page->has_settings_page( $tab ) ) {
 			return $tab;
 		}

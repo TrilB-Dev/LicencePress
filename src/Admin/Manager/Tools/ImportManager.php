@@ -24,7 +24,11 @@ final class ImportManager extends ToolsManager {
 	public function __construct() {
 		parent::__construct( false );
 	}
-
+	/**
+	 * Render the import form.
+	 *
+	 * @return void
+	 */
 	public function render(): void {
 		?>
 		<form

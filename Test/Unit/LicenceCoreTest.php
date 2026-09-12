@@ -4,6 +4,12 @@
 
 namespace LicencePress\Test\Unit;
 
+if ( ! function_exists( '\get_pages' ) ) {
+	function get_pages( $args = array() ) {
+		return array();
+	}
+}
+
 use Defuse\Crypto\Key;
 use LicencePress\Includes\Core\PostType;
 use LicencePress\Includes\Core\Taxonomy;
@@ -184,12 +190,6 @@ final class LicenceCoreTest extends TestCase {
 	}
 
 	public function test_general_settings_do_not_render_invalid_state_on_first_load(): void {
-		if ( ! function_exists( 'get_pages' ) ) {
-			function get_pages( $args = array() ) {
-				return array();
-			}
-		}
-
 		ob_start();
 		( new \LicencePress\Admin\Manager\Settings\SettingsGeneral() )->render( array() );
 		$output = ob_get_clean();
@@ -205,6 +205,20 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertStringContainsString( 'initializeBootstrapSelects', $script );
 		$this->assertStringContainsString( 'window.licencepressBootstrapSelect?.initialize', $script );
 		$this->assertStringContainsString( 'panel.innerHTML = response.data.html;', $script );
+	}
+
+	public function test_ambiguous_character_multiselect_shows_visible_tags(): void {
+		ob_start();
+		( new \LicencePress\Admin\Manager\Settings\SettingsGeneral() )->render(
+			array(
+				'default_exclude_ambiguous_characters' => array( '0', '1', 'O' ),
+			)
+		);
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'data-live-search="true"', $output );
+		$this->assertStringContainsString( 'data-show-selected-tags="true"', $output );
+		$this->assertStringContainsString( 'data-selected-items-style="tags"', $output );
 	}
 
 	public function test_licence_dashboard_routes_licence_tabs_to_their_pages(): void {

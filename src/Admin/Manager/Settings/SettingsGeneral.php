@@ -348,7 +348,7 @@ final class SettingsGeneral {
 										),
 										'selected' => array_values( array_filter( (array) ( $values['default_exclude_ambiguous_characters'] ?? array() ), 'is_scalar' ) ),
 										'id' => 'licencepress-general-default-exclude-ambiguous-characters',
-										'live_search' => false,
+										'live_search' => true,
 										'show_selected_tags' => true,
 										'selected_items_style' => 'tags',
 										'selected_text_format' => 'count',

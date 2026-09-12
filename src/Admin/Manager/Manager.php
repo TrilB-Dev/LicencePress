@@ -79,6 +79,7 @@ abstract class Manager {
 		$mapping = array(
 			'dashboard' => 'admin.dashboard',
 			'debug'     => 'admin.page',
+			'tools'     => 'admin.tools',
 			'settings'  => 'admin.settings',
 			'plugins'   => 'admin.plugins',
 			'ui'        => 'admin.ui',

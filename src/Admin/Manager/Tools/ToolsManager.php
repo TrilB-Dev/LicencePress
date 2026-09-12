@@ -138,7 +138,7 @@ class ToolsManager extends Manager {
 	 * @return void
 	 */
 	public function register_assets( Assets $assets ): void {
-		$this->register_page_assets( $assets, array( 'licencepress-tools' ), 'debug' );
+		$this->register_page_assets( $assets, array( 'licencepress-tools' ), 'tools' );
 		if ( isset( $this->reset_manager ) ) {
 			$this->reset_manager->register_assets( $assets );
 		}

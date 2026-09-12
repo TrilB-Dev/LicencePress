@@ -188,6 +188,30 @@ final class Assets {
 		$resolved    = self::resolve_admin_page_key( $page, $group );
 		$registered  = $this->pages[ $resolved ] ?? $this->pages[ $page ] ?? array();
 		$base        = apply_filters( 'licencepress_base_assets', array(), 'admin' );
+		$scripts     = array_merge(
+			$base['scripts'] ?? array(),
+			array(
+				array(
+					'handle'    => 'licencepress-admin-ui',
+					'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/admin.ui.js',
+					'version'   => '1.0.0',
+					'deps'      => array( 'licencepress-bootstrap-select' ),
+					'in_footer' => true,
+				),
+			),
+			$registered['scripts'] ?? array()
+		);
+
+		if ( 'licencepress-tools' === $resolved ) {
+			$scripts[] = array(
+				'handle'    => 'licencepress-admin-tools',
+				'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/admin.tools.js',
+				'version'   => '1.0.0',
+				'deps'      => array( 'licencepress-admin-ui' ),
+				'in_footer' => true,
+			);
+		}
+
 		$this->enqueue_registered(
 			'admin',
 			array(
@@ -203,19 +227,7 @@ final class Assets {
 					),
 					$registered['styles'] ?? array()
 				),
-				'scripts' => array_merge(
-					$base['scripts'] ?? array(),
-					array(
-						array(
-							'handle'    => 'licencepress-admin-ui',
-							'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/admin.ui.js',
-							'version'   => '1.0.0',
-							'deps'      => array( 'licencepress-bootstrap-select' ),
-							'in_footer' => true,
-						)
-					),
-					$registered['scripts'] ?? array()
-				),
+				'scripts' => $scripts,
 			)
 		);
 	}

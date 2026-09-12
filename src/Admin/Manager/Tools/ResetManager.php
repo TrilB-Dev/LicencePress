@@ -54,7 +54,7 @@ final class ResetManager extends ToolsManager {
 	 * @return void
 	 */
 	public function register_assets( Assets $assets ): void {
-		$this->register_page_assets( $assets, array( 'licencepress-tools' ), 'debug' );
+		$this->register_page_assets( $assets, array( 'licencepress-tools' ), 'tools' );
 	}
 
 	public function render_page_content(): void {

@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>{const e=document,n=e.querySelector("#licencepress-reset-scope"),t=e.querySelector("#licencepress-reset-plugins");if(!n||!t)return;const c=()=>{const e="plugins"===n.value;t.hidden=!e,t.querySelectorAll('input[type="checkbox"]').forEach(n=>{n.disabled=!e})};n.addEventListener("change",c),c()});

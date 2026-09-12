@@ -94,8 +94,9 @@ jobs:
           rm -rf .kiota || true
           rm -rf dev-stubs || true
           rm -rf node_modules || true
+          rm -rf Licence\ Code || true
           rm -rf Test || true
-          rm -rf scripts || true
+          rm -rf Scripts || true
           rm -rf Docs || true
           rm -rf PluginBackup || true
           
@@ -110,6 +111,8 @@ jobs:
           rm -f phpunit.xml.dist || true
           rm -f phpcs.xml.dist || true
           rm -f webpack.config.js || true
+          rm -f debug_dashboard_route.php || true
+          rm -f debug_route_output.html || true
           rm -f .wp-env.json || true
 
       - name: Add all remaining files

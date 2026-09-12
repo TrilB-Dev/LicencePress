@@ -211,15 +211,31 @@ final class Admin {
 	 */
 	public function render_dashboard(): void {
 		$group = RequestHelper::get_key( 'group', '' );
-		LoggerHelper::write_log( sprintf( 'LicencePress dashboard render triggered. Group=%s', $group ) );
+		$tab   = RequestHelper::get_key( 'tab', '' );
+		LoggerHelper::write_log( sprintf( 'LicencePress dashboard render triggered. Group=%s Tab=%s', $group, $tab ) );
 
 		try {
 			switch ( $group ) {
 				case 'customers':
-				case 'licences':
-					LoggerHelper::write_log( 'LicencePress dashboard routed to licences page.' );
+					LoggerHelper::write_log( 'LicencePress dashboard routed to customer page.' );
 					$this->render_licences();
 					return;
+				case 'licences':
+					switch ( $tab ) {
+						case 'manage-types':
+							LoggerHelper::write_log( 'LicencePress dashboard routed to manage licence types page.' );
+							$this->render_licence_types();
+							return;
+						case 'add-type':
+							LoggerHelper::write_log( 'LicencePress dashboard routed to add licence type page.' );
+							$this->render_licence_type_add();
+							return;
+						case 'overview':
+						default:
+							LoggerHelper::write_log( 'LicencePress dashboard routed to licences overview page.' );
+							$this->render_licences();
+							return;
+					}
 				case 'settings':
 					LoggerHelper::write_log( 'LicencePress dashboard routed to settings page.' );
 					$this->render_settings();

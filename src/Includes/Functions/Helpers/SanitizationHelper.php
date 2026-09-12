@@ -51,7 +51,9 @@ final class SanitizationHelper {
 			return $fallback;
 		}
 
-		$sanitized = sanitize_key( (string) $value );
+		$sanitized = function_exists( 'sanitize_key' ) ? sanitize_key( (string) $value ) : self::fallback_key( (string) $value );
+		$sanitized = is_string( $sanitized ) ? $sanitized : self::fallback_key( (string) $value );
+
 		return '' !== $sanitized ? $sanitized : $fallback;
 	}
 
@@ -67,8 +69,40 @@ final class SanitizationHelper {
 			return $fallback;
 		}
 
-		$sanitized = sanitize_title( (string) $value );
+		$sanitized = function_exists( 'sanitize_title' ) ? sanitize_title( (string) $value ) : self::fallback_slug( (string) $value );
+		$sanitized = is_string( $sanitized ) ? $sanitized : self::fallback_slug( (string) $value );
+
 		return '' !== $sanitized ? $sanitized : $fallback;
+	}
+
+	/**
+	 * Fallback key sanitizer used when WordPress helpers are unavailable in tests.
+	 *
+	 * @param string $value Value to normalize.
+	 * @return string Normalized key.
+	 */
+	private static function fallback_key( string $value ): string {
+		$value = strtolower( trim( $value ) );
+		$value = preg_replace( '/[^a-z0-9_-]+/', '-', $value );
+		$value = preg_replace( '/-+/', '-', $value );
+		$value = trim( $value, '-' );
+
+		return is_string( $value ) ? $value : '';
+	}
+
+	/**
+	 * Fallback slug sanitizer used when WordPress helpers are unavailable in tests.
+	 *
+	 * @param string $value Value to normalize.
+	 * @return string Normalized slug.
+	 */
+	private static function fallback_slug( string $value ): string {
+		$value = strtolower( trim( $value ) );
+		$value = preg_replace( '/[^a-z0-9_-]+/', '-', $value );
+		$value = preg_replace( '/-+/', '-', $value );
+		$value = trim( $value, '-' );
+
+		return is_string( $value ) ? $value : '';
 	}
 
 	/**

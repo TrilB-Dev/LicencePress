@@ -165,13 +165,13 @@ final class FunctionsSidebar {
 					'manage-licence-types' => array(
 						'label'      => __( 'Manage Licence Types', 'licencepress' ),
 						'icon'       => 'fa-solid fa-list',
-						'link'       => 'licencepress&group=licences&tab=manage-licence-types',
+						'link'       => 'licencepress&group=licences&tab=manage-types',
 						'capability' => 'licencepress_licence_type_view',
 					),
 					'add-licence-type' => array(
 						'label'      => __( 'Add Licence Type', 'licencepress' ),
 						'icon'       => 'fa-solid fa-square-plus',
-						'link'       => 'licencepress&group=licences&tab=add-licence-type',
+						'link'       => 'licencepress&group=licences&tab=add-type',
 						'capability' => 'licencepress_licence_type_edit',
 					),
 				),

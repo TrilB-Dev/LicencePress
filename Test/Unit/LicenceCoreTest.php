@@ -173,6 +173,29 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertSame( 'licencepress', $page_method->invoke( null, 'licencepress&group=settings&tab=general' ) );
 	}
 
+	public function test_licence_dashboard_routes_licence_tabs_to_their_pages(): void {
+		$admin = ( new \ReflectionClass( \LicencePress\Admin\Admin::class ) )->newInstanceWithoutConstructor();
+		$manager = new \LicencePress\Admin\Manager\Licences\LicencesManager();
+
+		$property = new \ReflectionProperty( \LicencePress\Admin\Admin::class, 'licences_manager' );
+		$property->setAccessible( true );
+		$property->setValue( $admin, $manager );
+
+		$_GET['group'] = 'licences';
+		$_GET['tab']   = 'manage-types';
+		ob_start();
+		$admin->render_dashboard();
+		$output = ob_get_clean();
+		$this->assertStringContainsString( 'Manage Licence Types', $output );
+
+		$_GET['group'] = 'licences';
+		$_GET['tab']   = 'add-type';
+		ob_start();
+		$admin->render_dashboard();
+		$output = ob_get_clean();
+		$this->assertStringContainsString( 'Add Licence Type', $output );
+	}
+
 	public function test_admin_dashboard_assets_use_real_compiled_bundle_names(): void {
 		if ( ! defined( 'LICENCEPRESS_URL' ) ) {
 			define( 'LICENCEPRESS_URL', 'https://example.com/wp-content/plugins/licencepress/' );

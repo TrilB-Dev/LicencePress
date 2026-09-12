@@ -6,9 +6,9 @@
  * @subpackage Plugins\TinyMCE\Includes
  * @since 1.0.0
  */
-namespace LicencePress\Includes\Plugins\TinyMCE\Includes;
+namespace LicencePress\Includes\Plugins\TinyMCE\Includes\Core;
 
-class I18n {
+final class I18n {
 	/**
 	 * Loads the plugin's text domain for translation.
 	 */

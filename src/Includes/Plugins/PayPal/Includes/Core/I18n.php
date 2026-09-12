@@ -6,11 +6,11 @@
  * @subpackage Plugins\PayPal\Includes
  * @since 1.0.0
  */
-namespace LicencePress\Includes\Plugins\PayPal\Includes;
+namespace LicencePress\Includes\Plugins\PayPal\Includes\Core;
 
 use LicencePress\Includes\Core\WP\I18n as CoreI18n;
 
-class I18n {
+final class I18n {
 	/**
 	 * Loads the plugin's text domain for translation.
 	 */

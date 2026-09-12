@@ -67,6 +67,7 @@ final class Core {
 		}
 
 		Capabilities::install();
+		CustomerRoles::install();
 		$this->post_types->register();
 		$this->taxonomies->register();
 		$this->registered = true;

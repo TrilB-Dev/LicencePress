@@ -1,6 +1,65 @@
 document.addEventListener('DOMContentLoaded', () => {
   const root = document;
 
+  root.querySelectorAll('[data-customer-action]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const action = button.dataset.customerAction;
+      const customerId = button.dataset.customerId || '0';
+      const ajaxUrl = window.licencepressAdmin?.ajaxUrl || window.ajaxurl || '/wp-admin/admin-ajax.php';
+
+      if (action === 'issue-licence') {
+        const productId = button.dataset.productId || window.prompt('Enter product ID for this licence:', '');
+        if (!productId) return;
+
+        const body = new URLSearchParams({
+          action: 'licencepress_issue_customer_licence',
+          customer_id: customerId,
+          product_id: productId,
+          days: button.dataset.days || '30',
+          site_url: button.dataset.siteUrl || window.location.origin || '',
+          nonce: button.dataset.nonce || '',
+        });
+
+        try {
+          const response = await fetch(ajaxUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, credentials: 'same-origin', body: body.toString() });
+          const result = await response.json();
+          if (!result?.success) {
+            throw new Error(result?.data?.message || 'Unable to issue licence.');
+          }
+
+          window.location.reload();
+        } catch (error) {
+          window.alert(error.message || 'Unable to issue licence.');
+        }
+        return;
+      }
+
+      if (action === 'revoke-licence') {
+        const token = button.dataset.licenceToken || '';
+        if (!token) return;
+
+        const body = new URLSearchParams({
+          action: 'licencepress_revoke_customer_licence',
+          customer_id: customerId,
+          token,
+          nonce: button.dataset.nonce || '',
+        });
+
+        try {
+          const response = await fetch(ajaxUrl, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' }, credentials: 'same-origin', body: body.toString() });
+          const result = await response.json();
+          if (!result?.success) {
+            throw new Error(result?.data?.message || 'Unable to revoke licence.');
+          }
+
+          window.location.reload();
+        } catch (error) {
+          window.alert(error.message || 'Unable to revoke licence.');
+        }
+      }
+    });
+  });
+
   const onboardingModal = root.getElementById('licencepress-onboarding-modal');
   if (onboardingModal) {
     const modal = window.bootstrap?.Modal.getOrCreateInstance(onboardingModal);

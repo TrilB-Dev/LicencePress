@@ -9,7 +9,6 @@
 
 namespace LicencePress\Admin\Manager\Tools;
 
-use LicencePress\Admin\Manager\Manager;
 use LicencePress\Includes\Functions\Helpers\AjaxHelper;
 use LicencePress\Includes\Functions\Helpers\AlertHelper;
 use LicencePress\Includes\Functions\Helpers\FormFieldHelper;
@@ -26,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class ResetManager extends Manager {
+final class ResetManager extends ToolsManager {
 	/**
 	 * Register hooks owned by the plugin reset tool.
 	 *
@@ -34,6 +33,7 @@ final class ResetManager extends Manager {
 	 * @param LoaderHelper|null $loader WordPress hook loader.
 	 */
 	public function __construct( ?LoaderHelper $loader = null ) {
+		parent::__construct( false );
 		( $loader ?? new LoaderHelper() )->register_component(
 			$this,
 			array(

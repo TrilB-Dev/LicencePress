@@ -17,7 +17,7 @@ use LicencePress\Includes\Functions\Helpers\SanitizationHelper;
 use LicencePress\Includes\Functions\Helpers\PermissionHelper;
 
 
-final class ToolsManager extends Manager {
+class ToolsManager extends Manager {
 	/**
 	 * The Page variable.
 	 *
@@ -61,13 +61,18 @@ final class ToolsManager extends Manager {
 	 * @since 1.0.0
 	 * @return void
 	 */
-	public function __construct() {
+	public function __construct( bool $initialize_tools = true ) {
 		/**
 		 * Set the page variable to 'tools'.
 		 *
 		 * @since 1.0.0
 		 */
 		$this->page = 'tools';
+
+		if ( ! $initialize_tools ) {
+			return;
+		}
+
 		/**
 		 * Initialize the Debug Manager page.
 		 *

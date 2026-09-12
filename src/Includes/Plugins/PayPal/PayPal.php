@@ -18,7 +18,7 @@ use LicencePress\Includes\Plugins\SettingsProviderInterface;
 use LicencePress\Includes\Plugins\SettingsPageProviderInterface;
 use LicencePress\Includes\Plugins\PayPal\Admin\PayPalAdmin;
 use LicencePress\Includes\Plugins\PayPal\Assets\Assets;
-use LicencePress\Includes\Plugins\PayPal\Includes\I18n;
+use LicencePress\Includes\Plugins\PayPal\Includes\Core\I18n;
 use LicencePress\Includes\Plugins\PayPal\Includes\Includes;
 
 final class PayPal implements PluginInterface, SettingsProviderInterface, SettingsPageProviderInterface, AssetsProviderInterface, I18nProviderInterface, AdminMenuProviderInterface, AdminSidebarProviderInterface {

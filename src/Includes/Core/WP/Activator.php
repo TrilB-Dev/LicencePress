@@ -3,6 +3,7 @@
 namespace LicencePress\Includes\Core\WP;
 
 use LicencePress\Includes\Core\Capabilities;
+use LicencePress\Includes\Core\CustomerRoles;
 use LicencePress\Includes\Plugins\Plugins;
 use LicencePress\Includes\Settings\SettingsManager;
 use LicencePress\Includes\Settings\Settings;
@@ -48,6 +49,7 @@ final class Activator {
 		KeyManager::ensure_configured();
 		Plugins::get_instance()->init();
 		Capabilities::install();
+		CustomerRoles::install();
 		Database::install();
 		SettingsManager::install();
 		( new PostType() )->register();

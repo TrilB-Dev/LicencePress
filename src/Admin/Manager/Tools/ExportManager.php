@@ -8,7 +8,6 @@
  */
 namespace LicencePress\Admin\Manager\Tools;
 
-use LicencePress\Admin\Manager\Manager;
 use LicencePress\Includes\Functions\Helpers\FormFieldHelper;
 use LicencePress\Includes\Functions\Helpers\UrlHelper;
 
@@ -16,12 +15,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class ExportManager extends Manager {
+final class ExportManager extends ToolsManager {
 	/**
 	 * Render the JSON export form below the tools settings form.
 	 *
 	 * @return void
 	 */
+	public function __construct() {
+		parent::__construct( false );
+	}
+
 	public function render_page_content(): void {
 		?>
 		<div class="card shadow-sm">

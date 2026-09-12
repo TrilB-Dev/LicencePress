@@ -118,7 +118,7 @@ final class FunctionsSidebar {
 				'name'       => __( 'Customers', 'licencepress' ),
 				'slug'       => 'licencepress&group=customers&tab=overview',
 				'parent'     => 'licencepress',
-				'callback'   => array( $admin, 'render_licences' ),
+				'callback'   => array( $admin, 'render_customers' ),
 				'capability' => 'licencepress_customer_manage',
 			),
 			array(
@@ -152,6 +152,18 @@ final class FunctionsSidebar {
 	 */
 	private static function core_sidebar_groups(): array {
 		return array(
+			'customers' => array(
+				'label' => __( 'Customers', 'licencepress' ),
+				'icon'  => 'fa-solid fa-users',
+				'items' => array(
+					'customer-directory' => array(
+						'label'      => __( 'Customer Directory', 'licencepress' ),
+						'icon'       => 'fa-solid fa-user-group',
+						'link'       => 'licencepress&group=customers&tab=overview',
+						'capability' => 'licencepress_customer_manage',
+					),
+				),
+			),
 			'licences' => array(
 				'label' => __( 'Licences', 'licencepress' ),
 				'icon'  => 'fa-solid fa-file-signature',

@@ -338,6 +338,292 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertContains( 'ios_devices', $metadata['licence_platforms'] ?? array() );
 	}
 
+	public function test_customer_roles_and_customer_metadata_are_registered(): void {
+		if ( ! function_exists( 'get_role' ) ) {
+			function get_role( $role ) {
+				return $GLOBALS['licencepress_test_roles'][ $role ] ?? null;
+			}
+		}
+
+		if ( ! function_exists( 'add_role' ) ) {
+			function add_role( $role, $name, $capabilities = array() ) {
+				$GLOBALS['licencepress_test_roles'][ $role ] = (object) array(
+					'name'        => $name,
+					'capabilities' => $capabilities,
+				);
+				return $GLOBALS['licencepress_test_roles'][ $role ];
+			}
+		}
+
+		$GLOBALS['licencepress_test_roles'] = array();
+		\LicencePress\Includes\Core\CustomerRoles::install();
+
+		$this->assertNotNull( get_role( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ) );
+		$this->assertNotNull( get_role( \LicencePress\Includes\Core\CustomerRoles::INTERNAL_CUSTOMER_ROLE ) );
+		$this->assertContains( 'title', \LicencePress\Admin\Manager\Customer\CustomerManager::meta_keys() );
+		$this->assertContains( 'payment_method', \LicencePress\Admin\Manager\Customer\CustomerManager::meta_keys() );
+	}
+
+	public function test_customer_overview_loads_real_customer_users(): void {
+		if ( ! function_exists( 'get_users' ) ) {
+			function get_users( $args = array() ) {
+				return $GLOBALS['licencepress_test_users'] ?? array();
+			}
+		}
+
+		if ( ! function_exists( 'get_user_meta' ) ) {
+			function get_user_meta( $user_id, $key = '', $single = false ) {
+				$meta = $GLOBALS['licencepress_test_user_meta'][ (int) $user_id ] ?? array();
+				if ( '' === $key ) {
+					return $meta;
+				}
+				return $meta[ $key ] ?? ( $single ? '' : array() );
+			}
+		}
+
+		$GLOBALS['licencepress_test_users'] = array(
+			(object) array(
+				'ID'            => 21,
+				'display_name'  => 'Northwind Studio',
+				'user_email'    => 'hello@northwind.dev',
+				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+			),
+			(object) array(
+				'ID'            => 22,
+				'display_name'  => 'Westgate Labs',
+				'user_email'    => 'ops@westgate.dev',
+				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::INTERNAL_CUSTOMER_ROLE ),
+			),
+		);
+		$GLOBALS['licencepress_test_user_meta'] = array(
+			21 => array(
+				'company_name' => 'Northwind Studio',
+				'primary_contact_name' => 'Lena Morris',
+				'primary_contact_email' => 'lena@northwind.dev',
+				'customer_type' => 'Customer',
+			),
+			22 => array(
+				'company_name' => 'Westgate Labs',
+				'primary_contact_name' => 'Cameron Bell',
+				'primary_contact_email' => 'cameron@westgate.dev',
+				'customer_type' => 'Internal Customer',
+			),
+		);
+
+		$profiles = \LicencePress\Admin\Manager\Customer\CustomerManager::customer_profiles();
+
+		$this->assertCount( 2, $profiles );
+		$this->assertSame( 'Northwind Studio', $profiles[0]['name'] );
+		$this->assertSame( 'Customer', $profiles[0]['type'] );
+		$this->assertSame( 'Lena Morris', $profiles[0]['contact'] );
+		$this->assertSame( 'Westgate Labs', $profiles[1]['name'] );
+		$this->assertSame( 'Internal Customer', $profiles[1]['type'] );
+	}
+
+	public function test_customer_detail_record_exposes_user_metadata(): void {
+		$GLOBALS['licencepress_test_users'] = array(
+			(object) array(
+				'ID'            => 81,
+				'display_name'  => 'Acme Cloud',
+				'user_email'    => 'billing@acmecloud.dev',
+				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+			),
+		);
+		$GLOBALS['licencepress_test_user_meta'] = array(
+			81 => array(
+				'customer_type' => 'Customer',
+				'company_name' => 'Acme Cloud',
+				'primary_contact_name' => 'Nina Price',
+				'primary_contact_email' => 'nina@acmecloud.dev',
+				'payment_method' => 'invoice',
+				'account_status' => 'active',
+			),
+		);
+
+		$record = \LicencePress\Admin\Manager\Customer\CustomerManager::get_customer( 81 );
+		$this->assertNotNull( $record );
+		$this->assertSame( 81, (int) ( $record['id'] ?? 0 ) );
+		$this->assertSame( 'Acme Cloud', $record['company_name'] );
+		$this->assertSame( 'Nina Price', $record['primary_contact_name'] );
+		$this->assertSame( 'invoice', $record['payment_method'] );
+	}
+
+	public function test_customer_save_persists_metadata_for_real_user_records(): void {
+		$GLOBALS['licencepress_test_users'] = array(
+			(object) array(
+				'ID'            => 91,
+				'display_name'  => 'Delta Valley',
+				'user_email'    => 'billing@deltavalley.dev',
+				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+			),
+		);
+		$GLOBALS['licencepress_test_user_meta'] = array(
+			91 => array(
+				'company_name' => 'Delta Valley',
+				'customer_type' => 'Customer',
+				'account_status' => 'active',
+			),
+		);
+
+		$updated = \LicencePress\Admin\Manager\Customer\CustomerManager::save_customer(
+			91,
+			array(
+				'company_name' => 'Delta Valley Ltd',
+				'customer_type' => 'Internal Customer',
+				'primary_contact_name' => 'A. Singh',
+				'primary_contact_email' => 'a.singh@deltavalley.dev',
+				'payment_method' => 'card',
+				'account_status' => 'trial',
+			)
+		);
+
+		$this->assertTrue( $updated );
+		$this->assertSame( 'Delta Valley Ltd', $GLOBALS['licencepress_test_user_meta'][91]['company_name'] );
+		$this->assertSame( 'Internal Customer', $GLOBALS['licencepress_test_user_meta'][91]['customer_type'] );
+		$this->assertSame( 'trial', $GLOBALS['licencepress_test_user_meta'][91]['account_status'] );
+	}
+
+	public function test_customer_detail_renders_manage_licence_actions(): void {
+		$GLOBALS['licencepress_test_users'] = array(
+			(object) array(
+				'ID'            => 141,
+				'display_name'  => 'Delta Works',
+				'user_email'    => 'ops@deltaworks.dev',
+				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+			),
+		);
+		$GLOBALS['licencepress_test_user_meta'] = array(
+			141 => array(
+				'company_name' => 'Delta Works',
+				'customer_type' => 'Customer',
+				'account_status' => 'active',
+			),
+		);
+		$GLOBALS['licencepress_test_licences'] = array(
+			array(
+				'id' => 2001,
+				'customer_id' => '141',
+				'product_id' => 'delta-pro',
+				'token' => 'LP-TEST-REVOKE-1',
+				'status' => 'active',
+				'expires_at' => '2030-12-31 00:00:00',
+			),
+		);
+
+		ob_start();
+		( new \LicencePress\Admin\Manager\Customer\CustomerOverview() )->render( 141 );
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'data-customer-action="issue-licence"', $output );
+		$this->assertStringContainsString( 'data-customer-action="revoke-licence"', $output );
+		$this->assertStringContainsString( 'data-customer-id="141"', $output );
+		$this->assertStringContainsString( 'data-licence-token="LP-TEST-REVOKE-1"', $output );
+	}
+
+	public function test_customer_detail_loads_real_licence_records_for_customer(): void {
+		$GLOBALS['licencepress_test_users'] = array(
+			(object) array(
+				'ID'            => 111,
+				'display_name'  => 'Blue Peak',
+				'user_email'    => 'ops@bluepeak.dev',
+				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+			),
+		);
+		$GLOBALS['licencepress_test_user_meta'] = array(
+			111 => array(
+				'company_name' => 'Blue Peak',
+				'customer_type' => 'Customer',
+				'account_status' => 'active',
+			),
+		);
+		$GLOBALS['licencepress_test_licences'] = array(
+			array(
+				'id' => 1001,
+				'customer_id' => '111',
+				'product_id' => 'core-pro',
+				'status' => 'active',
+				'expires_at' => '2030-12-31 00:00:00',
+			),
+			array(
+				'id' => 1002,
+				'customer_id' => '111',
+				'product_id' => 'studio-suite',
+				'status' => 'expiring',
+				'expires_at' => '2026-09-20 00:00:00',
+			),
+		);
+
+		$licences = \LicencePress\Admin\Manager\Customer\CustomerManager::customer_licences( 111 );
+
+		$this->assertCount( 2, $licences );
+		$this->assertSame( 'core-pro', $licences[0]['product_id'] );
+		$this->assertSame( 'active', $licences[0]['status'] );
+		$this->assertSame( 'studio-suite', $licences[1]['product_id'] );
+		$this->assertSame( 'expiring', $licences[1]['status'] );
+	}
+
+	public function test_customer_can_issue_and_revoke_licences(): void {
+		$GLOBALS['licencepress_test_users'] = array(
+			(object) array(
+				'ID'            => 121,
+				'display_name'  => 'Apex Studio',
+				'user_email'    => 'ops@apexstudio.dev',
+				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+			),
+		);
+		$GLOBALS['licencepress_test_licences'] = array();
+
+		$issued = \LicencePress\Admin\Manager\Customer\CustomerManager::issue_customer_licence(
+			121,
+			array(
+				'product_id' => 'pro-suite',
+				'days' => 30,
+				'site_url' => 'https://apexstudio.dev',
+				'features' => array( 'support', 'updates' ),
+			)
+		);
+
+		$this->assertNotNull( $issued );
+		$this->assertSame( 'pro-suite', $issued['product_id'] );
+		$this->assertSame( 'active', $issued['status'] );
+		$this->assertCount( 1, \LicencePress\Admin\Manager\Customer\CustomerManager::customer_licences( 121 ) );
+
+		$this->assertTrue( \LicencePress\Admin\Manager\Customer\CustomerManager::revoke_customer_licence( 121, $issued['token'] ) );
+		$this->assertSame( 'revoked', \LicencePress\Admin\Manager\Customer\CustomerManager::customer_licences( 121 )[0]['status'] );
+	}
+
+	public function test_customer_dashboard_and_checkout_render_customer_ui_sections(): void {
+		$GLOBALS['licencepress_test_users'] = array(
+			(object) array(
+				'ID'            => 151,
+				'display_name'  => 'Aurora Labs',
+				'user_email'    => 'team@auroralabs.dev',
+				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+			),
+		);
+		$GLOBALS['licencepress_test_user_meta'] = array(
+			151 => array(
+				'company_name' => 'Aurora Labs',
+				'customer_type' => 'Customer',
+				'account_status' => 'active',
+			),
+		);
+
+		ob_start();
+		( new \LicencePress\Admin\Manager\Customer\CustomerDashboard() )->render();
+		$dashboard_html = ob_get_clean();
+
+		$this->assertStringContainsString( 'Customer Directory', $dashboard_html );
+		$this->assertStringContainsString( 'Aurora Labs', $dashboard_html );
+
+		ob_start();
+		( new \LicencePress\Admin\Manager\Customer\CustomerCheckout() )->render( 151 );
+		$checkout_html = ob_get_clean();
+
+		$this->assertStringContainsString( 'Customer checkout', $checkout_html );
+		$this->assertStringContainsString( 'Checkout summary', $checkout_html );
+	}
+
 	public function test_licence_type_metadata_is_hydrated_on_load_for_editing(): void {
 		$id = LicenceTypeManager::create_type(
 			array(

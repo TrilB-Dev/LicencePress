@@ -8,7 +8,6 @@
  */
 namespace LicencePress\Admin\Manager\Tools;
 
-use LicencePress\Admin\Manager\Manager;
 use LicencePress\Includes\Functions\Helpers\FormFieldHelper;
 use LicencePress\Includes\MSGraph\GraphService;
 
@@ -16,13 +15,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class DebugManager extends Manager {
+final class DebugManager extends ToolsManager {
 	/**
 	 * Constructor for the DebugManager class.
 	 *
 	 * @since 1.0.0
 	 */
 	public function __construct() {
+		parent::__construct( false );
 	}
 	/**
 	 * Render the debug settings page content.
@@ -147,10 +147,13 @@ final class DebugManager extends Manager {
 	/**
 	 * Render debug-related settings fields.
 	 *
+	 * Intentionally accepts an optional values array to stay compatible with the
+	 * parent ToolsManager contract while the debug tool renders its own page.
+	 *
 	 * @param array<string, mixed> $values Current settings.
 	 * @return void
 	 */
-	public function render( array $values ): void {
+	public function render( array $values = array() ): void {
 		$field_id = 'licencepress-debug-logging';
 		$field    = array(
 			'description'  => __( 'Write diagnostic information to the WordPress debug log.', 'licencepress' ),

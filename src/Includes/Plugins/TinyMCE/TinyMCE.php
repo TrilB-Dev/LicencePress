@@ -15,7 +15,7 @@ use LicencePress\Includes\Plugins\SettingsProviderInterface;
 use LicencePress\Includes\Plugins\SettingsPageProviderInterface;
 use LicencePress\Includes\Plugins\TinyMCE\Assets\Assets;
 use LicencePress\Includes\Plugins\TinyMCE\Includes\Includes;
-use LicencePress\Includes\Plugins\TinyMCE\Includes\I18n;
+use LicencePress\Includes\Plugins\TinyMCE\Includes\Core\I18n;
 
 final class TinyMCE implements PluginInterface, SettingsProviderInterface, SettingsPageProviderInterface, AssetsProviderInterface, I18nProviderInterface {
 	/**

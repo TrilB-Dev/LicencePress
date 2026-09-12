@@ -8,7 +8,6 @@
  */
 namespace LicencePress\Admin\Manager\Tools;
 
-use LicencePress\Admin\Manager\Manager;
 use LicencePress\Includes\Functions\Helpers\FormFieldHelper;
 use LicencePress\Includes\Functions\Helpers\UrlHelper;
 
@@ -16,12 +15,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class ImportManager extends Manager {
+final class ImportManager extends ToolsManager {
 	/**
 	 * Render the JSON import form below the tools settings form.
 	 *
 	 * @return void
 	 */
+	public function __construct() {
+		parent::__construct( false );
+	}
+
 	public function render(): void {
 		?>
 		<form

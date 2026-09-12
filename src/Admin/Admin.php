@@ -18,11 +18,12 @@ use LicencePress\Includes\Functions\Helpers\RequestHelper;
 use LicencePress\Includes\Functions\Helpers\SanitizationHelper;
 use LicencePress\Includes\Functions\Admin\FunctionsSidebar;
 use LicencePress\Assets\Assets;
+use LicencePress\Admin\Manager\Manager;
 use LicencePress\Admin\Manager\Tools\ToolsManager;
 use LicencePress\Admin\Manager\Dashboard\DashboardManager;
+use LicencePress\Admin\Manager\Customer\CustomerManager;
 use LicencePress\Admin\Manager\Licences\LicencesManager;
 use LicencePress\Admin\Manager\Settings\SettingsManager;
-use LicencePress\Includes\Licence\LicenceTypeManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -42,6 +43,12 @@ final class Admin {
 	 */
 	private SettingsManager $settings_manager;
 	/**
+	 * CustomerManager instance for managing customer records and account data.
+	 *
+	 * @var CustomerManager
+	 */
+	private CustomerManager $customer_manager;
+	/**
 	 * LicencesManager instance for managing licence-type and issued licence pages.
 	 *
 	 * @var LicencesManager
@@ -53,6 +60,12 @@ final class Admin {
 	 * @var ToolsManager
 	 */
 	private ToolsManager $tools_manager;
+	/**
+	 * Registry of the admin managers.
+	 *
+	 * @var array<string, Manager>
+	 */
+	private array $managers;
 	/**
 	 * LoaderHelper instance for managing action and filter hooks.
 	 *
@@ -79,22 +92,19 @@ final class Admin {
 	 * @param Assets $assets The Assets instance for managing admin assets.
 	 */
 	public function __construct( Assets $assets ) {
-		/**
-		 * Initialize the admin managers and register their assets.
-		 */
-		$this->dashboard_manager = new DashboardManager();
-		/**
-		 * Initialize the settings manager.
-		 */
-		$this->settings_manager = new SettingsManager();
-		/**
-		 * Initialize the licences manager.
-		 */
-		$this->licences_manager = new LicencesManager();
-		/**
-		 * Initialize the tools manager.
-		 */
-		$this->tools_manager = new ToolsManager();
+		$this->managers = array(
+			'dashboard' => new DashboardManager(),
+			'settings'  => new SettingsManager(),
+			'customers' => new CustomerManager(),
+			'licences'  => new LicencesManager(),
+			'tools'     => new ToolsManager(),
+		);
+
+		$this->dashboard_manager = $this->managers['dashboard'];
+		$this->settings_manager  = $this->managers['settings'];
+		$this->customer_manager  = $this->managers['customers'];
+		$this->licences_manager  = $this->managers['licences'];
+		$this->tools_manager     = $this->managers['tools'];
 		/**
 		 * Initialize the plugin functions manager.
 		 */
@@ -110,22 +120,9 @@ final class Admin {
 		/**
 		 * Register assets for the admin managers.
 		 */
-		$this->dashboard_manager->register_assets( $assets );
-		/**
-		 * Register assets for the settings manager.
-		 */
-		$this->settings_manager->register_assets( $assets );
-		/**
-		 * Register assets for the licences manager.
-		 */
-		$this->licences_manager->register_assets( $assets );
-		/**
-		 * Register assets for the tools manager.
-		 */
-		$this->tools_manager->register_assets( $assets );
-		/**
-		 * Register assets for the plugin functions manager.
-		 */
+		foreach ( $this->managers as $manager ) {
+			$manager->register_assets( $assets );
+		}
 		/**
 		 * Register assets for the plugin functions manager.
 		 */
@@ -166,6 +163,16 @@ final class Admin {
 					'type'     => 'action',
 					'hook'     => 'wp_ajax_licencepress_dismiss_onboarding',
 					'callback' => 'dismiss_onboarding',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'wp_ajax_licencepress_issue_customer_licence',
+					'callback' => 'issue_customer_licence',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'wp_ajax_licencepress_revoke_customer_licence',
+					'callback' => 'revoke_customer_licence',
 				),
 			)
 		);
@@ -218,7 +225,7 @@ final class Admin {
 			switch ( $group ) {
 				case 'customers':
 					LoggerHelper::write_log( 'LicencePress dashboard routed to customer page.' );
-					$this->render_licences();
+					$this->render_customers();
 					return;
 				case 'licences':
 					switch ( $tab ) {
@@ -270,6 +277,82 @@ final class Admin {
 		Settings::set( 'onboarding_steps_complete', 3 );
 
 		AjaxHelper::success( array( 'dismissed' => true ) );
+	}
+
+	/**
+	 * Issue a new licence for a customer via AJAX.
+	 *
+	 * @return void
+	 */
+	public function issue_customer_licence(): void {
+		if ( ! AjaxHelper::authorized( 'licencepress_issue_customer_licence', 'licencepress_customer_licence_create' ) ) {
+			AjaxHelper::unauthorized( __( 'You are not authorized to issue licences for this customer.', 'licencepress' ) );
+		}
+
+		$user_id = RequestHelper::integer( $_POST, 'customer_id', 0 );
+		if ( $user_id <= 0 ) {
+			AjaxHelper::error( array( 'message' => __( 'A valid customer is required.', 'licencepress' ) ), 400 );
+		}
+
+		$product_id = SanitizationHelper::text( RequestHelper::value( $_POST, 'product_id', '' ) );
+		if ( '' === $product_id ) {
+			AjaxHelper::error( array( 'message' => __( 'A product identifier is required to issue a licence.', 'licencepress' ) ), 400 );
+		}
+
+		$licence = CustomerManager::issue_customer_licence(
+			$user_id,
+			array(
+				'product_id' => $product_id,
+				'days'       => max( 1, RequestHelper::integer( $_POST, 'days', 30 ) ),
+				'site_url'   => SanitizationHelper::text( RequestHelper::value( $_POST, 'site_url', '' ) ),
+				'features'   => RequestHelper::array( $_POST, 'features', array() ),
+			)
+		);
+
+		if ( null === $licence ) {
+			AjaxHelper::error( array( 'message' => __( 'The customer licence could not be created.', 'licencepress' ) ), 400 );
+		}
+
+		AjaxHelper::success(
+			array(
+				'message' => __( 'Customer licence issued successfully.', 'licencepress' ),
+				'licence' => $licence,
+			)
+		);
+	}
+
+	/**
+	 * Revoke a customer licence via AJAX.
+	 *
+	 * @return void
+	 */
+	public function revoke_customer_licence(): void {
+		if ( ! AjaxHelper::authorized( 'licencepress_revoke_customer_licence', 'licencepress_customer_licence_revoke' ) ) {
+			AjaxHelper::unauthorized( __( 'You are not authorized to revoke licences for this customer.', 'licencepress' ) );
+		}
+
+		$user_id = RequestHelper::integer( $_POST, 'customer_id', 0 );
+		$token   = SanitizationHelper::text( RequestHelper::value( $_POST, 'token', '' ) );
+		if ( $user_id <= 0 || '' === $token ) {
+			AjaxHelper::error( array( 'message' => __( 'A valid customer and licence token are required.', 'licencepress' ) ), 400 );
+		}
+
+		if ( ! CustomerManager::revoke_customer_licence( $user_id, $token ) ) {
+			AjaxHelper::error( array( 'message' => __( 'The customer licence could not be revoked.', 'licencepress' ) ), 400 );
+		}
+
+		AjaxHelper::success( array( 'message' => __( 'Customer licence revoked successfully.', 'licencepress' ) ) );
+	}
+	/**
+	 * Render LicencePress licences page.
+	 *
+	 * This method is responsible for rendering the licences page of the LicencePress plugin.
+	 * It delegates the rendering to the LicencesManager instance.
+	 */
+	public function render_customers(): void {
+		LoggerHelper::write_log( 'LicencePress customer render started.' );
+		$this->customer_manager->render();
+		LoggerHelper::write_log( 'LicencePress customer render complete.' );
 	}
 	/**
 	 * Render LicencePress licences page.

@@ -293,7 +293,8 @@ final class FormFieldHelper {
 		if ( 'a' === $tag ) {
 			$attributes['href'] = $options['href'];
 		} else {
-			$attributes['type'] = in_array( $options['type'] ?? 'button', array( 'button', 'submit', 'reset' ), true ) ? $options['type'] : 'button';
+			$type = in_array( $options['type'] ?? 'button', array( 'button', 'submit', 'reset' ), true ) ? (string) ( $options['type'] ?? 'button' ) : 'button';
+			$attributes['type'] = $type;
 		}
 
 		if ( ! empty( $options['disabled'] ) ) {

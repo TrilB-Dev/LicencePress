@@ -70,7 +70,7 @@ final class FunctionsSidebar {
 			$filtered_items = array();
 			foreach ( $group['items'] as $item ) {
 				$capability = sanitize_key( (string) ( $item['capability'] ?? '' ) );
-				if ( '' === $capability || current_user_can( $capability ) ) {
+				if ( self::can_view_menu_item( $capability ) ) {
 					$filtered_items[] = $item;
 				}
 			}
@@ -250,7 +250,7 @@ final class FunctionsSidebar {
 		$slug       = self::menu_page_slug( $raw_slug );
 		$name       = (string) ( $menu['name'] ?? '' );
 		$parent     = self::admin_parent_slug( (string) ( $menu['parent'] ?? '' ) );
-		$capability = sanitize_key( (string) ( $menu['capability'] ?? 'manage_options' ) );
+		$capability = self::resolve_menu_capability( sanitize_key( (string) ( $menu['capability'] ?? 'manage_options' ) ) );
 
 		if ( '' === $slug || '' === $name || ! is_callable( $callback ) ) {
 			LoggerHelper::write_log( sprintf( 'LicencePress skipped menu registration for empty or invalid page: %s', $raw_slug ) );
@@ -483,5 +483,47 @@ final class FunctionsSidebar {
 	 */
 	private static function menu_slug( array $menu ): string {
 		return sanitize_key( (string) ( $menu['slug'] ?? '' ) );
+	}
+
+	/**
+	 * Determine if the current user can view a menu item.
+	 *
+	 * Administrators keep access even when a fresh role capability install has not
+	 * yet refreshed their user capability cache.
+	 *
+	 * @param string $capability The capability to check.
+	 * @return bool True if the menu item should be visible.
+	 */
+	private static function can_view_menu_item( string $capability ): bool {
+		if ( '' === $capability ) {
+			return true;
+		}
+
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return current_user_can( $capability );
+	}
+
+	/**
+	 * Resolve the effective capability to use when registering a WordPress menu.
+	 *
+	 * Admins should remain able to see the LicencePress menu while the custom
+	 * role capability map catches up after activation or a role refresh.
+	 *
+	 * @param string $capability The capability to normalize.
+	 * @return string The effective capability.
+	 */
+	private static function resolve_menu_capability( string $capability ): string {
+		if ( '' === $capability ) {
+			return 'manage_options';
+		}
+
+		if ( current_user_can( 'manage_options' ) ) {
+			return 'manage_options';
+		}
+
+		return $capability;
 	}
 }

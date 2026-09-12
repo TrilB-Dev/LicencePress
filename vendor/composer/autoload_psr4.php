@@ -6,12 +6,6 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
-    'PHPCSStandards\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\' => array($vendorDir . '/dealerdirect/phpcodesniffer-composer-installer/src'),
-    'Mockery\\' => array($vendorDir . '/mockery/mockery/library/Mockery'),
     'LicencePress\\' => array($baseDir . '/src'),
-    'Doctrine\\Instantiator\\' => array($vendorDir . '/doctrine/instantiator/src/Doctrine/Instantiator'),
     'Defuse\\Crypto\\' => array($vendorDir . '/defuse/php-encryption/src'),
-    'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
-    'Brain\\Monkey\\' => array($vendorDir . '/brain/monkey/src'),
 );

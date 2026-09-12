@@ -305,7 +305,13 @@ final class LicenceTypeManager {
 
 		return $record;
 	}
-
+	/**
+	 * Merge the existing metadata with new submission values.
+	 *
+	 * @param array|null $record Existing record.
+	 * @param array      $data New submission values.
+	 * @return array Merged metadata payload.
+	 */
 	private static function merge_metadata( ?array $record, array $data ): array {
 		$metadata = array();
 		if ( is_array( $record ) && isset( $record['metadata'] ) && '' !== (string) $record['metadata'] ) {

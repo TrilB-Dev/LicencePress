@@ -2,6 +2,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const root = document;
   const panel = root.querySelector('#licencepress-settings-panel');
   const config = window.licencepressSettingsTabs || {};
+
+  const initializeBootstrapSelects = (scope = document) => {
+    if (window.licencepressBootstrapSelect?.initialize) {
+      window.licencepressBootstrapSelect.initialize(scope);
+      return;
+    }
+
+    if (window.Selectpicker?.getOrCreateInstance) {
+      scope.querySelectorAll('.selectpicker').forEach((field) => {
+        if (field && !field.dataset.licencepressSelectpickerInitialized) {
+          field.dataset.licencepressSelectpickerInitialized = 'true';
+          window.Selectpicker.getOrCreateInstance(field);
+        }
+      });
+    }
+  };
+
   if (!panel) return;
 
   const stateFromHash = () => {
@@ -213,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
         panel.dataset.currentTab = response.data.tab;
         panel.dataset.currentSection = response.data.layout_section;
         setActive(response.data.tab, response.data.layout_section);
+        initializeBootstrapSelects(panel);
         if (updateHash) window.history.pushState({}, '', `${window.location.pathname}${window.location.search}#${response.data.tab === 'layout' ? `layout-${response.data.layout_section}` : response.data.tab}`);
         bindForms();
         bindFieldValidation();
@@ -265,6 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (button) activateLayoutTab(button);
   }
   if (window.location.hash && 'layout' !== initial.tab && (initial.tab !== panel.dataset.currentTab || initial.section !== panel.dataset.currentSection)) loadTab(initial.tab, initial.section, false);
+  initializeBootstrapSelects(panel);
   bindForms();
   bindFieldValidation();
   bindLicencePatternControls();

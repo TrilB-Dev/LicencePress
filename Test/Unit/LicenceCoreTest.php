@@ -199,6 +199,14 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertStringNotContainsString( 'is-invalid', $output );
 	}
 
+	public function test_admin_settings_reinitializes_bootstrap_selects_after_tab_reload(): void {
+		$script = file_get_contents( dirname( __DIR__, 2 ) . '/src/Assets/js/admin.settings.js' );
+		$this->assertIsString( $script );
+		$this->assertStringContainsString( 'initializeBootstrapSelects', $script );
+		$this->assertStringContainsString( 'window.licencepressBootstrapSelect?.initialize', $script );
+		$this->assertStringContainsString( 'panel.innerHTML = response.data.html;', $script );
+	}
+
 	public function test_licence_dashboard_routes_licence_tabs_to_their_pages(): void {
 		$admin = ( new \ReflectionClass( \LicencePress\Admin\Admin::class ) )->newInstanceWithoutConstructor();
 		$manager = new \LicencePress\Admin\Manager\Licences\LicencesManager();

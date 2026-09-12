@@ -181,7 +181,7 @@ final class SettingsGeneral {
 										'class' => 'form-control',
 										'pattern' => '[A-Za-z0-9_-]{1,7}' 
 									) 
-								) . '<span class="input-group-text" aria-label="Example licence prefix format">LP-XXXX</span>',
+								) . '<span class="input-group-text" aria-label="Example licence prefix format">XXXXX-XXXXX-XXXXX-XXXXX-XXXXX</span>',
 								array(
 									'class' => 'w-100'
 								)

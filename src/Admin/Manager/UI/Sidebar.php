@@ -138,7 +138,12 @@ final class Sidebar {
 	 * @return string The page part of the slug.
 	 */
 	private static function item_page( string $slug ): string {
-		return strtok( $slug, '&' );
+		$page = trim( (string) strtok( $slug, '&' ) );
+		if ( '' === $page || preg_match( '/^\d+$/', $page ) ) {
+			return 'licencepress';
+		}
+
+		return $page;
 	}
 
 	/**
@@ -161,6 +166,10 @@ final class Sidebar {
 	 * @return string The generated URL.
 	 */
 	private static function item_url( string $page, array $query ): string {
+		$page = trim( $page );
+		if ( '' === $page || preg_match( '/^\d+$/', $page ) ) {
+			$page = 'licencepress';
+		}
 		$query_string = empty( $query ) ? '' : '?' . http_build_query( $query, '', '&', PHP_QUERY_RFC3986 );
 		if ( in_array( $page, array( 'edit.php', 'post-new.php' ), true ) ) {
 			return admin_url( $page . $query_string );

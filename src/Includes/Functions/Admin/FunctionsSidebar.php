@@ -330,18 +330,27 @@ final class FunctionsSidebar {
 		$parent = strtolower( sanitize_text_field( $parent ) );
 		return (string) preg_replace( '/[^a-z0-9._-]/', '', $parent );
 	}
-
+	/**
+	 * Sanitize a menu page slug.
+	 *
+	 * @param string $slug The menu page slug.
+	 * @return string The sanitized menu page slug.
+	 */
 	private static function menu_page_slug( string $slug ): string {
 		$slug = trim( (string) $slug );
-		if ( '' === $slug ) {
+		if ( '' === $slug || preg_match( '/^\d+$/', $slug ) ) {
 			return '';
 		}
 
 		if ( false === strpos( $slug, '&' ) ) {
-			return sanitize_key( $slug );
+			$base = sanitize_key( $slug );
+			return '' !== $base && ! preg_match( '/^\d+$/', $base ) ? $base : '';
 		}
 
 		$base = sanitize_key( strtok( $slug, '&' ) );
+		if ( '' === $base || preg_match( '/^\d+$/', $base ) ) {
+			return '';
+		}
 		parse_str( substr( $slug, strpos( $slug, '&' ) + 1 ), $query );
 
 		$group = sanitize_key( (string) ( $query['group'] ?? '' ) );

@@ -64,8 +64,10 @@ final class LicenceCoreTest extends TestCase {
 	}
 
 	public function test_licencepress_post_types_and_taxonomies_use_current_names(): void {
-		$this->assertSame( 'licencepress_licence_type', PostType::LICENCE_TYPE );
-		$this->assertSame( 'licencepress_licence_type_variant', PostType::LICENCE_TYPE_VARIANT );
+		$this->assertSame( 'lp_licence_type', PostType::LICENCE_TYPE );
+		$this->assertSame( 'lp_licence_variant', PostType::LICENCE_TYPE_VARIANT );
+		$this->assertLessThanOrEqual( 20, strlen( PostType::LICENCE_TYPE ) );
+		$this->assertLessThanOrEqual( 20, strlen( PostType::LICENCE_TYPE_VARIANT ) );
 		$this->assertSame( 'licence_type_categories', Taxonomy::CATEGORY );
 		$this->assertSame( 'licence_type_tags', Taxonomy::TAG );
 		$this->assertSame( 'licence-types', PostType::page_rewrite_slug() );

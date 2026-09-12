@@ -20,7 +20,7 @@ final class PostType {
 	 *
 	 * @return void
 	 */
-	public const LICENCE_TYPE = 'licencepress_licence_type';
+	public const LICENCE_TYPE = 'lp_licence_type';
 
 	/**
 	 * Post type for the licence type container.
@@ -29,7 +29,7 @@ final class PostType {
 	 *
 	 * @var string
 	 */
-	public const LICENCE_TYPE_VARIANT = 'licencepress_licence_type_variant';
+	public const LICENCE_TYPE_VARIANT = 'lp_licence_variant';
 
 	/**
 	 * Register the custom post types.
@@ -111,7 +111,8 @@ final class PostType {
 				'show_ui'         => false,
 				'show_in_rest'    => true,
 				'supports'        => array( 'title', 'editor', 'author', 'thumbnail', 'revisions' ),
-				'capability_type' => self::licence_type_capabilities(),
+				'capability_type' => 'licencepress_licence_type',
+				'capabilities'    => self::licence_type_capabilities(),
 				'map_meta_cap'    => true,
 			),
 			self::LICENCE_TYPE
@@ -139,7 +140,8 @@ final class PostType {
 				'has_archive'     => false,
 				'rewrite'         => array( 'slug' => self::page_rewrite_slug() ),
 				'supports'        => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'revisions', 'page-attributes' ),
-				'capability_type' => self::licence_type_variant_capabilities(),
+				'capability_type' => 'licencepress_licence_variant',
+				'capabilities'    => self::licence_type_variant_capabilities(),
 				'map_meta_cap'    => true,
 			),
 			self::LICENCE_TYPE_VARIANT

@@ -353,38 +353,16 @@ final class FunctionsSidebar {
 			return '';
 		}
 
-		if ( false === strpos( $slug, '&' ) ) {
-			$base = sanitize_key( $slug );
-			return '' !== $base && ! preg_match( '/^\d+$/', $base ) ? $base : '';
+		if ( false !== strpos( $slug, '&' ) ) {
+			$base = trim( (string) strtok( $slug, '&' ) );
+			if ( '' === $base || preg_match( '/^\d+$/', $base ) ) {
+				return '';
+			}
+			return $base . substr( $slug, strlen( $base ) );
 		}
 
-		$base = sanitize_key( strtok( $slug, '&' ) );
-		if ( '' === $base || preg_match( '/^\d+$/', $base ) ) {
-			return '';
-		}
-		parse_str( substr( $slug, strpos( $slug, '&' ) + 1 ), $query );
-
-		$group = sanitize_key( (string) ( $query['group'] ?? '' ) );
-		$tab   = sanitize_key( (string) ( $query['tab'] ?? '' ) );
-		$tool  = sanitize_key( (string) ( $query['tool'] ?? '' ) );
-
-		if ( '' !== $group && '' !== $tab ) {
-			return $base . '-' . $group . '-' . $tab;
-		}
-		if ( '' !== $group && '' !== $tool ) {
-			return $base . '-' . $group . '-' . $tool;
-		}
-		if ( '' !== $group ) {
-			return $base . '-' . $group;
-		}
-		if ( '' !== $tab ) {
-			return $base . '-' . $tab;
-		}
-		if ( '' !== $tool ) {
-			return $base . '-' . $tool;
-		}
-
-		return $base;
+		$base = sanitize_key( $slug );
+		return '' !== $base && ! preg_match( '/^\d+$/', $base ) ? $base : '';
 	}
 
 	/**

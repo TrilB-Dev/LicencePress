@@ -7,6 +7,7 @@ namespace LicencePress\Test\Unit;
 use Defuse\Crypto\Key;
 use LicencePress\Includes\Core\PostType;
 use LicencePress\Includes\Core\Taxonomy;
+use LicencePress\Includes\Functions\Helpers\AMHelper;
 use LicencePress\Includes\Functions\Helpers\LicenceHelper;
 use LicencePress\Includes\Licence\EncryptionService;
 use LicencePress\Includes\Licence\KeyManager;
@@ -171,6 +172,15 @@ final class LicenceCoreTest extends TestCase {
 		$page_method = new \ReflectionMethod( '\\LicencePress\\Admin\\Manager\\UI\\Sidebar', 'item_page' );
 		$page_method->setAccessible( true );
 		$this->assertSame( 'licencepress', $page_method->invoke( null, 'licencepress&group=settings&tab=general' ) );
+	}
+
+	public function test_admin_route_slugs_keep_the_explicit_query_string(): void {
+		$menu = AMHelper::define( 'Overview', 'licencepress&group=licences&tab=overview', 'dashicons-admin-generic', 'licencepress' );
+		$this->assertSame( 'licencepress&group=licences&tab=overview', $menu['slug'] );
+
+		$method = new \ReflectionMethod( '\\LicencePress\\Includes\\Functions\\Admin\\FunctionsSidebar', 'menu_page_slug' );
+		$method->setAccessible( true );
+		$this->assertSame( 'licencepress&group=licences&tab=overview', $method->invoke( null, 'licencepress&group=licences&tab=overview' ) );
 	}
 
 	public function test_licence_dashboard_routes_licence_tabs_to_their_pages(): void {

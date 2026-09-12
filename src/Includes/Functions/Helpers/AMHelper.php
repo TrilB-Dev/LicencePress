@@ -54,6 +54,14 @@ class AMHelper {
 			return '';
 		}
 
+		if ( false !== strpos( $slug, '&' ) ) {
+			$base = trim( (string) strtok( $slug, '&' ) );
+			if ( '' === $base || preg_match( '/^\d+$/', $base ) ) {
+				return '';
+			}
+			return $base . substr( $slug, strlen( $base ) );
+		}
+
 		return sanitize_key( $slug );
 	}
 

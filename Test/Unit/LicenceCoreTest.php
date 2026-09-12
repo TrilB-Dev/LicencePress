@@ -183,6 +183,22 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertSame( 'licencepress&group=licences&tab=overview', $method->invoke( null, 'licencepress&group=licences&tab=overview' ) );
 	}
 
+	public function test_general_settings_do_not_render_invalid_state_on_first_load(): void {
+		if ( ! function_exists( 'get_pages' ) ) {
+			function get_pages( $args = array() ) {
+				return array();
+			}
+		}
+
+		ob_start();
+		( new \LicencePress\Admin\Manager\Settings\SettingsGeneral() )->render( array() );
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'Please enter the default licensor name.', $output );
+		$this->assertStringNotContainsString( 'Please define the custom licence pattern.', $output );
+		$this->assertStringNotContainsString( 'is-invalid', $output );
+	}
+
 	public function test_licence_dashboard_routes_licence_tabs_to_their_pages(): void {
 		$admin = ( new \ReflectionClass( \LicencePress\Admin\Admin::class ) )->newInstanceWithoutConstructor();
 		$manager = new \LicencePress\Admin\Manager\Licences\LicencesManager();

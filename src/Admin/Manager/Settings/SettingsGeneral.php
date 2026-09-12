@@ -29,8 +29,10 @@ final class SettingsGeneral {
 		$custom      = $values['custom_pattern'] ?? '';
 		$separator   = $values['pattern_separator'] ?? '-';
 		$renewal_licence_pages = array( '' => __( 'Select a page', 'licencepress' ) );
-		foreach ( get_pages( array( 'sort_column' => 'post_title', 'sort_order' => 'ASC' ) ) as $page ) {
-			$renewal_licence_pages[ (string) $page->ID ] = $page->post_title;
+		if ( function_exists( 'get_pages' ) ) {
+			foreach ( get_pages( array( 'sort_column' => 'post_title', 'sort_order' => 'ASC' ) ) as $page ) {
+				$renewal_licence_pages[ (string) $page->ID ] = $page->post_title;
+			}
 		}
 
 		?>
@@ -57,7 +59,7 @@ final class SettingsGeneral {
 								'licencepress-general-default-licensor-name', 
 								__( 'Name of default Licensor', 'licencepress' ), 
 								array( 
-									'description' => __( 'The default Licensor name usually matches the product owner or company.', 'licencepress' ), 
+									'description' => __( 'The default Licensor name usually matches the product owner or company registered name.', 'licencepress' ), 
 									'tooltip' => __( 'This value is also used as part of the encryption process for generated licences.', 'licencepress' ) 
 								) 
 							); ?>
@@ -67,15 +69,11 @@ final class SettingsGeneral {
 								'licencepress_general[default_licensor_name]', 
 								(string) ( $values['default_licensor_name'] ?? '' ), 
 								array( 
-									'id' => 'licencepress-general-default-licensor-name', 
-									'class' => 'w-100',
-									'data-licencepress-validate' => true,
-									'data-licencepress-required' => true,
-									'validation' => array( 
-										'state' => 'invalid', 
-										'message' => __( 'Please enter the default licensor name.', 'licencepress' ) 
-									) 
-								) 
+										'id' => 'licencepress-general-default-licensor-name',
+										'class' => 'w-100',
+										'data-licencepress-validate' => true,
+										'data-licencepress-required' => true,
+									)
 							); ?>
 						</td>
 					</tr>
@@ -317,15 +315,11 @@ final class SettingsGeneral {
 								'licencepress_general[default_custom_licence_pattern]', 
 								(string) ( $custom ), 
 								array( 
-									'id' => 'licencepress-general-default-custom-licence-pattern', 
-									'class' => 'w-100',
-									'data-licencepress-validate' => true,
-									'data-licencepress-required' => true,
-									'validation' => array( 
-										'state' => 'invalid', 
-										'message' => __( 'Please define the custom licence pattern.', 'licencepress' ) 
-									) 
-								) 
+										'id' => 'licencepress-general-default-custom-licence-pattern',
+										'class' => 'w-100',
+										'data-licencepress-validate' => true,
+										'data-licencepress-required' => true,
+									)
 							); ?>
 						</td>
 					</tr>
@@ -470,3 +464,8 @@ final class SettingsGeneral {
 		<?php
 	}
 }
+
+
+
+
+

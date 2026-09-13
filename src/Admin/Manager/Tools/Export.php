@@ -1,6 +1,6 @@
 <?php
 /**
- * ExportManager class for LicencePress plugin.
+ * Export class for LicencePress plugin.
  *
  * @package LicencePress
  * @subpackage Admin\Manager\Tools
@@ -15,9 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class ExportManager extends ToolsManager {
+final class Export extends ToolsManager {
 	/**
-	 * Render the JSON export form below the tools settings form.
+	 * Constructor for the Export class.
 	 *
 	 * @return void
 	 */

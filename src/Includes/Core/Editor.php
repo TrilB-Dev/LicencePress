@@ -66,7 +66,12 @@ final class Editor {
 		update_post_meta( $post_id, '_licencepress_licence_type_id', $licence_type_id );
 		return true;
 	}
-
+	/**
+	 * Render the form for creating or editing a licence page.
+	 *
+	 * @param \WP_Post|null $page The page being edited, or null for a new page.
+	 * @return void
+	 */
 	public static function render_licence_page_form( ?\WP_Post $page = null ): void {
 		?>
 		<form method="post" class="card shadow-sm">

@@ -1,6 +1,6 @@
 <?php
 /**
- * Backward-compatible query helper name.
+ * Query helpers for core WordPress request handling.
  *
  * @package LicencePress\Includes\Core\WP
  * @since 1.0.0
@@ -14,11 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Preserve the original WPQuery API while query behavior lives in QueryHelper.
- *
- * @deprecated Use QueryHelper and PostHelper instead.
- */
 final class WPQuery {
 	/**
 	 * Get the current WP_Query instance.

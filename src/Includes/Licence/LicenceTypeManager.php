@@ -14,41 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class LicenceTypeManager {
 	/**
-	 * Registers the database schema for the licence type table.
-	 *
-	 * @since 1.0.0
-	 */
-	public static function register_schema(): void {
-		Database::register_table(
-			'licence_type',
-			static function ( string $table_name, string $charset ) {
-				return "CREATE TABLE {$table_name} (
-                id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-                name varchar(200) NOT NULL,
-                slug varchar(120) NOT NULL DEFAULT '',
-                parent_id bigint(20) unsigned NOT NULL DEFAULT 0,
-                is_variant tinyint(1) NOT NULL DEFAULT 0,
-                is_retired tinyint(1) NOT NULL DEFAULT 0,
-                retired_at datetime DEFAULT NULL,
-                prefix varchar(32) NOT NULL DEFAULT '',
-                suffix varchar(32) NOT NULL DEFAULT '',
-                length int(11) NOT NULL DEFAULT 12,
-                pattern varchar(120) NOT NULL DEFAULT 'prefix-segment',
-                description longtext DEFAULT NULL,
-                metadata longtext DEFAULT NULL,
-                created_at datetime NOT NULL,
-                updated_at datetime NOT NULL,
-                PRIMARY KEY  (id),
-                KEY parent_id (parent_id),
-                KEY is_variant (is_variant),
-                KEY is_retired (is_retired),
-                KEY slug (slug),
-                KEY name (name)
-            ) {$charset};";
-			}
-		);
-	}
-	/**
 	 * Retrieves the table name for the licence type table.
 	 *
 	 * @return string The table name.

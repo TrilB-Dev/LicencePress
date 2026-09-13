@@ -11,7 +11,7 @@ namespace LicencePress\Admin\Manager\Customer;
 use LicencePress\Admin\Manager\Manager;
 use LicencePress\Assets\Assets;
 use LicencePress\Includes\Licence\LicenceManager;
-use LicencePress\Includes\Core\CustomerRoles;
+use LicencePress\Includes\Core\Roles;
 use LicencePress\Includes\Licence\LicenceGenerator;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -153,8 +153,8 @@ class CustomerManager extends Manager {
 			: ( function_exists( 'get_users' ) ? get_users(
 				array(
 					'role__in' => array(
-						CustomerRoles::CUSTOMER_ROLE,
-						CustomerRoles::INTERNAL_CUSTOMER_ROLE,
+						Roles::CUSTOMER_ROLE,
+						Roles::INTERNAL_CUSTOMER_ROLE,
 					),
 				)
 			) : array() );

@@ -134,19 +134,6 @@ final class PostHelper {
 	}
 
 	/**
-	 * Backwards-compatible check for a legacy licence post type.
-	 *
-	 * LicencePress does not register a standalone licence post type; licences live in the
-	 * dedicated database table instead.
-	 *
-	 * @param mixed $licence The post ID, WP_Post instance, or null.
-	 * @return bool Always false for the current architecture.
-	 */
-	public static function is_licence( $licence ): bool {
-		return false;
-	}
-
-	/**
 	 * Get the permalink of a WP_Post instance by ID or object.
 	 *
 	 * @param int|\WP_Post|null $post The post ID, WP_Post instance, or null for the current post.

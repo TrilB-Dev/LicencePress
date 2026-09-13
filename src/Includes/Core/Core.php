@@ -3,6 +3,7 @@
  * Core component for LicencePress.
  *
  * @package LicencePress\Includes\Core
+ * @since 1.0.0
  */
 namespace LicencePress\Includes\Core;
 
@@ -67,7 +68,7 @@ final class Core {
 		}
 
 		Capabilities::install();
-		CustomerRoles::install();
+		Roles::install();
 		$this->post_types->register();
 		$this->taxonomies->register();
 		$this->registered = true;

@@ -1,6 +1,6 @@
 <?php
 /**
- * ResetManager class for LicencePress plugin.
+ * Reset class for LicencePress plugin.
  *
  * @package LicencePress
  * @subpackage Admin\Manager\Tools
@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class ResetManager extends ToolsManager {
+final class Reset extends ToolsManager {
 	/**
 	 * Register hooks owned by the plugin reset tool.
 	 *

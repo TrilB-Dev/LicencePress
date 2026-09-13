@@ -54,13 +54,7 @@ final class SettingsManager {
 
 		foreach ( self::registered_defaults() as $group => $settings ) {
 			$stored_settings = self::get_group( $group );
-			if ( null === $stored_settings ) {
-				$legacy_settings = self::get_legacy_group( $group );
-				$stored_settings = is_array( $legacy_settings ) ? $legacy_settings : array();
-			}
-
-			self::set_group( $group, array_merge( $settings, $stored_settings ) );
-			self::delete_legacy_group( $group );
+			self::set_group( $group, array_merge( $settings, is_array( $stored_settings ) ? $stored_settings : array() ) );
 		}
 	}
 	/**
@@ -176,6 +170,7 @@ final class SettingsManager {
 			),
 			'access'  => array(
 				'create_licence_types'            => array( 'manage_options' ),
+				'manage_customers'                => array( 'manage_options' ),
 				'write_licence_type_variants'     => array( 'manage_options' ),
 				'view_analytics'                  => array( 'manage_options' ),
 				'manage_plugins'                  => array( 'manage_options' ),
@@ -200,8 +195,10 @@ final class SettingsManager {
 				'invoice_style'     => '',
 			),
 			'tools'   => array(
-				'debug_logging'   => false,
-				'console_logging' => false,
+				'debug_logging'                 => false,
+				'console_logging'               => false,
+				'remove_all_data_on_uninstall'  => false,
+				'uninstall_3rd_party_plugins'   => false,
 			),
 		);
 	}
@@ -304,24 +301,7 @@ final class SettingsManager {
 		return $group;
 	}
 	/**
-	 * Get the legacy settings group from the database.
-	 *
-	 * @param string $group The logical group name.
-	 * @return array|null The settings array if found, null otherwise.
-	 */
-	private static function get_legacy_group( string $group ): ?array {
-		global $wpdb;
-
-		if ( ! self::table_exists() ) {
-			return null;
-		}
-
-		$value = $wpdb->get_var( $wpdb->prepare( 'SELECT setting_value FROM ' . self::table_name() . ' WHERE setting_group = %s', sanitize_key( $group ) ) );
-		return $value === null ? null : maybe_unserialize( $value );
-	}
-
-	/**
-	 * Check if the legacy settings table exists in the database.
+	 * Check if the settings table exists in the database.
 	 *
 	 * @return bool True if the table exists, false otherwise.
 	 */
@@ -340,16 +320,6 @@ final class SettingsManager {
 		$table = $wpdb->get_var( $query );
 
 		return is_string( $table ) && '' !== $table;
-	}
-	/**
-	 * Delete a legacy settings group from the database.
-	 *
-	 * @param string $group The logical group name.
-	 * @return void
-	 */
-	private static function delete_legacy_group( string $group ): void {
-		global $wpdb;
-		$wpdb->delete( self::table_name(), array( 'setting_group' => sanitize_key( $group ) ), array( '%s' ) );
 	}
 	/**
 	 * Determine the settings group for a given key.

@@ -18,12 +18,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Backwards-compatible facade for common LicencePress utility operations.
- *
- * New code may use the focused helper classes directly. This facade remains
- * useful to extensions that need one stable entry point for LicencePress data.
- */
 final class Functions {
 	/**
 	 * Default status for LicencePress content.

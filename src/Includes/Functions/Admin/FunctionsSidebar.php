@@ -137,10 +137,10 @@ final class FunctionsSidebar {
 			),
 			array(
 				'name'       => __( 'Tools', 'licencepress' ),
-				'slug'       => 'licencepress&group=tools&tool=debug',
+				'slug'       => 'licencepress&group=tools&tool=general',
 				'parent'     => 'licencepress',
 				'callback'   => array( $admin, 'render_tools' ),
-				'capability' => 'licencepress_tools_debug',
+				'capability' => 'licencepress_tools_general',
 			),
 		);
 	}
@@ -222,6 +222,12 @@ final class FunctionsSidebar {
 				'label' => __( 'Tools', 'licencepress' ),
 				'icon'  => 'fa-solid fa-toolbox',
 				'items' => array(
+					'general' => array(
+						'label'      => __( 'General', 'licencepress' ),
+						'icon'       => 'fa-solid fa-sliders',
+						'link'       => 'licencepress&group=tools&tool=general',
+						'capability' => 'licencepress_tools_general',
+					),
 					'debug' => array(
 						'label'      => __( 'Debug', 'licencepress' ),
 						'icon'       => 'fa-solid fa-bug-slash',

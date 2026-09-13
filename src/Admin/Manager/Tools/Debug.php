@@ -1,6 +1,6 @@
 <?php
 /**
- * DebugManager class for LicencePress plugin.
+ * Debug class for LicencePress plugin.
  *
  * @package LicencePress
  * @subpackage Admin\Manager\Tools
@@ -15,9 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class DebugManager extends ToolsManager {
+final class Debug extends ToolsManager {
 	/**
-	 * Constructor for the DebugManager class.
+	 * Constructor for the Debug class.
 	 *
 	 * @since 1.0.0
 	 */

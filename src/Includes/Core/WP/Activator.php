@@ -1,23 +1,32 @@
 <?php
-
+/**
+ * Activator class for handling plugin activation tasks.
+ *
+ * @package LicencePress\Includes\Core\WP
+ */
 namespace LicencePress\Includes\Core\WP;
 
 use LicencePress\Includes\Core\Capabilities;
-use LicencePress\Includes\Core\CustomerRoles;
-use LicencePress\Includes\Plugins\Plugins;
-use LicencePress\Includes\Settings\SettingsManager;
-use LicencePress\Includes\Settings\Settings;
-use LicencePress\Includes\Licence\LicenceRepository;
-use LicencePress\Includes\Licence\KeyManager;
+use LicencePress\Includes\Core\Dependencies;
+use LicencePress\Includes\Core\Roles;
+use LicencePress\Includes\Core\Schema;
 use LicencePress\Includes\Core\PostType;
 use LicencePress\Includes\Core\Taxonomy;
+use LicencePress\Includes\Licence\KeyManager;
+use LicencePress\Includes\Plugins\Plugins;
+use LicencePress\Includes\Settings\Settings;
+use LicencePress\Includes\Settings\SettingsManager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 final class Activator {
-	/** @var array<int, callable> */
+	/**
+	 * Registered activation callbacks.
+	 *
+	 * @var array<int, callable>
+	 */
 	private static array $callbacks = array();
 
 	/**
@@ -45,11 +54,12 @@ final class Activator {
 			)
 		);
 
-		LicenceRepository::register_schema();
+		Schema::register_tables();
+		Dependencies::install();
 		KeyManager::ensure_configured();
 		Plugins::get_instance()->init();
 		Capabilities::install();
-		CustomerRoles::install();
+		Roles::install();
 		Database::install();
 		SettingsManager::install();
 		( new PostType() )->register();

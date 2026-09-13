@@ -16,7 +16,7 @@ final class I18n {
 		load_plugin_textdomain(
 			'licencepress',
 			false,
-			dirname( plugin_basename( LICENCEPRESS_FILE ) ) . '/src/Includes/Plugins/TinyMCE/Language/'
+			dirname( plugin_basename( LICENCEPRESS_PLUGINS ) ) . '/TinyMCE/Language/'
 		);
 	}
 }

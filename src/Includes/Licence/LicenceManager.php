@@ -7,21 +7,26 @@
 
 namespace LicencePress\Includes\Licence;
 
+use LicencePress\Includes\Licence\KeyManager;
+use LicencePress\Includes\Licence\LicenceTypeManager;
+use LicencePress\Includes\Licence\LicenceGenerator;
+use LicencePress\Includes\Licence\LicenceRepository;
+use LicencePress\Includes\Licence\LicenceValidator;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 final class LicenceManager {
 	/**
-	 * Initializes the licence manager by ensuring the key manager is configured
-	 * and registering the necessary schemas for licences and licence types.
+	 * Initializes the licence manager by ensuring the key manager is configured.
+	 *
+	 * Core table creation remains centralized in the activation flow.
 	 *
 	 * @since 1.0.0
 	 */
 	public static function initialize(): void {
 		KeyManager::ensure_configured();
-		LicenceRepository::register_schema();
-		LicenceTypeManager::register_schema();
 	}
 	/**
 	 * Creates a new licence for a given product and customer.

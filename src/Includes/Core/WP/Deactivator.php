@@ -1,13 +1,23 @@
 <?php
-
+/**
+ * Deactivator class for handling plugin deactivation tasks.
+ *
+ * @package LicencePress\Includes\Core\WP
+ */
 namespace LicencePress\Includes\Core\WP;
+
+use LicencePress\Includes\Core\Dependencies;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 final class Deactivator {
-	/** @var array<int, callable> */
+	/**
+	 * Registered deactivation callbacks.
+	 *
+	 * @var array<int, callable>
+	 */
 	private static array $callbacks = array();
 
 	/**
@@ -27,6 +37,8 @@ final class Deactivator {
 	 * @return void
 	 */
 	public static function deactivate( ?array $callbacks = null ): void {
+		Dependencies::uninstall();
+
 		foreach ( $callbacks ?? self::$callbacks as $callback ) {
 			call_user_func( $callback );
 		}

@@ -53,6 +53,7 @@ if ( is_readable( $licencepress_autoloader ) ) {
 	require_once $licencepress_autoloader;
 }
 
+
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-licencepress-activator.php

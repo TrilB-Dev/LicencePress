@@ -382,10 +382,10 @@ final class LicenceCoreTest extends TestCase {
 		}
 
 		$GLOBALS['licencepress_test_roles'] = array();
-		\LicencePress\Includes\Core\CustomerRoles::install();
+		\LicencePress\Includes\Core\Roles::install();
 
-		$this->assertNotNull( get_role( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ) );
-		$this->assertNotNull( get_role( \LicencePress\Includes\Core\CustomerRoles::INTERNAL_CUSTOMER_ROLE ) );
+		$this->assertNotNull( get_role( \LicencePress\Includes\Core\Roles::CUSTOMER_ROLE ) );
+		$this->assertNotNull( get_role( \LicencePress\Includes\Core\Roles::INTERNAL_CUSTOMER_ROLE ) );
 		$this->assertContains( 'title', \LicencePress\Admin\Manager\Customer\CustomerManager::meta_keys() );
 		$this->assertContains( 'payment_method', \LicencePress\Admin\Manager\Customer\CustomerManager::meta_keys() );
 	}
@@ -412,13 +412,13 @@ final class LicenceCoreTest extends TestCase {
 				'ID'            => 21,
 				'display_name'  => 'Northwind Studio',
 				'user_email'    => 'hello@northwind.dev',
-				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+				'roles'         => array( \LicencePress\Includes\Core\Roles::CUSTOMER_ROLE ),
 			),
 			(object) array(
 				'ID'            => 22,
 				'display_name'  => 'Westgate Labs',
 				'user_email'    => 'ops@westgate.dev',
-				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::INTERNAL_CUSTOMER_ROLE ),
+				'roles'         => array( \LicencePress\Includes\Core\Roles::INTERNAL_CUSTOMER_ROLE ),
 			),
 		);
 		$GLOBALS['licencepress_test_user_meta'] = array(
@@ -452,7 +452,7 @@ final class LicenceCoreTest extends TestCase {
 				'ID'            => 81,
 				'display_name'  => 'Acme Cloud',
 				'user_email'    => 'billing@acmecloud.dev',
-				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+				'roles'         => array( \LicencePress\Includes\Core\Roles::CUSTOMER_ROLE ),
 			),
 		);
 		$GLOBALS['licencepress_test_user_meta'] = array(
@@ -480,7 +480,7 @@ final class LicenceCoreTest extends TestCase {
 				'ID'            => 91,
 				'display_name'  => 'Delta Valley',
 				'user_email'    => 'billing@deltavalley.dev',
-				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+				'roles'         => array( \LicencePress\Includes\Core\Roles::CUSTOMER_ROLE ),
 			),
 		);
 		$GLOBALS['licencepress_test_user_meta'] = array(
@@ -515,7 +515,7 @@ final class LicenceCoreTest extends TestCase {
 				'ID'            => 141,
 				'display_name'  => 'Delta Works',
 				'user_email'    => 'ops@deltaworks.dev',
-				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+				'roles'         => array( \LicencePress\Includes\Core\Roles::CUSTOMER_ROLE ),
 			),
 		);
 		$GLOBALS['licencepress_test_user_meta'] = array(
@@ -552,7 +552,7 @@ final class LicenceCoreTest extends TestCase {
 				'ID'            => 111,
 				'display_name'  => 'Blue Peak',
 				'user_email'    => 'ops@bluepeak.dev',
-				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+				'roles'         => array( \LicencePress\Includes\Core\Roles::CUSTOMER_ROLE ),
 			),
 		);
 		$GLOBALS['licencepress_test_user_meta'] = array(
@@ -594,7 +594,7 @@ final class LicenceCoreTest extends TestCase {
 				'ID'            => 121,
 				'display_name'  => 'Apex Studio',
 				'user_email'    => 'ops@apexstudio.dev',
-				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+				'roles'         => array( \LicencePress\Includes\Core\Roles::CUSTOMER_ROLE ),
 			),
 		);
 		$GLOBALS['licencepress_test_licences'] = array();
@@ -624,7 +624,7 @@ final class LicenceCoreTest extends TestCase {
 				'ID'            => 151,
 				'display_name'  => 'Aurora Labs',
 				'user_email'    => 'team@auroralabs.dev',
-				'roles'         => array( \LicencePress\Includes\Core\CustomerRoles::CUSTOMER_ROLE ),
+				'roles'         => array( \LicencePress\Includes\Core\Roles::CUSTOMER_ROLE ),
 			),
 		);
 		$GLOBALS['licencepress_test_user_meta'] = array(

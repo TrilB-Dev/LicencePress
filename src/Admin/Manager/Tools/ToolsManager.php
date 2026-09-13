@@ -7,10 +7,11 @@
 namespace LicencePress\Admin\Manager\Tools;
 
 use LicencePress\Admin\Manager\Manager;
-use LicencePress\Admin\Manager\Tools\DebugManager;
-use LicencePress\Admin\Manager\Tools\ResetManager;
-use LicencePress\Admin\Manager\Tools\ImportManager;
-use LicencePress\Admin\Manager\Tools\ExportManager;
+use LicencePress\Admin\Manager\Tools\Debug;
+use LicencePress\Admin\Manager\Tools\Reset;
+use LicencePress\Admin\Manager\Tools\Import;
+use LicencePress\Admin\Manager\Tools\Export;
+use LicencePress\Admin\Manager\Tools\General;
 use LicencePress\Assets\Assets;
 use LicencePress\Includes\Functions\Helpers\RequestHelper;
 use LicencePress\Includes\Functions\Helpers\SanitizationHelper;
@@ -30,30 +31,37 @@ class ToolsManager extends Manager {
 	 * DebugManager instance for managing the debug tool.
 	 *
 	 * @since 1.0.0
-	 * @var DebugManager $debug_manager The debug manager instance.
+	 * @var Debug $debug_manager The debug manager instance.
 	 */
-	private DebugManager $debug_manager;
+	private Debug $debug_manager;
 	/**
 	 * ResetManager instance for managing the plugin reset tool.
 	 *
 	 * @since 1.0.0
-	 * @var ResetManager $reset_manager The reset manager instance.
+	 * @var Reset $reset_manager The reset manager instance.
 	 */
-	private ResetManager $reset_manager;
+	private Reset $reset_manager;
 	/**
-	 * ImportManager instance for managing the import tool.
+	 * Import instance for managing the import tool.
 	 *
 	 * @since 1.0.0
-	 * @var ImportManager $import_manager The import manager instance.
+	 * @var Import $import_manager The import manager instance.
 	 */
-	private ImportManager $import_manager;
+	private Import $import_manager;
 	/**
-	 * ExportManager instance for managing the export tool.
+	 * Export instance for managing the export tool.
 	 *
 	 * @since 1.0.0
-	 * @var ExportManager $export_manager The export manager instance.
+	 * @var Export $export_manager The export manager instance.
 	 */
-	private ExportManager $export_manager;
+	private Export $export_manager;
+	/**
+	 * General instance for managing the general tools.
+	 *
+	 * @since 1.0.0
+	 * @var General $general_tools_manager The general tools manager instance.
+	 */
+	private General $general_tools_manager;
 
 	/**
 	 * `Constructor` method for the `ToolsManager` class.
@@ -78,25 +86,31 @@ class ToolsManager extends Manager {
 		 *
 		 * @since 1.0.0
 		 */
-		$this->debug_manager = new DebugManager();
+		$this->debug_manager = new Debug();
 		/**
 		 * Initialize the Plugin Reset page.
 		 *
 		 * @since 1.0.0
 		 */
-		$this->reset_manager = new ResetManager();
+		$this->reset_manager = new Reset();
 		/**
 		 * Initialize the Import Manager page.
 		 *
 		 * @since 1.0.0
 		 */
-		$this->import_manager = new ImportManager();
+		$this->import_manager = new Import();
 		/**
 		 * Initialize the Export Manager page.
 		 *
 		 * @since 1.0.0
 		 */
-		$this->export_manager = new ExportManager();
+		$this->export_manager = new Export();
+		/**
+		 * Initialize the General Tools Manager page.
+		 *
+		 * @since 1.0.0
+		 */
+		$this->general_tools_manager = new General();
 	}
 	/**
 	 * Renders the tools page.
@@ -106,7 +120,7 @@ class ToolsManager extends Manager {
 	 */
 	public function render(): void {
 		$tool = RequestHelper::get_key( 'tool', 'debug' );
-		if ( ! in_array( $tool, array( 'debug', 'reset', 'import', 'export' ), true ) ) {
+		if ( ! in_array( $tool, array( 'debug', 'reset', 'import', 'export', 'general' ), true ) ) {
 			$tool = 'debug';
 		}
 		$capabilities = array(
@@ -114,6 +128,7 @@ class ToolsManager extends Manager {
 			'reset'  => 'licencepress_tools_reset',
 			'import' => 'licencepress_tools_import',
 			'export' => 'licencepress_tools_export',
+			'general' => 'licencepress_tools_general',
 		);
 		if ( ! PermissionHelper::can( $capabilities[ $tool ] ) ) {
 			wp_die( esc_html__( 'You are not authorized to access this LicencePress tool.', 'licencepress' ) );
@@ -125,6 +140,8 @@ class ToolsManager extends Manager {
 			$this->debug_manager->render_page_content();
 		} elseif ( 'import' === $tool ) {
 			$this->import_manager->render();
+		} elseif ( 'general' === $tool ) {
+			$this->general_tools_manager->render_page_content();
 		} else {
 			$this->export_manager->render_page_content();
 		}
@@ -156,6 +173,7 @@ class ToolsManager extends Manager {
 			'reset'  => __( 'Reset', 'licencepress' ),
 			'import' => __( 'Import', 'licencepress' ),
 			'export' => __( 'Export', 'licencepress' ),
+			'general' => __( 'General', 'licencepress' ),
 		)[ $tool ];
 	}
 }

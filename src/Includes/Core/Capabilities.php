@@ -1,5 +1,10 @@
 <?php
-
+/**
+ * Capabilities class for managing core and extension capability definitions.
+ *
+ * @package LicencePress\Includes\Core
+ * @since 1.0.0
+ */
 namespace LicencePress\Includes\Core;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -246,6 +251,11 @@ class Capabilities {
 					'group'       => 'LicencePress Tools',
 					'label'       => __( 'Reset Licence Data', 'licencepress' ),
 					'description' => __( 'Allows resetting or clearing licence records and related data.', 'licencepress' ),
+				),
+				'licencepress_tools_general'              => array(
+					'group'       => 'LicencePress Tools',
+					'label'       => __( 'View General Tools', 'licencepress' ),
+					'description' => __( 'Allows accessing general tools within LicencePress.', 'licencepress' ),
 				),
 				'licencepress_settings_plugins_view'     => array(
 					'group'       => 'LicencePress Settings',

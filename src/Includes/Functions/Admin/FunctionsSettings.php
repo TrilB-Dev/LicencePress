@@ -222,7 +222,7 @@ final class FunctionsSettings {
 	 */
 	public function sanitize_tools( $input ): array {
 		$input = is_array( $input ) ? $input : array();
-		foreach ( array( 'debug_logging', 'console_logging' ) as $key ) {
+		foreach ( array( 'debug_logging', 'console_logging', 'remove_all_data_on_uninstall', 'uninstall_3rd_party_plugins' ) as $key ) {
 			$input[ $key ] = ! empty( $input[ $key ] );
 			Settings::set( $key, $input[ $key ] );
 		}

@@ -1,6 +1,6 @@
 <?php
 /**
- * ImportManager class for LicencePress plugin.
+ * Import class for LicencePress plugin.
  *
  * @package LicencePress
  * @subpackage Admin\Manager\Tools
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-final class ImportManager extends ToolsManager {
+final class Import extends ToolsManager {
 	/**
 	 * Render the JSON import form below the tools settings form.
 	 *

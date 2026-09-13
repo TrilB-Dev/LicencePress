@@ -27,11 +27,29 @@ final class Settings {
 	 */
 	public const ACCESS  = 'access';
 	/**
+	 * Billing settings group.
+	 *
+	 * @since 1.0.0
+	 */
+	public const BILLING = 'billing';
+	/**
+	 * Setup settings group.
+	 *
+	 * @since 1.0.0
+	 */
+	public const SETUP   = 'setup';
+	/**
 	 * Tools settings group.
 	 *
 	 * @since 1.0.0
 	 */
 	public const TOOLS   = 'tools';
+	/**
+	 * Plugins settings group.
+	 *
+	 * @since 1.0.0
+	 */
+	public const PLUGINS = 'plugins';
 	/**
 	 * Get the value of a specific setting key.
 	 *
@@ -119,7 +137,7 @@ final class Settings {
 	 * @return array<int, string>
 	 */
 	public static function core_groups(): array {
-		return array( self::GENERAL, 'billing', self::ACCESS, self::TOOLS, 'setup', 'plugins' );
+		return array( self::GENERAL, self::BILLING, self::ACCESS, self::TOOLS, self::SETUP, self::PLUGINS );
 	}
 
 	/**

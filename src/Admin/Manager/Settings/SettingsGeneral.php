@@ -150,7 +150,8 @@ final class SettingsGeneral {
 							'licencepress-general-default-licence-prefix', 
 								__( 'Licence Prefix', 'licencepress' ), 
 								array( 
-									'description' => __( 'Max 7 numbers and letters. Allowed: A-Z, 0-9, -, _. No spaces.', 'licencepress' ) 
+									'description' => __( 'Max 7 numbers and letters. Allowed: A-Z, 0-9, -, _. No spaces.', 'licencepress' ),
+									'tooltip' => __( 'This is the default prefix that will be added to the beginning of all generated licence keys via LicencePress.', 'licencepress' )
 								) 
 							); ?>
 						</th>
@@ -177,7 +178,8 @@ final class SettingsGeneral {
 							'licencepress-general-default-licence-platform', 
 								__( 'Where will your licences be used?', 'licencepress' ), 
 								array( 
-									'description' => __( 'Select the environments where generated licences will be used.', 'licencepress' ) 
+									'description' => __( 'Select the environments where generated licences will be used.', 'licencepress' ),
+									'tooltip' => __( 'These are the default environments where your licences will be used. This will allow for the storage of relevant verification data for each applicable environment.', 'licencepress' )
 								) 
 							); ?>
 						</th>
@@ -208,7 +210,8 @@ final class SettingsGeneral {
 								'licencepress-general-default-licence-renewal-policy-mode', 
 								__( 'Licence renewal policy', 'licencepress' ), 
 								array( 
-									'description' => __( 'Set where customers can find your licence renewal policy.', 'licencepress' ) 
+									'description' => __( 'Set whether to use the default LicencePress licence renewal policy or your own custom policy.', 'licencepress' ),
+									'tooltip' => __( 'LicencePress comes with a default licence renewal policy that you can use, or you can specify your own custom policy.', 'licencepress' )
 								) 
 							); ?>
 						</th>
@@ -234,7 +237,8 @@ final class SettingsGeneral {
 								'licencepress-general-default-custom-licence-renewal-policy-page', 
 								__( 'Licence Renewal policy page', 'licencepress' ), 
 								array( 
-									'description' => __( 'Select the page users will find your custom Licence Renewal Policy.', 'licencepress' ) 
+									'description' => __( 'Select the page users will find your custom Licence Renewal Policy.', 'licencepress' ),
+									'tooltip' => __( 'This setting allows you to specify the page where your custom licence renewal policy is located.', 'licencepress' )
 								) 
 							); ?>
 						</th>
@@ -257,8 +261,8 @@ final class SettingsGeneral {
 								'licencepress-general-default-licence-pattern-type', 
 								__( 'Licence pattern', 'licencepress' ), 
 								array( 
-									'description' => __( 'Choose the style of generated licence IDs.', 
-									'licencepress' ) 
+									'description' => __( 'Choose the default licence pattern for generated licence codes.', 'licencepress' ),
+									'tooltip' => __( 'The Licence Pattern defines the format of the generated licence codes.', 'licencepress' )
 								) 
 							); ?>
 						</th>
@@ -312,7 +316,8 @@ final class SettingsGeneral {
 								'licencepress-general-default-exclude-ambiguous-characters', 
 								__( 'Exclude ambiguous characters', 'licencepress' ), 
 								array( 
-									'description' => __( 'Select any characters you want omitted from generated licence codes.', 'licencepress' ) 
+									'description' => __( 'Select the characters you want omitted from generated licence codes.', 'licencepress' ),
+									'tooltip' => __( 'These characters will be excluded from all generated licence codes, maintaining clarity and avoiding confusion between characters.', 'licencepress' )
 								) 
 							); ?>
 						</th>
@@ -355,7 +360,9 @@ final class SettingsGeneral {
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-licence-pattern-format', 
 								__( 'Licence pattern makeup', 'licencepress' ), 
-								array( 'description' => __( 'Define the character set used in generated licence codes.', 'licencepress' ) 
+								array( 
+									'description' => __( 'Define the character set used in generated licence codes.', 'licencepress' ),
+									'tooltip' => __( 'This setting determines which types of characters (letters, numbers, or both) will be used in the generated licence codes.', 'licencepress' )
 								) 
 							); ?>
 						</th>
@@ -382,7 +389,8 @@ final class SettingsGeneral {
 								'licencepress-general-default-licence-pattern-letter-case', 
 								__( 'Pattern letter case', 'licencepress' ), 
 								array( 
-									'description' => __( 'Select the casing style for alpha characters in generated licences.', 'licencepress' ) 
+									'description' => __( 'Select the casing style for alpha characters in generated licences.', 'licencepress' ),
+									'tooltip' => __( 'This setting determines whether the letters in the generated licence codes will be uppercase, lowercase, or mixed case.', 'licencepress' )
 								) 
 							); ?>
 						</th>
@@ -409,7 +417,8 @@ final class SettingsGeneral {
 								'licencepress-general-default-licence-pattern-separator', 
 								__( 'Pattern separator', 'licencepress' ), 
 								array( 
-									'description' => __( 'Select the separator to use between groups of licence characters.', 'licencepress' ) 
+									'description' => __( 'Select the separator to use between groups of licence characters.', 'licencepress' ),
+									'tooltip' => __( 'This setting determines the character that will be used to separate different groups of characters in the generated licence codes.', 'licencepress' )
 								) 
 							); ?>
 						</th>

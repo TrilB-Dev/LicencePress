@@ -112,35 +112,132 @@ final class SettingsBilling {
 		?>
 		<form method="post" action="" class="licencepress-settings-form">
 			<?php wp_nonce_field( 'licencepress_billing_general', 'licencepress_billing_general_nonce' ); ?>
-			<?php echo FormFieldHelper::input( 'action', 'licencepress_save_billing_settings', array( 'type' => 'hidden' ) ); ?>
+			<?php echo FormFieldHelper::input(
+				'action',
+				'licencepress_save_billing_settings',
+				array(
+					'type' => 'hidden',
+				)
+			); ?>
 			<table class="form-table" role="presentation">
 				<tbody>
 					<tr>
-						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-name', __( 'Billing Name', 'licencepress' ) ); ?></th>
-						<td><?php echo FormFieldHelper::text_input( 'licencepress_billing[billing_name]', (string) ( $values['billing_name'] ?? '' ), array( 'id' => 'licencepress-billing-name', 'class' => 'w-100' ) ); ?></td>
+						<th scope="row">
+                            <?php echo FormFieldHelper::label( 
+                                'licencepress-billing-name', 
+                                __( 'Billing Name', 'licencepress' ) 
+                            ); ?>
+                        </th>
+						<td>
+							<?php echo FormFieldHelper::text_input(
+								'licencepress_billing[billing_name]',
+								(string) ( $values['billing_name'] ?? '' ),
+								array(
+									'id' => 'licencepress-billing-name',
+									'class' => 'w-100',
+								)
+							); ?>
+						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-address-1', __( 'Billing Address 1', 'licencepress' ) ); ?></th>
-						<td><?php echo FormFieldHelper::text_input( 'licencepress_billing[billing_address_1]', (string) ( $values['billing_address_1'] ?? '' ), array( 'id' => 'licencepress-billing-address-1', 'class' => 'w-100', 'placeholder' => __( 'Street address', 'licencepress' ) ) ); ?></td>
+						<th scope="row">
+                            <?php echo FormFieldHelper::label( 
+                            'licencepress-billing-address-1', 
+                            __( 'Billing Address 1', 'licencepress' ) 
+                            ); ?>
+                        </th>
+						<td>
+							<?php echo FormFieldHelper::text_input(
+								'licencepress_billing[billing_address_1]',
+								(string) ( $values['billing_address_1'] ?? '' ),
+								array(
+									'id' => 'licencepress-billing-address-1',
+									'class' => 'w-100',
+									'placeholder' => __( 'Street address', 'licencepress' ),
+								)
+							); ?>
+						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-address-2', __( 'Billing Address 2', 'licencepress' ) ); ?></th>
-						<td><?php echo FormFieldHelper::text_input( 'licencepress_billing[billing_address_2]', (string) ( $values['billing_address_2'] ?? '' ), array( 'id' => 'licencepress-billing-address-2', 'class' => 'w-100', 'placeholder' => __( 'Apartment, suite, unit', 'licencepress' ) ) ); ?></td>
+						<th scope="row">
+                            <?php echo FormFieldHelper::label( 
+                                'licencepress-billing-address-2', 
+                                __( 'Billing Address 2', 'licencepress' ) 
+                            ); ?>
+                        </th>
+						<td>
+							<?php echo FormFieldHelper::text_input(
+								'licencepress_billing[billing_address_2]',
+								(string) ( $values['billing_address_2'] ?? '' ),
+								array(
+									'id' => 'licencepress-billing-address-2',
+									'class' => 'w-100',
+									'placeholder' => __( 'Apartment, suite, unit', 'licencepress' ),
+								)
+							); ?>
+						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-town', __( 'Town', 'licencepress' ) ); ?></th>
-						<td><?php echo FormFieldHelper::text_input( 'licencepress_billing[town]', (string) ( $values['town'] ?? '' ), array( 'id' => 'licencepress-billing-town', 'class' => 'w-100' ) ); ?></td>
+						<th scope="row">
+                            <?php echo FormFieldHelper::label( 
+                                'licencepress-billing-town', 
+                                __( 'Town', 'licencepress' ) 
+                            ); ?>
+                        </th>
+						<td>
+							<?php echo FormFieldHelper::text_input(
+								'licencepress_billing[town]',
+								(string) ( $values['town'] ?? '' ),
+								array(
+									'id' => 'licencepress-billing-town',
+									'class' => 'w-100',
+								)
+							); ?>
+						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-county-state', __( 'County/State', 'licencepress' ) ); ?></th>
-						<td><?php echo FormFieldHelper::text_input( 'licencepress_billing[county_state]', (string) ( $values['county_state'] ?? '' ), array( 'id' => 'licencepress-billing-county-state', 'class' => 'w-100' ) ); ?></td>
+						<th scope="row">
+                            <?php echo FormFieldHelper::label( 
+                                'licencepress-billing-county-state', 
+                                __( 'County/State', 'licencepress' ) 
+                            ); ?>
+                        </th>
+						<td>
+							<?php echo FormFieldHelper::text_input(
+								'licencepress_billing[county_state]',
+								(string) ( $values['county_state'] ?? '' ),
+								array(
+									'id' => 'licencepress-billing-county-state',
+									'class' => 'w-100',
+								)
+							); ?>
+						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-country', __( 'Country', 'licencepress' ) ); ?></th>
-						<td><?php echo FormFieldHelper::text_input( 'licencepress_billing[country]', (string) ( $values['country'] ?? '' ), array( 'id' => 'licencepress-billing-country', 'class' => 'w-100' ) ); ?></td>
+						<th scope="row">
+                            <?php echo FormFieldHelper::label( 
+                                'licencepress-billing-country', 
+                                __( 'Country', 'licencepress' ) 
+                            ); ?>
+                        </th>
+						<td>
+							<?php echo FormFieldHelper::text_input(
+								'licencepress_billing[country]',
+								(string) ( $values['country'] ?? '' ),
+								array(
+									'id' => 'licencepress-billing-country',
+									'class' => 'w-100',
+								)
+							); ?>
+						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-currency', __( 'Currency', 'licencepress' ) ); ?></th>
+						<th scope="row">
+                            <?php echo FormFieldHelper::label( 
+                                'licencepress-billing-currency', 
+                                __( 'Currency', 'licencepress' ) 
+                            ); ?>
+                        </th>
 						<td>
 							<?php echo FormFieldHelper::bootstrap_select(
 								'licencepress_billing[currency]',
@@ -161,25 +258,98 @@ final class SettingsBilling {
 						</td>
 					</tr>
 					<tr>
-						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-vat-number', __( 'VAT Number', 'licencepress' ) ); ?></th>
-						<td><?php echo FormFieldHelper::text_input( 'licencepress_billing[vat_number]', (string) ( $values['vat_number'] ?? '' ), array( 'id' => 'licencepress-billing-vat-number', 'class' => 'w-100' ) ); ?></td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-email-address', __( 'Email Address', 'licencepress' ) ); ?></th>
-						<td><?php echo FormFieldHelper::text_input( 'licencepress_billing[email_address]', (string) ( $values['email_address'] ?? '' ), array( 'id' => 'licencepress-billing-email-address', 'type' => 'email', 'class' => 'w-100' ) ); ?></td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-phone-number', __( 'Phone Number', 'licencepress' ) ); ?></th>
-						<td><?php echo FormFieldHelper::text_input( 'licencepress_billing[phone_number]', (string) ( $values['phone_number'] ?? '' ), array( 'id' => 'licencepress-billing-phone-number', 'type' => 'tel', 'class' => 'w-100' ) ); ?></td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-invoice-prefix', __( 'Invoice Prefix', 'licencepress' ) ); ?></th>
-						<td><?php echo FormFieldHelper::text_input( 'licencepress_billing[invoice_prefix]', (string) ( $values['invoice_prefix'] ?? '' ), array( 'id' => 'licencepress-billing-invoice-prefix', 'class' => 'w-100', 'placeholder' => 'INV-' ) ); ?></td>
-					</tr>
-					<tr>
-						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-invoice-logo', __( 'Invoice Logo', 'licencepress' ) ); ?></th>
+						<th scope="row">
+                            <?php echo FormFieldHelper::label( 
+                                'licencepress-billing-vat-number', 
+                                __( 'VAT Number', 'licencepress' ) 
+                            ); ?>
+                        </th>
 						<td>
-							<?php echo FormFieldHelper::input( 'licencepress_billing[invoice_logo]', '', array( 'id' => 'licencepress-billing-invoice-logo', 'type' => 'file', 'class' => 'form-control', 'accept' => 'image/*' ) ); ?>
+							<?php echo FormFieldHelper::text_input(
+								'licencepress_billing[vat_number]',
+								(string) ( $values['vat_number'] ?? '' ),
+								array(
+									'id' => 'licencepress-billing-vat-number',
+									'class' => 'w-100',
+								)
+							); ?>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+                            <?php echo FormFieldHelper::label( 
+                                'licencepress-billing-email-address', 
+                                __( 'Email Address', 'licencepress' ) 
+                            ); ?>
+                        </th>
+						<td>
+							<?php echo FormFieldHelper::text_input(
+								'licencepress_billing[email_address]',
+								(string) ( $values['email_address'] ?? '' ),
+								array(
+									'id' => 'licencepress-billing-email-address',
+									'type' => 'email',
+									'class' => 'w-100',
+								)
+							); ?>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+                            <?php echo FormFieldHelper::label( 
+                                'licencepress-billing-phone-number', 
+                                __( 'Phone Number', 'licencepress' ) 
+                            ); ?>
+                        </th>
+						<td>
+							<?php echo FormFieldHelper::text_input(
+								'licencepress_billing[phone_number]',
+								(string) ( $values['phone_number'] ?? '' ),
+								array(
+									'id' => 'licencepress-billing-phone-number',
+									'type' => 'tel',
+									'class' => 'w-100',
+								)
+							); ?>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+                            <?php echo FormFieldHelper::label( 
+                                'licencepress-billing-invoice-prefix', 
+                                __( 'Invoice Prefix', 'licencepress' ) 
+                            ); ?>
+                        </th>
+						<td>
+							<?php echo FormFieldHelper::text_input(
+								'licencepress_billing[invoice_prefix]',
+								(string) ( $values['invoice_prefix'] ?? '' ),
+								array(
+									'id' => 'licencepress-billing-invoice-prefix',
+									'class' => 'w-100',
+									'placeholder' => 'INV-',
+								)
+							); ?>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+                            <?php echo FormFieldHelper::label( 
+                                'licencepress-billing-invoice-logo', 
+                                __( 'Invoice Logo', 'licencepress' ) 
+                            ); ?>
+                        </th>
+						<td>
+							<?php echo FormFieldHelper::input(
+								'licencepress_billing[invoice_logo]',
+								'',
+								array(
+									'id' => 'licencepress-billing-invoice-logo',
+									'type' => 'file',
+									'class' => 'form-control',
+									'accept' => 'image/*',
+								)
+							); ?>
 							<?php if ( ! empty( $values['invoice_logo'] ) ) : ?>
 								<p class="mb-0 mt-2 text-muted"><?php echo esc_html( (string) $values['invoice_logo'] ); ?></p>
 							<?php endif; ?>
@@ -208,9 +378,22 @@ final class SettingsBilling {
 		?>
 		<form method="post" action="" class="licencepress-settings-form">
 			<?php wp_nonce_field( 'licencepress_billing_invoice', 'licencepress_billing_invoice_nonce' ); ?>
-			<?php echo FormFieldHelper::input( 'action', 'licencepress_save_billing_invoice_settings', array( 'type' => 'hidden' ) ); ?>
+			<?php echo FormFieldHelper::input(
+				'action',
+				'licencepress_save_billing_invoice_settings',
+				array(
+					'type' => 'hidden',
+				)
+			); ?>
 			<div class="mb-3">
-				<?php FormFieldHelper::tinymce( 'licencepress_billing_invoice_style', 'licencepress_billing[invoice_style]', __( 'Invoice styling and terms', 'licencepress' ), (string) ( $values['invoice_style'] ?? '' ), 14, false ); ?>
+				<?php FormFieldHelper::tinymce(
+					'licencepress_billing_invoice_style',
+					'licencepress_billing[invoice_style]',
+					__( 'Invoice styling and terms', 'licencepress' ),
+					(string) ( $values['invoice_style'] ?? '' ),
+					14,
+					false
+				); ?>
 				<p class="text-secondary mt-2 mb-0"><?php esc_html_e( 'Use TinyMCE to format invoice notes, payment terms, company branding, and custom invoice content.', 'licencepress' ); ?></p>
 			</div>
 			<?php submit_button( __( 'Save Invoice Settings', 'licencepress' ) ); ?>

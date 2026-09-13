@@ -264,10 +264,29 @@ final class SettingsPlugins {
 				</div>
 				<div class="card-body d-flex flex-column">
 					<?php $this->render_plugin_icon( $plugin ); ?>
-					<p class="card-text text-secondary mt-3"><?php echo esc_html( $plugin->get_description() ); ?></p>
-					<p class="card-text mb-2"><span class="text-secondary"><?php esc_html_e( 'Author:', 'licencepress' ); ?></span> <?php echo esc_html( $plugin->get_author() ); ?></p>
-					<p class="card-text mb-2"><span class="text-secondary"><?php esc_html_e( 'Version:', 'licencepress' ); ?></span> <?php echo esc_html( $plugin->get_version() ); ?></p>
-					<p class="card-text mb-3"><span class="text-secondary"><?php esc_html_e( 'Docs:', 'licencepress' ); ?></span> <a href="<?php echo esc_url( $plugin->get_uri() ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'View documentation', 'licencepress' ); ?></a></p>
+					<p class="card-text text-secondary mt-3">
+						<?php echo esc_html( $plugin->get_description() ); ?>
+					</p>
+					<p class="card-text mb-2">
+						<span class="text-secondary">
+							<?php esc_html_e( 'Author:', 'licencepress' ); ?>
+						</span> 
+						<?php echo esc_html( $plugin->get_author() ); ?>
+					</p>
+					<p class="card-text mb-2">
+						<span class="text-secondary">
+							<?php esc_html_e( 'Version:', 'licencepress' ); ?>
+						</span> 
+						<?php echo esc_html( $plugin->get_version() ); ?>
+					</p>
+					<p class="card-text mb-3">
+						<span class="text-secondary">
+							<?php esc_html_e( 'Docs:', 'licencepress' ); ?>
+						</span> 
+						<a href="<?php echo esc_url( $plugin->get_uri() ); ?>" target="_blank" rel="noopener noreferrer">
+							<?php esc_html_e( 'View documentation', 'licencepress' ); ?>
+						</a>
+					</p>
 					<?php if ( ! empty( $settings_page['fields'] ) ) : ?>
 						<?php
 						echo FormFieldHelper::button(

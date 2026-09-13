@@ -121,7 +121,7 @@ final class SettingsGeneral {
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-licensor-country', 
-								__( 'Country', 'licencepress' ), 
+								__( 'Default Licensor Country', 'licencepress' ), 
 								array( 
 									'description' => __( 'Select the country the default licensor is based or registered in.', 'licencepress' ), 
 									'tooltip' => __( 'This is used for legal and administrative purposes.', 'licencepress' ) 
@@ -148,7 +148,7 @@ final class SettingsGeneral {
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 							'licencepress-general-default-licence-prefix', 
-								__( 'Licence Prefix', 'licencepress' ), 
+								__( 'Default Licence Prefix', 'licencepress' ), 
 								array( 
 									'description' => __( 'Max 7 numbers and letters. Allowed: A-Z, 0-9, -, _. No spaces.', 'licencepress' ),
 									'tooltip' => __( 'This is the default prefix that will be added to the beginning of all generated licence keys via LicencePress.', 'licencepress' )
@@ -176,7 +176,7 @@ final class SettingsGeneral {
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 							'licencepress-general-default-licence-platform', 
-								__( 'Where will your licences be used?', 'licencepress' ), 
+								__( 'Default Licence Platforms', 'licencepress' ), 
 								array( 
 									'description' => __( 'Select the environments where generated licences will be used.', 'licencepress' ),
 									'tooltip' => __( 'These are the default environments where your licences will be used. This will allow for the storage of relevant verification data for each applicable environment.', 'licencepress' )
@@ -208,7 +208,7 @@ final class SettingsGeneral {
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-licence-renewal-policy-mode', 
-								__( 'Licence renewal policy', 'licencepress' ), 
+								__( 'Default Licence renewal policy', 'licencepress' ), 
 								array( 
 									'description' => __( 'Set whether to use the default LicencePress licence renewal policy or your own custom policy.', 'licencepress' ),
 									'tooltip' => __( 'LicencePress comes with a default licence renewal policy that you can use, or you can specify your own custom policy.', 'licencepress' )
@@ -235,7 +235,7 @@ final class SettingsGeneral {
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-custom-licence-renewal-policy-page', 
-								__( 'Licence Renewal policy page', 'licencepress' ), 
+								__( 'Default Custom Licence Renewal policy page', 'licencepress' ), 
 								array( 
 									'description' => __( 'Select the page users will find your custom Licence Renewal Policy.', 'licencepress' ),
 									'tooltip' => __( 'This setting allows you to specify the page where your custom licence renewal policy is located.', 'licencepress' )
@@ -259,7 +259,7 @@ final class SettingsGeneral {
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-licence-pattern-type', 
-								__( 'Licence pattern', 'licencepress' ), 
+								__( 'Default Licence pattern', 'licencepress' ), 
 								array( 
 									'description' => __( 'Choose the default licence pattern for generated licence codes.', 'licencepress' ),
 									'tooltip' => __( 'The Licence Pattern defines the format of the generated licence codes.', 'licencepress' )
@@ -314,7 +314,7 @@ final class SettingsGeneral {
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-exclude-ambiguous-characters', 
-								__( 'Exclude ambiguous characters', 'licencepress' ), 
+								__( 'Default Excluded ambiguous characters', 'licencepress' ), 
 								array( 
 									'description' => __( 'Select the characters you want omitted from generated licence codes.', 'licencepress' ),
 									'tooltip' => __( 'These characters will be excluded from all generated licence codes, maintaining clarity and avoiding confusion between characters.', 'licencepress' )
@@ -347,7 +347,7 @@ final class SettingsGeneral {
 										'show_tick' => true,
 									),
 								),
-								__( 'Characters to ignore', 'licencepress' ),
+								__( 'Default Characters to ignore', 'licencepress' ),
 								array(
 									'for' => 'licencepress-general-default-exclude-ambiguous-characters',
 									'class' => 'w-100'
@@ -359,7 +359,7 @@ final class SettingsGeneral {
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-licence-pattern-format', 
-								__( 'Licence pattern makeup', 'licencepress' ), 
+								__( 'Default Licence pattern makeup', 'licencepress' ), 
 								array( 
 									'description' => __( 'Define the character set used in generated licence codes.', 'licencepress' ),
 									'tooltip' => __( 'This setting determines which types of characters (letters, numbers, or both) will be used in the generated licence codes.', 'licencepress' )
@@ -387,7 +387,7 @@ final class SettingsGeneral {
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-licence-pattern-letter-case', 
-								__( 'Pattern letter case', 'licencepress' ), 
+								__( 'Default Pattern letter case', 'licencepress' ), 
 								array( 
 									'description' => __( 'Select the casing style for alpha characters in generated licences.', 'licencepress' ),
 									'tooltip' => __( 'This setting determines whether the letters in the generated licence codes will be uppercase, lowercase, or mixed case.', 'licencepress' )
@@ -415,7 +415,7 @@ final class SettingsGeneral {
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-licence-pattern-separator', 
-								__( 'Pattern separator', 'licencepress' ), 
+								__( 'Default Pattern separator', 'licencepress' ), 
 								array( 
 									'description' => __( 'Select the separator to use between groups of licence characters.', 'licencepress' ),
 									'tooltip' => __( 'This setting determines the character that will be used to separate different groups of characters in the generated licence codes.', 'licencepress' )

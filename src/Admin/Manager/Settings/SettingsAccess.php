@@ -71,7 +71,13 @@ final class SettingsAccess {
 			}
 			?>
 			<tr>
-				<th scope="row"><?php echo FormFieldHelper::label( $id, $field['label'], $field ); ?></th>
+				<th scope="row">
+					<?php echo FormFieldHelper::label( 
+						$id, 
+						$field['label'], 
+						$field 
+					); ?>
+				</th>
 				<td>
 					<?php echo FormFieldHelper::select(
 						$name,

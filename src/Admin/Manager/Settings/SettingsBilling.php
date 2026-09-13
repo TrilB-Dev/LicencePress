@@ -357,7 +357,13 @@ final class SettingsBilling {
 					</tr>
 				</tbody>
 			</table>
-			<?php submit_button( __( 'Save Billing Settings', 'licencepress' ) ); ?>
+			    <?php echo FormFieldHelper::button( 
+					__( 'Save', 'licencepress' ), 
+					array( 
+						'type' => 'submit', 
+						'class' => 'btn-primary' 
+					) 
+				); ?>
 		</form>
 		<?php
 	}

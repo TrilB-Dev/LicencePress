@@ -252,6 +252,16 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertStringContainsString( 'panel.innerHTML = response.data.html;', $script );
 	}
 
+	public function test_custom_pattern_controls_hide_when_pattern_is_not_custom(): void {
+		$script = file_get_contents( dirname( __DIR__, 2 ) . '/src/Assets/js/admin.settings.js' );
+		$this->assertIsString( $script );
+		$this->assertTrue(
+			str_contains( $script, "type === 'custom'" ) || str_contains( $script, "patternType.value === 'custom'" )
+		);
+		$this->assertStringContainsString( 'patternFormatRow', $script );
+		$this->assertStringContainsString( 'patternSeparatorRow', $script );
+	}
+
 	public function test_saved_general_and_billing_settings_render_in_forms(): void {
 		Settings::set_group(
 			'general',

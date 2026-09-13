@@ -286,7 +286,7 @@ final class SettingsGeneral {
 								); ?>
 						</td>
 					</tr>
-					<tr id="licencepress-default-custom-pattern-row">
+					<tr id="licencepress-default-custom-pattern-row" data-licencepress-pattern-mode="custom">
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-custom-licence-pattern', 
@@ -355,7 +355,7 @@ final class SettingsGeneral {
 							); ?>
 						</td>
 					</tr>
-					<tr>
+					<tr data-licencepress-pattern-mode="standard" id="licencepress-default-pattern-format-row">
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-licence-pattern-format', 
@@ -383,7 +383,7 @@ final class SettingsGeneral {
 							); ?>
 						</td>
 					</tr>
-					<tr>
+					<tr data-licencepress-pattern-mode="standard" id="licencepress-default-pattern-letter-case-row">
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-licence-pattern-letter-case', 
@@ -411,7 +411,7 @@ final class SettingsGeneral {
 							); ?>
 						</td>
 					</tr>
-					<tr>
+					<tr data-licencepress-pattern-mode="standard" id="licencepress-default-pattern-separator-row">
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
 								'licencepress-general-default-licence-pattern-separator', 

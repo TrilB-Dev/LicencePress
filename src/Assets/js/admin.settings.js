@@ -130,28 +130,34 @@ document.addEventListener('DOMContentLoaded', () => {
   const bindLicencePatternControls = () => {
     const patternType = root.querySelector('select[name="licencepress_general[default_licence_pattern_type]"]');
     const customPattern = root.querySelector('input[name="licencepress_general[default_custom_licence_pattern]"]');
-    const defaultCustomPatternRow = root.querySelector('#licencepress-default-custom-pattern-row');
-    const defaultCustomPatternInput = root.querySelector('input[name="licencepress_general[default_custom_licence_pattern]"]');
-    const letterCaseRow = root.querySelector('select[name="licencepress_general[default_licence_pattern_letter_case]"]')?.closest('tr');
-    const customRows = root.querySelectorAll('[data-licencepress-pattern-mode="custom"]');
-    const standardRows = root.querySelectorAll('[data-licencepress-pattern-mode="standard"]');
+    const customPatternRow = root.querySelector('#licencepress-default-custom-pattern-row');
+    const patternFormatRow = root.querySelector('#licencepress-default-pattern-format-row');
+    const patternSeparatorRow = root.querySelector('#licencepress-default-pattern-separator-row');
+    const patternLetterCaseRow = root.querySelector('#licencepress-default-pattern-letter-case-row');
     const applyPatternState = () => {
       const type = patternType ? (patternType.value || 'standard') : 'standard';
-      standardRows.forEach((row) => {
-        row.hidden = false;
-        row.style.display = '';
-      });
-      customRows.forEach((row) => {
-        const isCustom = 'custom' === type;
-        row.hidden = !isCustom;
-        row.style.display = isCustom ? '' : 'none';
-      });
+      const isCustomPattern = type === 'custom';
 
-      if (letterCaseRow && customPattern) {
+      if (customPatternRow) {
+        customPatternRow.hidden = !isCustomPattern;
+        customPatternRow.style.display = isCustomPattern ? '' : 'none';
+      }
+
+      if (patternFormatRow) {
+        patternFormatRow.hidden = isCustomPattern;
+        patternFormatRow.style.display = isCustomPattern ? 'none' : '';
+      }
+
+      if (patternSeparatorRow) {
+        patternSeparatorRow.hidden = isCustomPattern;
+        patternSeparatorRow.style.display = isCustomPattern ? 'none' : '';
+      }
+
+      if (patternLetterCaseRow && customPattern) {
         const hasPatternToken = /[XA]/i.test(customPattern.value || '');
-        const shouldShowLetterCase = 'custom' === type && hasPatternToken;
-        letterCaseRow.hidden = !shouldShowLetterCase;
-        letterCaseRow.style.display = shouldShowLetterCase ? '' : 'none';
+        const shouldShowLetterCase = isCustomPattern && hasPatternToken;
+        patternLetterCaseRow.hidden = !shouldShowLetterCase;
+        patternLetterCaseRow.style.display = shouldShowLetterCase ? '' : 'none';
       }
     };
 

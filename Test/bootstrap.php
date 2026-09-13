@@ -218,6 +218,63 @@ if ( ! function_exists( 'wp_create_nonce' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wp_schedule_event' ) ) {
+	function wp_schedule_event( $timestamp, $recurrence, $hook, $args = array() ) {
+		$GLOBALS['_licencepress_cron_jobs'][ $hook ] = array(
+			'timestamp' => (int) $timestamp,
+			'recurrence' => (string) $recurrence,
+			'args' => is_array( $args ) ? $args : array(),
+		);
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_unschedule_event' ) ) {
+	function wp_unschedule_event( $timestamp, $hook, $args = array() ) {
+		unset( $GLOBALS['_licencepress_cron_jobs'][ $hook ] );
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_clear_scheduled_hook' ) ) {
+	function wp_clear_scheduled_hook( $hook ) {
+		unset( $GLOBALS['_licencepress_cron_jobs'][ $hook ] );
+		return true;
+	}
+}
+
+if ( ! function_exists( 'wp_next_scheduled' ) ) {
+	function wp_next_scheduled( $hook, $args = array() ) {
+		$jobs = $GLOBALS['_licencepress_cron_jobs'][ $hook ] ?? null;
+		if ( ! is_array( $jobs ) ) {
+			return false;
+		}
+		return (int) ( $jobs['timestamp'] ?? 0 );
+	}
+}
+
+if ( ! function_exists( 'add_action' ) ) {
+	function add_action( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
+		$GLOBALS['_licencepress_actions'][ $hook ][] = array(
+			'callback' => $callback,
+			'priority' => (int) $priority,
+			'accepted_args' => (int) $accepted_args,
+		);
+		return true;
+	}
+}
+
+if ( ! function_exists( 'do_action' ) ) {
+	function do_action( $hook, ...$args ) {
+		$handlers = $GLOBALS['_licencepress_actions'][ $hook ] ?? array();
+		foreach ( $handlers as $handler ) {
+			if ( is_callable( $handler['callback'] ) ) {
+				call_user_func_array( $handler['callback'], array_slice( $args, 0, $handler['accepted_args'] ) );
+			}
+		}
+	}
+}
+
 if ( ! function_exists( 'wp_script_is' ) ) {
 	function wp_script_is( $handle, $list = 'enqueued' ) {
 		return false;

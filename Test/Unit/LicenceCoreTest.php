@@ -14,6 +14,7 @@ use Defuse\Crypto\Key;
 use LicencePress\Includes\Core\PostType;
 use LicencePress\Includes\Core\Taxonomy;
 use LicencePress\Includes\Functions\Helpers\AMHelper;
+use LicencePress\Includes\Functions\Helpers\CronJobHelper;
 use LicencePress\Includes\Functions\Helpers\LicenceHelper;
 use LicencePress\Includes\Licence\EncryptionService;
 use LicencePress\Includes\Licence\KeyManager;
@@ -245,6 +246,26 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertStringContainsString( 'data-live-search="true"', $output );
 		$this->assertStringContainsString( 'data-show-selected-tags="true"', $output );
 		$this->assertStringContainsString( 'data-selected-items-style="tags"', $output );
+	}
+
+	public function test_cron_job_helper_registers_jobs_by_scope(): void {
+		$hook = 'licencepress_test_cleanup';
+		$registered = CronJobHelper::register(
+			'core',
+			$hook,
+			'hourly',
+			array( 'site_id' => 1 ),
+			static function ( $site_id = 0 ) {
+				return $site_id;
+			},
+			'Runs LicencePress housekeeping'
+		);
+
+		$normalized = CronJobHelper::normalize_hook( 'core', $hook );
+		$this->assertTrue( $registered );
+		$this->assertTrue( wp_next_scheduled( $normalized, array( 'site_id' => 1 ) ) !== false );
+		$this->assertTrue( CronJobHelper::exists( 'core', $hook, array( 'site_id' => 1 ) ) );
+		$this->assertTrue( CronJobHelper::clear( 'core', $hook ) );
 	}
 
 	public function test_licence_dashboard_routes_licence_tabs_to_their_pages(): void {

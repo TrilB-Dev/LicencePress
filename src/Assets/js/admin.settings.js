@@ -128,12 +128,11 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const bindLicencePatternControls = () => {
-    const patternType = root.querySelector('select[name="licencepress_general[licence_pattern_type]"]');
-    const defaultPatternType = root.querySelector('select[name="licencepress_general[default_licence_pattern_type]"]');
-    const customPattern = root.querySelector('input[name="licencepress_general[custom_pattern]"]');
+    const patternType = root.querySelector('select[name="licencepress_general[default_licence_pattern_type]"]');
+    const customPattern = root.querySelector('input[name="licencepress_general[default_custom_licence_pattern]"]');
     const defaultCustomPatternRow = root.querySelector('#licencepress-default-custom-pattern-row');
-    const defaultCustomPatternInput = root.querySelector('input[name="licencepress_general[default_custom_pattern]"]');
-    const letterCaseRow = root.querySelector('select[name="licencepress_general[pattern_letter_case]"]')?.closest('tr');
+    const defaultCustomPatternInput = root.querySelector('input[name="licencepress_general[default_custom_licence_pattern]"]');
+    const letterCaseRow = root.querySelector('select[name="licencepress_general[default_licence_pattern_letter_case]"]')?.closest('tr');
     const customRows = root.querySelectorAll('[data-licencepress-pattern-mode="custom"]');
     const standardRows = root.querySelectorAll('[data-licencepress-pattern-mode="standard"]');
     const applyPatternState = () => {
@@ -148,34 +147,16 @@ document.addEventListener('DOMContentLoaded', () => {
         row.style.display = isCustom ? '' : 'none';
       });
 
-      if (defaultPatternType && defaultCustomPatternRow) {
-        const defaultCustom = defaultPatternType.value === 'custom';
-        defaultCustomPatternRow.hidden = !defaultCustom;
-        defaultCustomPatternRow.style.display = defaultCustom ? '' : 'none';
-      }
-
       if (letterCaseRow && customPattern) {
         const hasPatternToken = /[XA]/i.test(customPattern.value || '');
         const shouldShowLetterCase = 'custom' === type && hasPatternToken;
         letterCaseRow.hidden = !shouldShowLetterCase;
         letterCaseRow.style.display = shouldShowLetterCase ? '' : 'none';
       }
-
-      if (defaultCustomPatternInput && defaultCustomPatternRow) {
-        const hasDefaultPatternToken = /[XA]/i.test(defaultCustomPatternInput.value || '');
-        const shouldShowDefaultLetterCase = defaultPatternType && defaultPatternType.value === 'custom' && hasDefaultPatternToken;
-        const defaultLetterCaseRow = root.querySelector('select[name="licencepress_general[pattern_letter_case]"]')?.closest('tr');
-        if (defaultLetterCaseRow) {
-          defaultLetterCaseRow.hidden = !shouldShowDefaultLetterCase;
-          defaultLetterCaseRow.style.display = shouldShowDefaultLetterCase ? '' : 'none';
-        }
-      }
     };
 
     if (patternType) patternType.addEventListener('change', applyPatternState);
-    if (defaultPatternType) defaultPatternType.addEventListener('change', applyPatternState);
     if (customPattern) customPattern.addEventListener('input', applyPatternState);
-    if (defaultCustomPatternInput) defaultCustomPatternInput.addEventListener('input', applyPatternState);
     applyPatternState();
   };
 

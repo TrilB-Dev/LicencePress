@@ -212,9 +212,61 @@ if ( ! function_exists( 'apply_filters' ) ) {
 	}
 }
 
+if ( ! function_exists( 'do_action_ref_array' ) ) {
+	function do_action_ref_array( $hook, $args ) {
+		unset( $hook );
+		return $args;
+	}
+}
+
+if ( ! function_exists( 'wp_nonce_field' ) ) {
+	function wp_nonce_field( $action = -1, $name = '_wpnonce', $referer = true, $echo = true ) {
+		$nonce = 'nonce-' . sanitize_key( (string) $action );
+		$html  = '<input type="hidden" id="' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $nonce ) . '" />';
+		if ( $referer ) {
+			$html .= '<input type="hidden" name="_wp_http_referer" value="" />';
+		}
+		if ( $echo ) {
+			echo $html;
+			return true;
+		}
+		return $html;
+	}
+}
+
+if ( ! function_exists( 'submit_button' ) ) {
+	function submit_button( $text = '', $type = 'primary', $name = 'submit', $wrap = true, $other_attributes = null ) {
+		$label = $text !== '' ? $text : __( 'Save Changes' );
+		$html  = '<input type="submit" name="' . esc_attr( $name ) . '" class="button button-primary" value="' . esc_attr( $label ) . '"';
+		if ( is_array( $other_attributes ) ) {
+			foreach ( $other_attributes as $key => $value ) {
+				$html .= ' ' . esc_attr( $key ) . '="' . esc_attr( (string) $value ) . '"';
+			}
+		}
+		$html .= ' />';
+		if ( $wrap ) {
+			echo '<p class="submit">' . $html . '</p>';
+			return;
+		}
+		echo $html;
+	}
+}
+
 if ( ! function_exists( 'wp_create_nonce' ) ) {
 	function wp_create_nonce( $action = '' ) {
 		return 'nonce-' . sanitize_key( (string) $action );
+	}
+}
+
+if ( ! function_exists( 'wp_parse_args' ) ) {
+	function wp_parse_args( $args, $defaults = array() ) {
+		if ( is_object( $args ) ) {
+			$args = get_object_vars( $args );
+		}
+		if ( is_array( $args ) ) {
+			return array_merge( $defaults, $args );
+		}
+		return $defaults;
 	}
 }
 

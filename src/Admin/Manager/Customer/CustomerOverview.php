@@ -15,6 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class CustomerOverview {
+	/**
+	 * Render the customer overview or detail view based on the provided customer ID.
+	 *
+	 * @param int $customer_id The ID of the customer to display. Defaults to 0 for the overview.
+	 * @return void
+	 */
 	public function render( int $customer_id = 0 ): void {
 		if ( $customer_id > 0 ) {
 			$this->render_detail( $customer_id );
@@ -129,7 +135,13 @@ final class CustomerOverview {
 		<?php endif; ?>
 	<?php
 	}
-
+	/**
+	 * Render the detailed view for a specific customer.
+	 *
+	 * @param int $customer_id The ID of the customer to display.
+	 * @return void
+	 * @since 1.0.0
+	 */
 	private function render_detail( int $customer_id ): void {
 		$customer = CustomerManager::get_customer( $customer_id );
 		if ( null === $customer ) {
@@ -210,6 +222,12 @@ final class CustomerOverview {
 		<?php
 	}
 
+	/**
+	 * Get the statistics for the customer overview.
+	 *
+	 * @return array<int, array<string, mixed>> The statistics data.
+	 * @since 1.0.0
+	 */
 	private function stats(): array {
 		return array(
 			array( 'label' => __( 'Total customers', 'licencepress' ), 'value' => 148 ),
@@ -219,10 +237,22 @@ final class CustomerOverview {
 		);
 	}
 
+	/**
+	 * Get the customer profiles.
+	 *
+	 * @return array<int, array<string, mixed>> The customer profiles.
+	 * @since 1.0.0
+	 */
 	private function profiles(): array {
 		return CustomerManager::customer_profiles();
 	}
 
+	/**
+	 * Get the licence groups.
+	 *
+	 * @return array<int, array<string, mixed>> The licence groups.
+	 * @since 1.0.0
+	 */
 	private function licence_groups(): array {
 		return array(
 			array(

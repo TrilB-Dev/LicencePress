@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-final class SettingsBilling extends SettingsManager {
+final class SettingsBilling {
 	/**
 	 * Render the billing settings page with horizontal tabs.
 	 *
@@ -32,6 +32,7 @@ final class SettingsBilling extends SettingsManager {
 				'town'               => '',
 				'county_state'       => '',
 				'country'            => '',
+				'currency'           => 'GBP',
 				'vat_number'         => '',
 				'email_address'      => '',
 				'phone_number'       => '',
@@ -137,6 +138,27 @@ final class SettingsBilling extends SettingsManager {
 					<tr>
 						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-country', __( 'Country', 'licencepress' ) ); ?></th>
 						<td><?php echo FormFieldHelper::text_input( 'licencepress_billing[country]', (string) ( $values['country'] ?? '' ), array( 'id' => 'licencepress-billing-country', 'class' => 'w-100' ) ); ?></td>
+					</tr>
+					<tr>
+						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-currency', __( 'Currency', 'licencepress' ) ); ?></th>
+						<td>
+							<?php echo FormFieldHelper::bootstrap_select(
+								'licencepress_billing[currency]',
+								array(
+									'data' => array(
+										'GBP' => 'GBP - British Pound',
+										'USD' => 'USD - US Dollar',
+										'EUR' => 'EUR - Euro',
+										'AUD' => 'AUD - Australian Dollar',
+										'CAD' => 'CAD - Canadian Dollar',
+									),
+									'selected' => $values['currency'] ?? 'GBP',
+									'id' => 'licencepress-billing-currency',
+									'live_search' => true,
+									'width' => '100%',
+								)
+							); ?>
+						</td>
 					</tr>
 					<tr>
 						<th scope="row"><?php echo FormFieldHelper::label( 'licencepress-billing-vat-number', __( 'VAT Number', 'licencepress' ) ); ?></th>

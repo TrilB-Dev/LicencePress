@@ -104,6 +104,7 @@ final class FunctionsSettings {
 			'town'              => sanitize_text_field( $input['town'] ?? '' ),
 			'county_state'      => sanitize_text_field( $input['county_state'] ?? '' ),
 			'country'           => sanitize_text_field( $input['country'] ?? '' ),
+			'currency'          => sanitize_text_field( $input['currency'] ?? 'GBP' ),
 			'vat_number'        => sanitize_text_field( $input['vat_number'] ?? '' ),
 			'email_address'     => sanitize_email( $input['email_address'] ?? '' ),
 			'phone_number'      => sanitize_text_field( $input['phone_number'] ?? '' ),
@@ -161,29 +162,40 @@ final class FunctionsSettings {
 		$allowed_separators = array( '-', ':', '.', 'none' );
 		$allowed_ambiguous_chars = array( '0', 'O', '1', 'i', 'l', 'I' );
 
-		$ambiguous_characters = is_array( $input['default_exclude_ambiguous_characters'] ?? null ) ? (array) $input['default_exclude_ambiguous_characters'] : ( is_array( $input['exclude_ambiguous_characters'] ?? null ) ? (array) $input['exclude_ambiguous_characters'] : array() );
+		$ambiguous_characters = is_array( $input['default_exclude_ambiguous_characters'] ?? null ) ? (array) $input['default_exclude_ambiguous_characters'] : array();
 		$ambiguous_characters = array_values( array_unique( array_intersect( $allowed_ambiguous_chars, array_map( 'strval', $ambiguous_characters ) ) ) );
 
+		$default_licensor_type = $input['default_licensor_type'] ?? 'individual';
+		$default_licensor_name = $input['default_licensor_name'] ?? '';
+		$default_licensor_country = $input['default_licensor_country'] ?? '';
+		$default_licence_prefix = $input['default_licence_prefix'] ?? '';
+		$default_licence_platform = $input['default_licence_platform'] ?? array();
+		$default_renewal_policy_mode = $input['default_renewal_policy_mode'] ?? 'default';
+		$default_custom_licence_renewal_policy_page = $input['default_custom_licence_renewal_policy_page'] ?? 0;
+		$default_licence_pattern_type = $input['default_licence_pattern_type'] ?? 'standard';
+		$default_custom_licence_pattern = $input['default_custom_licence_pattern'] ?? '';
+		$default_licence_pattern_format = $input['default_licence_pattern_format'] ?? 'alphanumeric';
+		$default_licence_pattern_letter_case = $input['default_licence_pattern_letter_case'] ?? 'uppercase';
+		$default_licence_pattern_separator = $input['default_licence_pattern_separator'] ?? '-';
+
 		$general = array(
-			'entity_type'                        => in_array( $input['entity_type'] ?? 'individual', $allowed_entity_types, true ) ? sanitize_key( $input['entity_type'] ?? 'individual' ) : 'individual',
-			'licence_name'                       => sanitize_text_field( $input['licence_name'] ?? '' ),
-			'country'                            => sanitize_text_field( $input['country'] ?? '' ),
-			'currency'                           => sanitize_text_field( $input['currency'] ?? '' ),
-			'licence_prefix'                     => preg_match( '/^[A-Za-z0-9_-]{1,7}$/', (string) ( $input['licence_prefix'] ?? '' ) ) ? sanitize_text_field( $input['licence_prefix'] ?? '' ) : '',
-			'licence_usage'                      => array_values( array_unique( array_filter( array_map( 'sanitize_key', is_array( $input['licence_usage'] ?? array() ) ? $input['licence_usage'] : array( $input['licence_usage'] ?? '' ) ) ) ) ),
-			'renewal_policy_mode'                => in_array( $input['renewal_policy_mode'] ?? 'default', $allowed_renewal_modes, true ) ? sanitize_key( $input['renewal_policy_mode'] ?? 'default' ) : 'default',
-			'renewal_policy_page'                => absint( $input['renewal_policy_page'] ?? 0 ),
-			'licence_pattern_type'               => in_array( $input['licence_pattern_type'] ?? 'standard', $allowed_pattern_types, true ) ? sanitize_key( $input['licence_pattern_type'] ?? 'standard' ) : 'standard',
-			'licence_pattern_format'             => in_array( (string) ( $input['licence_pattern_format'] ?? 'alphanumeric' ), $allowed_patterns, true ) ? sanitize_key( (string) ( $input['licence_pattern_format'] ?? 'alphanumeric' ) ) : 'alphanumeric',
-			'exclude_ambiguous_characters'      => $ambiguous_characters,
-			'default_exclude_ambiguous_characters' => $ambiguous_characters,
-			'pattern_letter_case'                => in_array( (string) ( $input['pattern_letter_case'] ?? 'uppercase' ), $allowed_cases, true ) ? sanitize_key( (string) ( $input['pattern_letter_case'] ?? 'uppercase' ) ) : 'uppercase',
-			'pattern_separator'                  => in_array( (string) ( $input['pattern_separator'] ?? '-' ), $allowed_separators, true ) ? (string) $input['pattern_separator'] : '-',
-			'custom_pattern'                     => sanitize_text_field( $input['custom_pattern'] ?? '' ),
+			'default_licensor_type'                       => in_array( $default_licensor_type, $allowed_entity_types, true ) ? sanitize_key( $default_licensor_type ) : 'individual',
+			'default_licensor_name'                       => sanitize_text_field( $default_licensor_name ),
+			'default_licensor_country'                    => sanitize_text_field( $default_licensor_country ),
+			'default_licence_prefix'                      => preg_match( '/^[A-Za-z0-9_-]{1,7}$/', (string) $default_licence_prefix ) ? sanitize_text_field( $default_licence_prefix ) : '',
+			'default_licence_platform'                    => array_values( array_unique( array_filter( array_map( 'sanitize_key', is_array( $default_licence_platform ) ? $default_licence_platform : array( $default_licence_platform ) ) ) ) ),
+			'default_renewal_policy_mode'                 => in_array( $default_renewal_policy_mode, $allowed_renewal_modes, true ) ? sanitize_key( $default_renewal_policy_mode ) : 'default',
+			'default_custom_licence_renewal_policy_page'  => absint( $default_custom_licence_renewal_policy_page ),
+			'default_licence_pattern_type'                => in_array( $default_licence_pattern_type, $allowed_pattern_types, true ) ? sanitize_key( $default_licence_pattern_type ) : 'standard',
+			'default_custom_licence_pattern'              => sanitize_text_field( $default_custom_licence_pattern ),
+			'default_licence_pattern_format'              => in_array( (string) $default_licence_pattern_format, $allowed_patterns, true ) ? sanitize_key( (string) $default_licence_pattern_format ) : 'alphanumeric',
+			'default_exclude_ambiguous_characters'        => $ambiguous_characters,
+			'default_licence_pattern_letter_case'         => in_array( (string) $default_licence_pattern_letter_case, $allowed_cases, true ) ? sanitize_key( (string) $default_licence_pattern_letter_case ) : 'uppercase',
+			'default_licence_pattern_separator'           => in_array( (string) $default_licence_pattern_separator, $allowed_separators, true ) ? (string) $default_licence_pattern_separator : '-',
 		);
 
-		if ( 'custom' === $general['licence_pattern_type'] && ! preg_match( '/[XA]/i', $general['custom_pattern'] ) ) {
-			$general['pattern_letter_case'] = '';
+		if ( 'custom' === $general['default_licence_pattern_type'] && ! preg_match( '/[XA]/i', $general['default_custom_licence_pattern'] ) ) {
+			$general['default_licence_pattern_letter_case'] = '';
 		}
 
 		foreach ( $general as $key => $value ) {

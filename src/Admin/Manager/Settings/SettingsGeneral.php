@@ -17,17 +17,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class SettingsGeneral {
 	/**
+	 * Normalize the current values for the default-prefixed general settings fields.
+	 *
+	 * @param array<string, mixed> $values The incoming values.
+	 * @return array<string, mixed> The normalized values.
+	 */
+	private function normalize_values( array $values ): array {
+		return $values;
+	}
+
+	/**
 	 * Render the general settings fields.
 	 *
 	 * @param array $values The current values for the settings fields.
 	 */
 	public function render( array $values ): void {
-		$licensor_type = $values['licensor_type'] ?? 'individual';
-		$usage       = $values['licence_usage'] ?? array();
-		$usage       = is_array( $usage ) ? $usage : array( $usage );
-		$pattern     = $values['licence_pattern_type'] ?? 'standard';
-		$custom      = $values['custom_pattern'] ?? '';
-		$separator   = $values['pattern_separator'] ?? '-';
+		$values = $this->normalize_values( $values );
+
+		$licensor_type = $values['default_licensor_type'] ?? 'individual';
+		$usage         = $values['default_licence_usage'] ?? array();
+		$usage         = is_array( $usage ) ? $usage : array( $usage );
+		$pattern       = $values['default_licence_pattern_type'] ?? 'standard';
+		$custom        = $values['default_custom_licence_pattern'] ?? '';
+		$separator     = $values['default_licence_pattern_separator'] ?? '-';
 		$renewal_licence_pages = array( '' => __( 'Select a page', 'licencepress' ) );
 		if ( function_exists( 'get_pages' ) ) {
 			foreach ( get_pages( array( 'sort_column' => 'post_title', 'sort_order' => 'ASC' ) ) as $page ) {
@@ -135,36 +147,7 @@ final class SettingsGeneral {
 					<tr>
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
-								'licencepress-general-currency', 
-								__( 'Currency', 'licencepress' ), 
-								array( 
-									'description' => __( 'Choose the default currency for generated licence values.', 'licencepress' ) 
-								) 
-							); ?>
-						</th>
-						<td>
-							<?php echo FormFieldHelper::bootstrap_select( 
-								'licencepress_general[currency]', 
-								array( 
-									'data' => array( 
-										'GBP' => 'GBP - British Pound', 
-										'USD' => 'USD - US Dollar', 
-										'EUR' => 'EUR - Euro', 
-										'AUD' => 'AUD - Australian Dollar', 
-										'CAD' => 'CAD - Canadian Dollar' 
-									), 
-									'selected' => $values['currency'] ?? 'GBP', 
-									'id' => 'licencepress-general-currency', 
-									'live_search' => true, 
-									'width' => '100%' 
-								) 
-							); ?>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row">
-							<?php echo FormFieldHelper::label( 
-								'licencepress-general-default-licence-prefix', 
+							'licencepress-general-default-licence-prefix', 
 								__( 'Licence Prefix', 'licencepress' ), 
 								array( 
 									'description' => __( 'Max 7 numbers and letters. Allowed: A-Z, 0-9, -, _. No spaces.', 'licencepress' ) 
@@ -191,7 +174,7 @@ final class SettingsGeneral {
 					<tr>
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
-								'licencepress-general-licence-platform', 
+							'licencepress-general-default-licence-platform', 
 								__( 'Where will your licences be used?', 'licencepress' ), 
 								array( 
 									'description' => __( 'Select the environments where generated licences will be used.', 'licencepress' ) 
@@ -211,7 +194,7 @@ final class SettingsGeneral {
 										'ios_devices' => __( 'IOS Devices', 'licencepress' )
 									),
 									'selected' => is_array( $values['default_licence_platform'] ?? array() ) ? array_values( $values['default_licence_platform'] ?? array() ) : array( $values['default_licence_platform'] ?? array() ),
-									'id' => 'licencepress-general-licence-platform',
+									'id' => 'licencepress-general-default-licence-platform',
 									'live_search' => false,
 									'show_tick' => true,
 									'width' => '100%'
@@ -248,7 +231,7 @@ final class SettingsGeneral {
 					<tr id="licencepress-custom-renewal-row">
 						<th scope="row">
 							<?php echo FormFieldHelper::label( 
-								'licencepress-general-custom-licence-renewal-policy-page', 
+								'licencepress-general-default-custom-licence-renewal-policy-page', 
 								__( 'Licence Renewal policy page', 'licencepress' ), 
 								array( 
 									'description' => __( 'Select the page users will find your custom Licence Renewal Policy.', 'licencepress' ) 
@@ -257,11 +240,11 @@ final class SettingsGeneral {
 						</th>
 						<td>
 							<?php echo FormFieldHelper::bootstrap_select( 
-								'licencepress_general[custom_licence_renewal_policy_page]', 
+								'licencepress_general[default_custom_licence_renewal_policy_page]', 
 								array( 
 									'data' => $renewal_licence_pages,
-									'selected' => (string) ( $values['custom_licence_renewal_policy_page'] ?? '' ),
-									'id' => 'licencepress-general-custom-licence-renewal-policy-page',
+									'selected' => (string) ( $values['default_custom_licence_renewal_policy_page'] ?? '' ),
+									'id' => 'licencepress-general-default-custom-licence-renewal-policy-page',
 									'live_search' => true,
 									'width' => '100%'
 								) 

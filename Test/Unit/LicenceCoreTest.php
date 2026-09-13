@@ -201,12 +201,103 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertStringNotContainsString( 'is-invalid', $output );
 	}
 
+	public function test_general_settings_use_default_prefixed_form_field_names_only(): void {
+		ob_start();
+		( new \LicencePress\Admin\Manager\Settings\SettingsGeneral() )->render( array() );
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'licencepress_general[default_licensor_name]', $output );
+		$this->assertStringContainsString( 'licencepress_general[default_licence_pattern_type]', $output );
+		$this->assertStringContainsString( 'licencepress_general[default_custom_licence_pattern]', $output );
+		$this->assertStringNotContainsString( 'licencepress_general[licence_name]', $output );
+		$this->assertStringNotContainsString( 'licencepress_general[entity_type]', $output );
+		$this->assertStringNotContainsString( 'licencepress_general[renewal_policy_mode]', $output );
+	}
+
+	public function test_general_settings_save_keys_match_the_form_field_names(): void {
+		$settings = new \LicencePress\Includes\Functions\Admin\FunctionsSettings( new \LicencePress\Includes\Functions\Admin\FunctionsPlugins() );
+
+		$result = $settings->sanitize_general(
+			array(
+				'default_licensor_type'                       => 'company',
+				'default_licensor_name'                       => 'Acme Ltd',
+				'default_licensor_country'                    => 'United Kingdom',
+				'default_licence_prefix'                      => 'LIC',
+				'default_licence_platform'                    => array( 'website', 'windows_software' ),
+				'default_renewal_policy_mode'                 => 'custom',
+				'default_custom_licence_renewal_policy_page'  => 42,
+				'default_licence_pattern_type'                => 'custom',
+				'default_custom_licence_pattern'              => 'AAA-999',
+				'default_licence_pattern_format'              => 'letters',
+				'default_exclude_ambiguous_characters'        => array( '0', 'O' ),
+				'default_licence_pattern_letter_case'         => 'uppercase',
+				'default_licence_pattern_separator'           => '_',
+			)
+		);
+
+		$this->assertArrayHasKey( 'default_licensor_name', $result );
+		$this->assertArrayHasKey( 'default_licence_pattern_type', $result );
+		$this->assertArrayNotHasKey( 'licence_name', $result );
+		$this->assertArrayNotHasKey( 'entity_type', $result );
+		$this->assertSame( 'Acme Ltd', Settings::get( 'default_licensor_name' ) );
+		$this->assertSame( 'custom', Settings::get( 'default_licence_pattern_type' ) );
+		$this->assertSame( '_', Settings::get( 'default_licence_pattern_separator' ) );
+	}
+
 	public function test_admin_settings_reinitializes_bootstrap_selects_after_tab_reload(): void {
 		$script = file_get_contents( dirname( __DIR__, 2 ) . '/src/Assets/js/admin.settings.js' );
 		$this->assertIsString( $script );
 		$this->assertStringContainsString( 'initializeBootstrapSelects', $script );
 		$this->assertStringContainsString( 'window.licencepressBootstrapSelect?.initialize', $script );
 		$this->assertStringContainsString( 'panel.innerHTML = response.data.html;', $script );
+	}
+
+	public function test_saved_general_and_billing_settings_render_in_forms(): void {
+		Settings::set_group(
+			'general',
+			array(
+				'entity_type'                        => 'company',
+				'licence_name'                       => 'Acme Ltd',
+				'country'                            => 'United Kingdom',
+				'currency'                           => 'USD',
+				'licence_prefix'                     => 'LIC',
+				'licence_usage'                      => array( 'website', 'windows_software' ),
+				'renewal_policy_mode'                => 'custom',
+				'renewal_policy_page'                => 42,
+				'licence_pattern_type'               => 'custom',
+				'licence_pattern_format'             => 'letters',
+				'exclude_ambiguous_characters'      => array( '0', 'O' ),
+				'default_exclude_ambiguous_characters' => array( '0', 'O' ),
+				'pattern_letter_case'                => 'uppercase',
+				'pattern_separator'                  => '_',
+				'custom_pattern'                     => 'AAA-999',
+			)
+		);
+		Settings::set_group(
+			'billing',
+			array(
+				'billing_name'      => 'Acme Billing',
+				'billing_address_1' => '12 Market Street',
+				'town'              => 'London',
+				'country'           => 'United Kingdom',
+				'email_address'     => 'billing@acme.example',
+				'phone_number'      => '+44 20 1234 5678',
+				'invoice_prefix'    => 'INV-',
+			)
+		);
+
+		ob_start();
+		( new \LicencePress\Admin\Manager\Settings\SettingsGeneral() )->render( Settings::get_group( 'general', array() ) );
+		$general_output = ob_get_clean();
+
+		ob_start();
+		( new \LicencePress\Admin\Manager\Settings\SettingsBilling() )->render( Settings::get_group( 'billing', array() ) );
+		$billing_output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Acme Ltd', $general_output );
+		$this->assertStringContainsString( 'AAA-999', $general_output );
+		$this->assertStringContainsString( 'Acme Billing', $billing_output );
+		$this->assertStringContainsString( 'billing@acme.example', $billing_output );
 	}
 
 	public function test_billing_settings_are_saved_to_the_shared_settings_store(): void {

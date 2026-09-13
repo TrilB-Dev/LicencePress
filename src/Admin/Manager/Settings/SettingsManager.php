@@ -14,6 +14,7 @@ use LicencePress\Admin\Manager\Settings\SettingsAccess;
 use LicencePress\Admin\Manager\Settings\SettingsGeneral;
 use LicencePress\Admin\Manager\Settings\SettingsPlugins;
 use LicencePress\Includes\Functions\Helpers\RequestHelper;
+use LicencePress\Includes\Settings\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -97,12 +98,12 @@ final class SettingsManager extends Manager {
 							<p class="text-secondary mb-0"><?php esc_html_e( 'Set the default commercial rules for generated licences, expiry, and validation.', 'licencepress' ); ?></p>
 						</div>
 						<table class="form-table" role="presentation"><tbody>
-							<?php ( new SettingsGeneral() )->render( array() ); ?>
+							<?php ( new SettingsGeneral() )->render( Settings::get_group( 'general', array() ) ?? array() ); ?>
 						</tbody></table>
 					</div>
 				</div>
 			<?php elseif ( 'billing' === $tab ) : ?>
-				<?php ( new SettingsBilling() )->render( array() ); ?>
+				<?php ( new SettingsBilling() )->render( Settings::get_group( 'billing', array() ) ?? array() ); ?>
 			<?php elseif ( 'access' === $tab ) : ?>
 				<div class="card shadow-sm">
 					<div class="card-body">
@@ -111,7 +112,7 @@ final class SettingsManager extends Manager {
 							<p class="text-secondary mb-0"><?php esc_html_e( 'Define who can issue, revoke, export, review, and manage licences.', 'licencepress' ); ?></p>
 						</div>
 						<table class="form-table" role="presentation"><tbody>
-							<?php ( new SettingsAccess() )->render( array() ); ?>
+							<?php ( new SettingsAccess() )->render( Settings::get_group( 'access', array() ) ?? array() ); ?>
 						</tbody></table>
 					</div>
 				</div>

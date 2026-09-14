@@ -476,7 +476,7 @@ final class SettingsBilling {
 										'selected' => $values['phone_country_code'] ?? '',
 										'id' => 'licencepress-billing-phone-country-code',
 										'bscd_type' => 'country-phone',
-                                        'bscd_flag' => true,
+                                        'bscd_flags' => true,
                                         'class' => 'w-30',
 									)
 								) . FormFieldHelper::text_input(

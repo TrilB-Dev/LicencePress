@@ -320,10 +320,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
 
-          targetField.value = attachment.id;
-
           const previewUrl = attachment.url || attachment.sizes?.medium?.url || attachment.sizes?.thumbnail?.url || attachment.icon;
-          syncImagePreview(targetId, previewUrl);
+          targetField.value = previewUrl || attachment.id;
+          syncImagePreview(targetId, previewUrl || attachment.id);
         });
 
         mediaFrame.open();

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Billing settings interface for LicencePress.
  *
@@ -481,7 +481,7 @@ final class SettingsBilling {
 										'id' => 'licencepress-billing-phone-country-code',
 										'bscd_type' => 'country-phone',
 										'bscd_flags' => true,
-										'style' => 'width:20%; min-width:120px;'
+                                        'class' => 'country-phone-select'
 									)
 								) . FormFieldHelper::text_input(
 									'licencepress_billing[phone_number]',
@@ -1301,3 +1301,7 @@ HTML,
 		return $this->replace_template_variables( $template, $this->get_default_template_variables( $vars ) );
 	}
 }
+
+
+
+

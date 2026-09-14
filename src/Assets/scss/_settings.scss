@@ -36,4 +36,9 @@
 			pointer-events: none;
 		}
 	}
+	.country-phone-select {
+		.bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn){
+			width: 20%;
+		}
+	}
 }

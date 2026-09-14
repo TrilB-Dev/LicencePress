@@ -136,6 +136,11 @@ final class Admin {
 				),
 				array(
 					'type'     => 'action',
+					'hook'     => 'wp_ajax_licencepress_save_billing_logo',
+					'callback' => 'save_billing_logo',
+				),
+				array(
+					'type'     => 'action',
 					'hook'     => 'wp_ajax_licencepress_preview_licence_type',
 					'callback' => 'preview_licence_type',
 				),
@@ -444,6 +449,36 @@ final class Admin {
 			array(
 				'html' => $html,
 				'tab'  => $tab,
+			)
+		);
+	}
+
+	/**
+	 * Persist the selected billing logo via AJAX and return the saved URL.
+	 *
+	 * @return void
+	 */
+	public function save_billing_logo(): void {
+		if ( ! AjaxHelper::authorized( 'licencepress_billing_general', 'licencepress_settings_general_edit' ) ) {
+			AjaxHelper::unauthorized( __( 'You are not authorized to update the LicencePress billing logo.', 'licencepress' ) );
+		}
+
+		$logo = isset( $_POST['invoice_logo'] ) ? sanitize_text_field( wp_unslash( $_POST['invoice_logo'] ) ) : '';
+		if ( '' !== $logo ) {
+			Settings::set( 'invoice_logo', $logo );
+			AjaxHelper::success(
+				array(
+					'invoice_logo' => $logo,
+					'message'     => __( 'Billing logo updated successfully.', 'licencepress' ),
+				)
+			);
+		}
+
+		Settings::set( 'invoice_logo', '' );
+		AjaxHelper::success(
+			array(
+				'invoice_logo' => '',
+				'message'     => __( 'Billing logo cleared successfully.', 'licencepress' ),
 			)
 		);
 	}

@@ -365,8 +365,45 @@ document.addEventListener('DOMContentLoaded', () => {
           }
 
           const previewUrl = resolveMediaPreviewUrl(selectedAttachment || attachment);
+          const nonceField = document.querySelector('input[name="licencepress_billing_general_nonce"]');
+          const ajaxUrl = window.ajaxurl || '/wp-admin/admin-ajax.php';
+
           targetField.value = previewUrl || '';
           syncImagePreview(targetId, previewUrl || '');
+
+          if (!previewUrl) {
+            return;
+          }
+
+          const formData = new URLSearchParams({
+            action: 'licencepress_save_billing_logo',
+            nonce: nonceField ? nonceField.value : '',
+            invoice_logo: previewUrl,
+          });
+
+          fetch(ajaxUrl, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            },
+            body: formData.toString(),
+          })
+            .then((response) => response.json())
+            .then((response) => {
+              if (!response?.success) {
+                return;
+              }
+
+              if (response.data?.invoice_logo) {
+                targetField.value = response.data.invoice_logo;
+                syncImagePreview(targetId, response.data.invoice_logo);
+              }
+            })
+            .catch(() => {
+              targetField.value = previewUrl;
+              syncImagePreview(targetId, previewUrl);
+            });
         });
 
         mediaFrame.open();

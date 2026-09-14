@@ -594,7 +594,14 @@ final class SettingsBilling {
 							); ?>
 							<?php
 							$logo_value = (string) ( $values['invoice_logo'] ?? '' );
-							$logo_url   = ! empty( $logo_value ) ? ( is_numeric( $logo_value ) && function_exists( 'wp_get_attachment_url' ) ? \wp_get_attachment_url( (int) $logo_value ) : $logo_value ) : '';
+							$logo_url   = '';
+							if ( ! empty( $logo_value ) ) {
+								if ( is_numeric( $logo_value ) && function_exists( 'wp_get_attachment_url' ) ) {
+									$logo_url = \wp_get_attachment_url( (int) $logo_value );
+								} elseif ( filter_var( $logo_value, FILTER_VALIDATE_URL ) ) {
+									$logo_url = $logo_value;
+								}
+							}
 							?>
 							<div class="mt-2 licencepress-image-preview-wrap" data-licencepress-image-preview="licencepress-billing-invoice-logo" <?php echo ! empty( $logo_url ) ? '' : 'style="display:none;"'; ?>>
 								<?php if ( ! empty( $logo_url ) ) : ?>
@@ -788,6 +795,8 @@ final class SettingsBilling {
 		$logo    = $billing['invoice_logo'] ?? '';
 		if ( is_numeric( $logo ) && function_exists( 'wp_get_attachment_url' ) ) {
 			$logo = \wp_get_attachment_url( (int) $logo );
+		} elseif ( ! is_string( $logo ) || ! filter_var( $logo, FILTER_VALIDATE_URL ) ) {
+			$logo = '';
 		}
 
 		$vars = array(

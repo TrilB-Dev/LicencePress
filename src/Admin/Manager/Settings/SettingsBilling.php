@@ -596,8 +596,12 @@ final class SettingsBilling {
 							$logo_value = (string) ( $values['invoice_logo'] ?? '' );
 							$logo_url   = '';
 							if ( ! empty( $logo_value ) ) {
-								if ( is_numeric( $logo_value ) && function_exists( 'wp_get_attachment_url' ) ) {
-									$logo_url = \wp_get_attachment_url( (int) $logo_value );
+								if ( is_numeric( $logo_value ) ) {
+									if ( function_exists( 'wp_get_original_image_url' ) ) {
+										$logo_url = \wp_get_original_image_url( (int) $logo_value );
+									} elseif ( function_exists( 'wp_get_attachment_url' ) ) {
+										$logo_url = \wp_get_attachment_url( (int) $logo_value );
+									}
 								} elseif ( filter_var( $logo_value, FILTER_VALIDATE_URL ) ) {
 									$logo_url = $logo_value;
 								}
@@ -793,8 +797,12 @@ final class SettingsBilling {
 	public function get_default_template_variables( array $overrides = array() ): array {
 		$billing = Settings::get_group( 'billing', array() ) ?? array();
 		$logo    = $billing['invoice_logo'] ?? '';
-		if ( is_numeric( $logo ) && function_exists( 'wp_get_attachment_url' ) ) {
-			$logo = \wp_get_attachment_url( (int) $logo );
+		if ( is_numeric( $logo ) ) {
+			if ( function_exists( 'wp_get_original_image_url' ) ) {
+				$logo = \wp_get_original_image_url( (int) $logo );
+			} elseif ( function_exists( 'wp_get_attachment_url' ) ) {
+				$logo = \wp_get_attachment_url( (int) $logo );
+			}
 		} elseif ( ! is_string( $logo ) || ! filter_var( $logo, FILTER_VALIDATE_URL ) ) {
 			$logo = '';
 		}

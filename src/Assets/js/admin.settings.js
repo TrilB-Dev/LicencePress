@@ -258,10 +258,28 @@ document.addEventListener('DOMContentLoaded', () => {
       return '';
     }
 
-    const attributes = attachment.attributes || attachment;
-    const url = attributes?.url || attributes?.full?.url || attributes?.large?.url || attributes?.medium?.url || attributes?.thumbnail?.url || attributes?.icon || attachment.get?.('url') || '';
+    const json = attachment.toJSON ? attachment.toJSON() : attachment;
+    const attributes = attachment.attributes || json || attachment;
+    const sizes = attributes?.sizes || json?.sizes || {};
 
-    return url;
+    const candidates = [
+      json?.url,
+      json?.icon,
+      attributes?.url,
+      attributes?.icon,
+      attributes?.full?.url,
+      attributes?.large?.url,
+      attributes?.medium?.url,
+      attributes?.thumbnail?.url,
+      sizes?.full?.url,
+      sizes?.large?.url,
+      sizes?.medium?.url,
+      sizes?.thumbnail?.url,
+      attachment.get?.('url'),
+      attachment.get?.('icon'),
+    ];
+
+    return candidates.find((value) => typeof value === 'string' && value.trim().length > 0) || '';
   };
 
   const syncImagePreview = (targetId, url) => {

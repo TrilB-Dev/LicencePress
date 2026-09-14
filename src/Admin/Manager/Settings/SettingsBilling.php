@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Billing settings interface for LicencePress.
  *
@@ -595,7 +595,7 @@ final class SettingsBilling {
 							<?php
 							$logo_value = (string) ( $values['invoice_logo'] ?? '' );
 							if ( ! empty( $logo_value ) ) :
-								$logo_url = is_numeric( $logo_value ) ? wp_get_attachment_url( (int) $logo_value ) : $logo_value;
+								$logo_url = is_numeric( $logo_value ) && function_exists( 'wp_get_attachment_url' ) ? \wp_get_attachment_url( (int) $logo_value ) : $logo_value;
 								if ( ! empty( $logo_url ) ) :
 									?>
 									<div class="mt-2 licencepress-image-preview-wrap" data-licencepress-image-preview="licencepress-billing-invoice-logo" <?php echo ! empty( $logo_url ) ? '' : 'style="display:none;"'; ?>>
@@ -790,8 +790,8 @@ final class SettingsBilling {
 	public function get_default_template_variables( array $overrides = array() ): array {
 		$billing = Settings::get_group( 'billing', array() ) ?? array();
 		$logo    = $billing['invoice_logo'] ?? '';
-		if ( is_numeric( $logo ) ) {
-			$logo = wp_get_attachment_url( (int) $logo );
+		if ( is_numeric( $logo ) && function_exists( 'wp_get_attachment_url' ) ) {
+			$logo = \wp_get_attachment_url( (int) $logo );
 		}
 
 		$vars = array(

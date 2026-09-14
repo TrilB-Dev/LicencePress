@@ -130,12 +130,17 @@ final class SettingsManager {
 			return array();
 		}
 
-		$rows = $wpdb->get_results( 'SELECT setting_group, setting_value FROM ' . self::table_name(), ARRAY_A );
-		$rows = is_array( $rows ) ? $rows : array();
+		$column_name = self::has_column( 'setting_group' ) ? 'setting_group' : 'setting_key';
+		$rows        = $wpdb->get_results( 'SELECT ' . $column_name . ', setting_value FROM ' . self::table_name(), ARRAY_A );
+		$rows        = is_array( $rows ) ? $rows : array();
 
 		$settings = array();
 		foreach ( $rows as $row ) {
-			$group              = self::logical_group( $row['setting_group'] );
+			$key   = $row[ $column_name ] ?? '';
+			$group = self::logical_group( (string) $key );
+			if ( '' === $group ) {
+				continue;
+			}
 			$settings[ $group ] = maybe_unserialize( $row['setting_value'] );
 		}
 		return $settings;
@@ -224,8 +229,14 @@ final class SettingsManager {
 			return null;
 		}
 
-		$value    = $wpdb->get_var( $wpdb->prepare( 'SELECT setting_value FROM ' . self::table_name() . ' WHERE setting_group = %s', self::storage_group( $group ) ) );
-		$settings = $value === null ? null : maybe_unserialize( $value );
+		$column_name = self::has_column( 'setting_group' ) ? 'setting_group' : 'setting_key';
+		$value       = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT setting_value FROM ' . self::table_name() . ' WHERE ' . $column_name . ' = %s',
+				self::storage_group( $group )
+			)
+		);
+		$settings    = $value === null ? null : maybe_unserialize( $value );
 		return is_array( $settings ) ? $settings : null;
 	}
 	/**
@@ -237,13 +248,27 @@ final class SettingsManager {
 	 */
 	public static function set_group( string $group, array $settings ): bool {
 		global $wpdb;
+
+		if ( self::has_column( 'setting_group' ) ) {
+			return false !== $wpdb->replace(
+				self::table_name(),
+				array(
+					'setting_group' => self::storage_group( $group ),
+					'setting_value' => maybe_serialize( $settings ),
+					'autoload'      => 'yes',
+					'updated_at'    => current_time( 'mysql' ),
+				),
+				array( '%s', '%s', '%s', '%s' )
+			);
+		}
+
 		return false !== $wpdb->replace(
 			self::table_name(),
 			array(
-				'setting_group' => self::storage_group( $group ),
+				'setting_key' => self::storage_group( $group ),
 				'setting_value' => maybe_serialize( $settings ),
-				'autoload'      => 'yes',
-				'updated_at'    => current_time( 'mysql' ),
+				'created_at' => current_time( 'mysql' ),
+				'updated_at' => current_time( 'mysql' ),
 			),
 			array( '%s', '%s', '%s', '%s' )
 		);
@@ -443,5 +468,32 @@ final class SettingsManager {
 		$table = $wpdb->get_var( $query );
 
 		return null !== $table && '' !== (string) $table;
+	}
+
+	/**
+	 * Check whether the settings table contains a specific column.
+	 *
+	 * @param string $column_name The column name to inspect.
+	 * @return bool True when the column exists.
+	 */
+	private static function has_column( string $column_name ): bool {
+		global $wpdb;
+
+		if ( ! self::table_ready() ) {
+			return false;
+		}
+
+		$columns = $wpdb->get_results( 'SHOW COLUMNS FROM ' . self::table_name(), ARRAY_A );
+		if ( ! is_array( $columns ) ) {
+			return false;
+		}
+
+		foreach ( $columns as $column ) {
+			if ( isset( $column['Field'] ) && $column['Field'] === $column_name ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

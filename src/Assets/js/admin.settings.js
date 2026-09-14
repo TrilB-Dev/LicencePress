@@ -318,6 +318,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const syncExistingImagePreviews = () => {
+    root.querySelectorAll('[data-licencepress-image-preview]').forEach((container) => {
+      const targetId = container.dataset.licencepressImagePreview;
+      const targetField = targetId ? document.getElementById(targetId) : null;
+      const value = targetField && typeof targetField.value === 'string' ? targetField.value.trim() : '';
+      syncImagePreview(targetId, value);
+    });
+  };
+
   const bindMediaPickerControls = () => {
     const mediaButtons = root.querySelectorAll('[data-licencepress-media-select]');
 
@@ -482,6 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bindRenewalPolicyControls();
         bindBillingCountryControls();
         bindMediaPickerControls();
+        syncExistingImagePreviews();
         bindBillingTabAnchors();
         bindTemplatePreviewControls();
         const nextContent = panel.querySelector('.licencepress-settings-tab-content');
@@ -538,6 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
   bindRenewalPolicyControls();
   bindBillingCountryControls();
   bindMediaPickerControls();
+  syncExistingImagePreviews();
   bindBillingTabAnchors();
   bindTemplatePreviewControls();
 });

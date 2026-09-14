@@ -194,8 +194,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applyBillingCountryState = () => {
       const value = countryField ? (countryField.value || '') : '';
-      const isUk = value === 'United Kingdom';
-      const isUs = value === 'United States of America';
+      const normalized = String(value).trim().toLowerCase().replace(/[^a-z]/g, '');
+      const isUk = normalized === 'unitedkingdom' || normalized === 'gb';
+      const isUs = [
+        'unitedstates',
+        'unitedstatesofamerica',
+        'usa',
+        'us',
+      ].includes(normalized);
 
       if (ukCountyRow) {
         ukCountyRow.hidden = !isUk;
@@ -208,8 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (otherCountyRow) {
-        otherCountyRow.hidden = isUk || isUs;
-        otherCountyRow.style.display = isUk || isUs ? 'none' : '';
+        const showOther = !isUk && !isUs;
+        otherCountyRow.hidden = !showOther;
+        otherCountyRow.style.display = showOther ? '' : 'none';
       }
     };
 

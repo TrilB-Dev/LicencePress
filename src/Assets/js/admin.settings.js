@@ -312,6 +312,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  const bindBillingTabAnchors = () => {
+    const tabLinks = root.querySelectorAll('[data-licencepress-billing-tab]');
+    const tabPanes = root.querySelectorAll('.licencepress-billing-tab-pane');
+
+    if (!tabLinks.length || !tabPanes.length) {
+      return;
+    }
+
+    const activateBillingTab = (targetKey) => {
+      tabLinks.forEach((link) => {
+        const active = link.dataset.licencepressBillingTab === targetKey;
+        link.classList.toggle('active', active);
+        link.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+
+      tabPanes.forEach((pane) => {
+        const active = pane.id === targetKey;
+        pane.classList.toggle('active', active);
+        pane.classList.toggle('show', active);
+        pane.style.display = active ? '' : 'none';
+      });
+    };
+
+    tabLinks.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        const targetKey = link.dataset.licencepressBillingTab;
+        if (!targetKey) {
+          return;
+        }
+        history.replaceState(null, '', `#${targetKey}`);
+        activateBillingTab(targetKey);
+      });
+    });
+
+    const initialKey = window.location.hash.replace(/^#/, '') || 'general';
+    if (root.querySelector(`#${CSS.escape(initialKey)}`)) {
+      activateBillingTab(initialKey);
+    }
+  };
+
   const bindTemplatePreviewControls = () => {
     const previewModal = root.querySelector('#licencepress-template-preview-modal');
     const previewBody = root.querySelector('#licencepress-template-preview-body');
@@ -388,6 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bindRenewalPolicyControls();
         bindBillingCountryControls();
         bindMediaPickerControls();
+        bindBillingTabAnchors();
         bindTemplatePreviewControls();
         const nextContent = panel.querySelector('.licencepress-settings-tab-content');
         if (nextContent) requestAnimationFrame(() => nextContent.classList.remove('is-loading'));
@@ -443,5 +485,6 @@ document.addEventListener('DOMContentLoaded', () => {
   bindRenewalPolicyControls();
   bindBillingCountryControls();
   bindMediaPickerControls();
+  bindBillingTabAnchors();
   bindTemplatePreviewControls();
 });

@@ -80,16 +80,20 @@ final class SettingsBilling {
 				<ul class="nav nav-tabs mb-3" role="tablist">
 					<?php foreach ( $tabs as $slug => $tab ) : ?>
 						<li class="nav-item" role="presentation">
-							<a class="nav-link <?php echo esc_attr( $slug === $active_tab ? 'active' : '' ); ?>" href="<?php echo esc_url( admin_url( 'admin.php?page=licencepress-settings&tab=billing&billing_tab=' . rawurlencode( $slug ) ) ); ?>" aria-selected="<?php echo esc_attr( $slug === $active_tab ? 'true' : 'false' ); ?>">
+							<a class="nav-link <?php echo esc_attr( $slug === $active_tab ? 'active' : '' ); ?>" href="#<?php echo esc_attr( $slug ); ?>" data-licencepress-billing-tab="<?php echo esc_attr( $slug ); ?>" aria-selected="<?php echo esc_attr( $slug === $active_tab ? 'true' : 'false' ); ?>">
 								<?php echo esc_html( $tab['label'] ?? ucfirst( str_replace( '-', ' ', $slug ) ) ); ?>
 							</a>
 						</li>
 					<?php endforeach; ?>
 				</ul>
 				<div class="tab-content">
-					<?php if ( ! empty( $tabs[ $active_tab ]['callback'] ) && is_callable( $tabs[ $active_tab ]['callback'] ) ) : ?>
-						<?php call_user_func( $tabs[ $active_tab ]['callback'], $values ); ?>
-					<?php endif; ?>
+					<?php foreach ( $tabs as $slug => $tab ) : ?>
+						<div class="tab-pane licencepress-billing-tab-pane <?php echo esc_attr( $slug === $active_tab ? 'active show' : '' ); ?>" id="<?php echo esc_attr( $slug ); ?>" <?php echo $slug === $active_tab ? '' : 'style="display:none;"'; ?>>
+							<?php if ( ! empty( $tab['callback'] ) && is_callable( $tab['callback'] ) ) : ?>
+								<?php call_user_func( $tab['callback'], $values ); ?>
+							<?php endif; ?>
+						</div>
+					<?php endforeach; ?>
 				</div>
 			</div>
 		</div>
@@ -476,8 +480,8 @@ final class SettingsBilling {
 										'selected' => $values['phone_country_code'] ?? '',
 										'id' => 'licencepress-billing-phone-country-code',
 										'bscd_type' => 'country-phone',
-                                        'bscd_flags' => true,
-                                        'class' => 'w-30'
+										'bscd_flags' => true,
+										'style' => 'width:20%; min-width:120px;'
 									)
 								) . FormFieldHelper::text_input(
 									'licencepress_billing[phone_number]',

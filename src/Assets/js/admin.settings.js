@@ -194,14 +194,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applyBillingCountryState = () => {
       const value = countryField ? (countryField.value || '') : '';
-      const normalized = String(value).trim().toLowerCase().replace(/[^a-z]/g, '');
-      const isUk = normalized === 'unitedkingdom' || normalized === 'gb';
-      const isUs = [
-        'unitedstates',
-        'unitedstatesofamerica',
-        'usa',
-        'us',
-      ].includes(normalized);
+      const selectedText = countryField && countryField.selectedIndex >= 0 ? (countryField.options[countryField.selectedIndex]?.text || '') : '';
+      const normalizedValue = String(value).trim();
+      const normalizedText = String(selectedText).trim();
+
+      const isUk = normalizedValue === 'United Kingdom' || normalizedValue === 'GB' || normalizedValue === 'UK' || normalizedText === 'United Kingdom';
+      const isUs = normalizedValue === 'United States of America' || normalizedValue === 'United States' || normalizedValue === 'US' || normalizedValue === 'USA' || normalizedText === 'United States of America' || normalizedText === 'United States';
 
       if (ukCountyRow) {
         ukCountyRow.hidden = !isUk;

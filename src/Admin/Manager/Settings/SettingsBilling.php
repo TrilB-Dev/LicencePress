@@ -476,7 +476,9 @@ final class SettingsBilling {
 								FormFieldHelper::bootstrap_select(
 									'licencepress_billing[phone_country_code]',
 									array(
-										'data' => array(),
+										'data' => array(
+											'' => __( 'Select country code', 'licencepress' ),
+										),
 										'selected' => $values['phone_country_code'] ?? '',
 										'id' => 'licencepress-billing-phone-country-code',
 										'bscd_type' => 'country-phone',

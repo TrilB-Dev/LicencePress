@@ -33,7 +33,7 @@ final class TinyMCEHelper {
 			$locale = get_user_locale();
 		}
 		$language_path     = '';
-		$language_dir      = dirname( LICENCEPRESS_FILE ) . '/src/Includes/Plugins/TinyMCE/Assets/tinymce/langs';
+		$language_dir      = dirname( LICENCEPRESS_PLUGINS ) . '/TinyMCE/Assets/tinymce/langs';
 		$locale_candidates = array( $locale, str_replace( '-', '_', $locale ), str_replace( '_', '-', $locale ), strtolower( $locale ) );
 		$language_files    = glob( $language_dir . '/*.js' );
 		if ( false === $language_files ) {
@@ -49,7 +49,7 @@ final class TinyMCEHelper {
 		}
 		$language_url = '';
 		if ( file_exists( $language_path ) ) {
-			$language_url = LICENCEPRESS_URL . 'src/Includes/Plugins/TinyMCE/Assets/tinymce/langs/' . basename( $language_path );
+			$language_url = LICENCEPRESS_PLUGINS_URL . '/TinyMCE/Assets/tinymce/langs/' . basename( $language_path );
 		}
 		$toolbar   = array( 'blocks' );
 		$toolbar[] = '|';
@@ -85,10 +85,10 @@ final class TinyMCEHelper {
 			'license_key'   => 'gpl',
 			'plugins'       => implode( ' ', $plugins ),
 			'toolbar'       => implode( ' ', $toolbar ),
-			'base_url'      => LICENCEPRESS_URL . 'src/Includes/Plugins/TinyMCE/Assets/tinymce',
+			'base_url'      => LICENCEPRESS_PLUGINS_URL . '/TinyMCE/Assets/tinymce',
 			'skin'          => $ui_skin,
-			'skin_url'      => LICENCEPRESS_URL . 'src/Includes/Plugins/TinyMCE/Assets/tinymce/skins/ui/' . $ui_skin,
-			'content_css'   => LICENCEPRESS_URL . 'src/Includes/Plugins/TinyMCE/Assets/tinymce/skins/content/' . $content_skin . '/content.min.css',
+			'skin_url'      => LICENCEPRESS_PLUGINS_URL . '/TinyMCE/Assets/tinymce/skins/ui/' . $ui_skin,
+			'content_css'   => LICENCEPRESS_PLUGINS_URL . '/TinyMCE/Assets/tinymce/skins/content/' . $content_skin . '/content.min.css',
 			'media_buttons' => $media_buttons,
 		);
 		if ( $language_url ) {

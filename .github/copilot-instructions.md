@@ -76,6 +76,9 @@ All LicencePress and internal-plugin assets must flow through `src/Assets/Assets
 - Preserve page-specific loading conditions so plugin assets do not load on unrelated admin or frontend pages.
 - Update webpack configuration only for the owning asset pipeline. Do not commit ad hoc generated bundles in a source directory.
 - Run the asset build after changing JavaScript, SCSS, webpack entries, or asset registration, and inspect generated changes for stale bundles.
+- Use Bootstrap 5.3 conventions for all UI markup and interactions. Do not introduce Bootstrap 4 patterns, legacy classes, or jQuery-driven workarounds.
+- Avoid jQuery entirely. Do not add new jQuery-based logic, inline script handlers, or DOM manipulation in PHP templates.
+- Keep JavaScript behavior in the corresponding asset JS file instead of inline script tags in PHP. Use data attributes and dedicated asset handlers only.
 
 ## Reusable Core APIs
 

@@ -207,6 +207,26 @@ class Capabilities {
 					'label'       => __( 'View Licence Settings', 'licencepress' ),
 					'description' => __( 'Allows viewing the general licence management settings.', 'licencepress' ),
 				),
+				'licencepress_settings_billing_view'     => array(
+					'group'       => 'LicencePress Settings',
+					'label'       => __( 'View Billing Settings', 'licencepress' ),
+					'description' => __( 'Allows viewing the billing settings for LicencePress.', 'licencepress' ),
+				),
+				'licencepress_settings_billing_edit'     => array(
+					'group'       => 'LicencePress Settings',
+					'label'       => __( 'Edit Billing Settings', 'licencepress' ),
+					'description' => __( 'Allows editing the billing settings for LicencePress.', 'licencepress' ),
+				),
+				'licencepress_settings_policies_view'     => array(
+					'group'       => 'LicencePress Settings',
+					'label'       => __( 'View Policies Settings', 'licencepress' ),
+					'description' => __( 'Allows viewing the policies settings for LicencePress.', 'licencepress' ),
+				),
+				'licencepress_settings_policies_edit'     => array(
+					'group'       => 'LicencePress Settings',
+					'label'       => __( 'Edit Policies Settings', 'licencepress' ),
+					'description' => __( 'Allows editing the policies settings for LicencePress.', 'licencepress' ),
+				),
 				'licencepress_settings_general_edit'     => array(
 					'group'       => 'LicencePress Settings',
 					'label'       => __( 'Edit Licence Settings', 'licencepress' ),

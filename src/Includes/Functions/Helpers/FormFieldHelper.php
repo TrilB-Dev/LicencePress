@@ -5,10 +5,7 @@
  * @package LicencePress
  * @since 1.0.0
  */
-
 namespace LicencePress\Includes\Functions\Helpers;
-
-use LicencePress\Includes\Plugins\TinyMCE\Includes\Functions\Helpers\TinyMCEHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -83,28 +80,6 @@ final class FormFieldHelper {
 		$attributes['name'] = $name;
 
 		return '<textarea ' . self::attributes_to_string( $attributes ) . '>' . esc_textarea( $value ) . '</textarea>' . self::feedback( $options );
-	}
-
-	/**
-	 * Render a TinyMCE editor.
-	 *
-	 * @param string $id            The ID of the editor.
-	 * @param string $name          The name attribute for the textarea.
-	 * @param string $label         The label for the editor.
-	 * @param string $value         The initial content of the editor.
-	 * @param int    $rows          The number of rows for the textarea.
-	 * @param bool   $media_buttons Whether to show media buttons.
-	 * @return void
-	 */
-	public static function tinymce( string $id, string $name, string $label, string $value = '', int $rows = 8, bool $media_buttons = false ): void {
-		if ( ! class_exists( TinyMCEHelper::class ) ) {
-			$editor_id = sanitize_key( $id );
-			printf( '<label class="form-label" for="%1$s">%2$s</label>', esc_attr( $editor_id ), esc_html( $label ) );
-			printf( '<textarea class="form-control" id="%1$s" name="%2$s" rows="%3$d">%4$s</textarea>', esc_attr( $editor_id ), esc_attr( $name ), max( 1, $rows ), esc_textarea( $value ) );
-			return;
-		}
-
-		TinyMCEHelper::render( $id, $name, $label, $value, $rows, $media_buttons );
 	}
 
 	/**

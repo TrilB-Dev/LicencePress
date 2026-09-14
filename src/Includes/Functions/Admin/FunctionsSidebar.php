@@ -198,6 +198,18 @@ final class FunctionsSidebar {
 						'link'       => 'licencepress&group=settings&tab=general',
 						'capability' => 'licencepress_settings_general_view',
 					),
+					'billing' => array(
+						'label'      => __( 'Billing', 'licencepress' ),
+						'icon'       => 'fa-solid fa-credit-card',
+						'link'       => 'licencepress&group=settings&tab=billing',
+						'capability' => 'licencepress_settings_billing_view',
+					),
+					'policies' => array(
+						'label'      => __( 'Policies', 'licencepress' ),
+						'icon'       => 'fa-solid fa-file-contract',
+						'link'       => 'licencepress&group=settings&tab=policies',
+						'capability' => 'licencepress_settings_policies_view',
+					),
 					'access' => array(
 						'label'      => __( 'Access', 'licencepress' ),
 						'icon'       => 'fa-solid fa-user-shield',

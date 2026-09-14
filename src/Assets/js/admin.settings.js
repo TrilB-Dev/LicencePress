@@ -181,6 +181,169 @@ document.addEventListener('DOMContentLoaded', () => {
     applyRenewalPolicyState();
   };
 
+  const bindBillingCountryControls = () => {
+    const countryField = root.querySelector('select[name="licencepress_billing[country]"]');
+    const currencyField = root.querySelector('select[name="licencepress_billing[currency]"]');
+    const vatToggle = root.querySelector('input[name="licencepress_billing[charge_vat]"]');
+    const ukCountyRow = root.querySelector('#licencepress-billing-uk-county-row');
+    const usStateRow = root.querySelector('#licencepress-billing-us-state-row');
+    const otherCountyRow = root.querySelector('#licencepress-billing-other-county-state-row');
+    const customCurrencyCodeRow = root.querySelector('#licencepress-billing-custom-currency-code-row');
+    const customCurrencySymbolRow = root.querySelector('#licencepress-billing-custom-currency-symbol-row');
+    const vatFields = root.querySelectorAll('#licencepress-billing-vat-label-row, #licencepress-billing-vat-percent-row, #licencepress-billing-vat-number-row');
+
+    const applyBillingCountryState = () => {
+      const value = countryField ? (countryField.value || '') : '';
+      const isUk = value === 'United Kingdom';
+      const isUs = value === 'United States of America';
+
+      if (ukCountyRow) {
+        ukCountyRow.hidden = !isUk;
+        ukCountyRow.style.display = isUk ? '' : 'none';
+      }
+
+      if (usStateRow) {
+        usStateRow.hidden = !isUs;
+        usStateRow.style.display = isUs ? '' : 'none';
+      }
+
+      if (otherCountyRow) {
+        otherCountyRow.hidden = isUk || isUs;
+        otherCountyRow.style.display = isUk || isUs ? 'none' : '';
+      }
+    };
+
+    const applyCustomCurrencyState = () => {
+      const value = currencyField ? (currencyField.value || '') : '';
+      const isCustomCurrency = value === 'CUSTOM';
+
+      if (customCurrencyCodeRow) {
+        customCurrencyCodeRow.hidden = !isCustomCurrency;
+        customCurrencyCodeRow.style.display = isCustomCurrency ? '' : 'none';
+      }
+
+      if (customCurrencySymbolRow) {
+        customCurrencySymbolRow.hidden = !isCustomCurrency;
+        customCurrencySymbolRow.style.display = isCustomCurrency ? '' : 'none';
+      }
+    };
+
+    const applyVatState = () => {
+      const checked = !!(vatToggle && vatToggle.checked);
+      vatFields.forEach((row) => {
+        if (!row) return;
+        row.hidden = !checked;
+        row.style.display = checked ? '' : 'none';
+      });
+    };
+
+    if (countryField) {
+      countryField.addEventListener('change', applyBillingCountryState);
+      applyBillingCountryState();
+    }
+
+    if (currencyField) {
+      currencyField.addEventListener('change', applyCustomCurrencyState);
+      applyCustomCurrencyState();
+    }
+
+    if (vatToggle) {
+      vatToggle.addEventListener('change', applyVatState);
+      applyVatState();
+    }
+  };
+
+  const syncImagePreview = (targetId, url) => {
+    const previewContainer = document.querySelector(`[data-licencepress-image-preview="${targetId}"]`);
+    const previewImage = previewContainer ? previewContainer.querySelector('img') : null;
+
+    if (previewContainer) {
+      previewContainer.style.display = url ? '' : 'none';
+    }
+
+    if (previewImage && url) {
+      previewImage.src = url;
+    }
+  };
+
+  const bindMediaPickerControls = () => {
+    const mediaButtons = root.querySelectorAll('[data-licencepress-media-select]');
+
+    mediaButtons.forEach((button) => {
+      if (button.dataset.licencepressMediaBound === 'true') {
+        return;
+      }
+
+      button.dataset.licencepressMediaBound = 'true';
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        const targetId = button.dataset.licencepressMediaSelect;
+        if (!targetId || !window.wp || !window.wp.media) {
+          return;
+        }
+
+        const mediaFrame = window.wp.media({
+          title: button.dataset.licencepressMediaTitle || 'Select media',
+          button: { text: 'Use this image' },
+          multiple: false,
+          library: { type: 'image' }
+        });
+
+        mediaFrame.on('select', () => {
+          const attachment = mediaFrame.state().get('selection').first().toJSON();
+          if (!attachment || !attachment.id) {
+            return;
+          }
+
+          const targetField = document.getElementById(targetId);
+          if (!targetField) {
+            return;
+          }
+
+          targetField.value = attachment.id;
+
+          const previewUrl = attachment.url || attachment.sizes?.medium?.url || attachment.sizes?.thumbnail?.url || attachment.icon;
+          syncImagePreview(targetId, previewUrl);
+        });
+
+        mediaFrame.open();
+      });
+    });
+  };
+
+  const bindTemplatePreviewControls = () => {
+    const previewModal = root.querySelector('#licencepress-template-preview-modal');
+    const previewBody = root.querySelector('#licencepress-template-preview-body');
+    const editModal = root.querySelector('#licencepress-template-edit-modal');
+    const editorField = root.querySelector('#licencepress-template-editor');
+
+    if (!previewModal || !previewBody || !editModal || !editorField) {
+      return;
+    }
+
+    root.querySelectorAll('[data-licencepress-template-preview]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const content = button.dataset.licencepressTemplateContent || '';
+        previewBody.innerHTML = content;
+      });
+    });
+
+    root.querySelectorAll('[data-licencepress-template-editor]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const editorValue = button.dataset.licencepressTemplateValue || '';
+        const editorInstance = window.tinymce?.get(editorField.id);
+
+        if (editorInstance) {
+          editorInstance.setContent(editorValue);
+          return;
+        }
+
+        editorField.value = editorValue;
+      });
+    });
+  };
+
   const activateLayoutTab = (button) => {
     const target = root.querySelector(button.dataset.bsTarget);
     if (!target) return;
@@ -223,6 +386,9 @@ document.addEventListener('DOMContentLoaded', () => {
         bindFieldValidation();
         bindLicencePatternControls();
         bindRenewalPolicyControls();
+        bindBillingCountryControls();
+        bindMediaPickerControls();
+        bindTemplatePreviewControls();
         const nextContent = panel.querySelector('.licencepress-settings-tab-content');
         if (nextContent) requestAnimationFrame(() => nextContent.classList.remove('is-loading'));
       })
@@ -275,4 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
   bindFieldValidation();
   bindLicencePatternControls();
   bindRenewalPolicyControls();
+  bindBillingCountryControls();
+  bindMediaPickerControls();
+  bindTemplatePreviewControls();
 });

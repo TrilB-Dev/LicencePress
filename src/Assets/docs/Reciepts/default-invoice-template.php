@@ -261,5 +261,3 @@ HTML;
 
 return lp_invoice_render($template, $vars);
 }
-
-?>

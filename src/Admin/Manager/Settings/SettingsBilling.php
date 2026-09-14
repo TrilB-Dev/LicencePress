@@ -477,18 +477,16 @@ final class SettingsBilling {
 										'id' => 'licencepress-billing-phone-country-code',
 										'bscd_type' => 'country-phone',
                                         'bscd_flags' => true,
-                                        'class' => 'w-30',
+                                        'class' => 'w-30'
 									)
 								) . FormFieldHelper::text_input(
 									'licencepress_billing[phone_number]',
 									(string) ( $values['phone_number'] ?? '' ),
 									array(
 										'id' => 'licencepress-billing-phone-number',
-										'type' => 'tel',
-										'class' => 'w-70',
+										'type' => 'tel'
 									)
-								),
-								array( 'style' => 'width: 20%' )
+								)
 							); ?>
 						</td>
 					</tr>

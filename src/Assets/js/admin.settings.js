@@ -254,7 +254,26 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const syncImagePreview = (targetId, url) => {
-    const previewContainer = document.querySelector(`[data-licencepress-image-preview="${targetId}"]`);
+    let previewContainer = document.querySelector(`[data-licencepress-image-preview="${targetId}"]`);
+    if (!previewContainer) {
+      const targetField = document.getElementById(targetId);
+      if (targetField && targetField.parentElement) {
+        previewContainer = document.createElement('div');
+        previewContainer.className = 'mt-2 licencepress-image-preview-wrap';
+        previewContainer.setAttribute('data-licencepress-image-preview', targetId);
+        previewContainer.style.display = 'none';
+        const previewImage = document.createElement('img');
+        previewImage.alt = 'Selected image';
+        previewImage.style.maxWidth = '160px';
+        previewImage.style.maxHeight = '80px';
+        previewImage.style.border = '1px solid rgba(0,0,0,0.15)';
+        previewImage.style.borderRadius = '4px';
+        previewImage.style.background = '#fff';
+        previewContainer.appendChild(previewImage);
+        targetField.parentElement.appendChild(previewContainer);
+      }
+    }
+
     const previewImage = previewContainer ? previewContainer.querySelector('img') : null;
 
     if (previewContainer) {

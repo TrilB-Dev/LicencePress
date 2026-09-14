@@ -464,7 +464,7 @@ final class SettingsBilling {
 							); ?>
 						</td>
 					</tr>
-					<tr>
+					<tr class="country-phone-select">
 						<th scope="row">
 							<?php echo FormFieldHelper::label(
 								'licencepress-billing-phone-number',
@@ -594,17 +594,13 @@ final class SettingsBilling {
 							); ?>
 							<?php
 							$logo_value = (string) ( $values['invoice_logo'] ?? '' );
-							if ( ! empty( $logo_value ) ) :
-								$logo_url = is_numeric( $logo_value ) && function_exists( 'wp_get_attachment_url' ) ? \wp_get_attachment_url( (int) $logo_value ) : $logo_value;
-								if ( ! empty( $logo_url ) ) :
-									?>
-									<div class="mt-2 licencepress-image-preview-wrap" data-licencepress-image-preview="licencepress-billing-invoice-logo" <?php echo ! empty( $logo_url ) ? '' : 'style="display:none;"'; ?>>
-										<img src="<?php echo esc_url( $logo_url ); ?>" alt="<?php esc_attr_e( 'Invoice logo', 'licencepress' ); ?>" style="max-width:160px; max-height:80px; border:1px solid rgba(0,0,0,0.15); border-radius:4px; background:#fff;" />
-									</div>
-								<?php
-								endif;
-							endif;
+							$logo_url   = ! empty( $logo_value ) ? ( is_numeric( $logo_value ) && function_exists( 'wp_get_attachment_url' ) ? \wp_get_attachment_url( (int) $logo_value ) : $logo_value ) : '';
 							?>
+							<div class="mt-2 licencepress-image-preview-wrap" data-licencepress-image-preview="licencepress-billing-invoice-logo" <?php echo ! empty( $logo_url ) ? '' : 'style="display:none;"'; ?>>
+								<?php if ( ! empty( $logo_url ) ) : ?>
+									<img src="<?php echo esc_url( $logo_url ); ?>" alt="<?php esc_attr_e( 'Invoice logo', 'licencepress' ); ?>" style="max-width:160px; max-height:80px; border:1px solid rgba(0,0,0,0.15); border-radius:4px; background:#fff;" />
+								<?php endif; ?>
+							</div>
 						</td>
 					</tr>
 				</tbody>

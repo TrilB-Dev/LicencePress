@@ -253,6 +253,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const resolveMediaPreviewUrl = (attachment) => {
+    if (!attachment) {
+      return '';
+    }
+
+    const attributes = attachment.attributes || attachment;
+    const url = attributes?.url || attributes?.full?.url || attributes?.large?.url || attributes?.medium?.url || attributes?.thumbnail?.url || attributes?.icon || attachment.get?.('url') || '';
+
+    return url;
+  };
+
   const syncImagePreview = (targetId, url) => {
     let previewContainer = document.querySelector(`[data-licencepress-image-preview="${targetId}"]`);
     if (!previewContainer) {
@@ -278,10 +289,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (previewContainer) {
       previewContainer.style.display = url ? '' : 'none';
+      previewContainer.hidden = !url;
     }
 
-    if (previewImage && url) {
-      previewImage.src = url;
+    if (previewImage) {
+      previewImage.src = url || '';
+      previewImage.style.display = url ? '' : 'none';
     }
   };
 
@@ -310,7 +323,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         mediaFrame.on('select', () => {
-          const attachment = mediaFrame.state().get('selection').first().toJSON();
+          const selectedAttachment = mediaFrame.state().get('selection').first();
+          const attachment = selectedAttachment ? (selectedAttachment.toJSON ? selectedAttachment.toJSON() : selectedAttachment.attributes || selectedAttachment) : null;
+
           if (!attachment || !attachment.id) {
             return;
           }
@@ -320,9 +335,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
 
-          const previewUrl = attachment.url || attachment.sizes?.medium?.url || attachment.sizes?.thumbnail?.url || attachment.icon;
-          targetField.value = previewUrl || attachment.id;
-          syncImagePreview(targetId, previewUrl || attachment.id);
+          const previewUrl = resolveMediaPreviewUrl(selectedAttachment || attachment);
+          targetField.value = previewUrl || '';
+          syncImagePreview(targetId, previewUrl || '');
         });
 
         mediaFrame.open();

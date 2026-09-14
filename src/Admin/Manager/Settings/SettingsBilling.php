@@ -475,8 +475,9 @@ final class SettingsBilling {
 										'data' => array(),
 										'selected' => $values['phone_country_code'] ?? '',
 										'id' => 'licencepress-billing-phone-country-code',
-										'width' => 'auto',
 										'bscd_type' => 'country-phone',
+                                        'bscd_flag' => true,
+                                        'class' => 'w-30',
 									)
 								) . FormFieldHelper::text_input(
 									'licencepress_billing[phone_number]',
@@ -484,10 +485,10 @@ final class SettingsBilling {
 									array(
 										'id' => 'licencepress-billing-phone-number',
 										'type' => 'tel',
-										'class' => 'w-100',
+										'class' => 'w-70',
 									)
 								),
-								array( 'class' => 'w-100' )
+								array( 'style' => 'width: 20%' )
 							); ?>
 						</td>
 					</tr>
@@ -508,12 +509,11 @@ final class SettingsBilling {
 									(string) ( $values['prefix'] ?? '' ),
 									array(
 										'id' => 'licencepress-billing-prefix',
-										'class' => 'w-100',
+										'class' => 'w-70',
 										'pattern' => '[A-Za-z0-9_-]{1,7}',
 										'placeholder' => 'Company-'
 									)
-								) . '<span class="input-group-text" aria-label="Example billing prefix format">XXXXXXX</span>',
-								array( 'class' => 'w-100' )
+								) . '<span class="input-group-text" aria-label="Example billing prefix format">XXXXXXX</span>'
 							); ?>
 						</td>
 					</tr>
@@ -532,12 +532,11 @@ final class SettingsBilling {
 									(string) ( $values['receipt_suffix'] ?? '' ),
 									array(
 										'id' => 'licencepress-billing-receipt-suffix',
-										'class' => 'w-100',
+										'class' => 'w-70',
 										'pattern' => '[A-Za-z0-9_-]{1,7}',
 										'placeholder' => '-REC'
 									)
-								),
-								array( 'class' => 'w-100' )
+								)
 							); ?>
 						</td>
 					</tr>
@@ -556,12 +555,11 @@ final class SettingsBilling {
 									(string) ( $values['invoice_suffix'] ?? '' ),
 									array(
 										'id' => 'licencepress-billing-invoice-suffix',
-										'class' => 'w-100',
+										'class' => 'w-70',
 										'pattern' => '[A-Za-z0-9_-]{1,7}',
 										'placeholder' => '-INV'
 									)
-								),
-								array( 'class' => 'w-100' )
+								)
 							); ?>
 						</td>
 					</tr>

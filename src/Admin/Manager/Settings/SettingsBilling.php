@@ -471,7 +471,7 @@ final class SettingsBilling {
 								__( 'Phone Number', 'licencepress' )
 							); ?>
 						</th>
-						<td>
+						<td class="country-phone-select">
 							<?php echo FormFieldHelper::input_group(
 								FormFieldHelper::bootstrap_select(
 									'licencepress_billing[phone_country_code]',

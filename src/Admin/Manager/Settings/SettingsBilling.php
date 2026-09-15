@@ -71,33 +71,25 @@ final class SettingsBilling {
 			$active_tab = 'general';
 		}
 		?>
-		<div class="card shadow-sm">
-			<div class="card-body">
-				<div class="mb-3">
-					<h5 class="h5 mb-1"><?php esc_html_e( 'Billing settings', 'licencepress' ); ?></h5>
-					<p class="text-secondary mb-0"><?php esc_html_e( 'Configure the default billing profile and invoice appearance for generated customer invoices.', 'licencepress' ); ?></p>
+		<ul class="nav nav-tabs mb-3" role="tablist">
+			<?php foreach ( $tabs as $slug => $tab ) : ?>
+				<li class="nav-item" role="presentation">
+					<a class="nav-link <?php echo esc_attr( $slug === $active_tab ? 'active' : '' ); ?>" href="#<?php echo esc_attr( $slug ); ?>" data-licencepress-billing-tab="<?php echo esc_attr( $slug ); ?>" aria-selected="<?php echo esc_attr( $slug === $active_tab ? 'true' : 'false' ); ?>">
+						<?php echo esc_html( $tab['label'] ?? ucfirst( str_replace( '-', ' ', $slug ) ) ); ?>
+					</a>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+		<div class="tab-content">
+			<?php foreach ( $tabs as $slug => $tab ) : ?>
+				<div class="tab-pane licencepress-billing-tab-pane <?php echo esc_attr( $slug === $active_tab ? 'active show' : '' ); ?>" id="<?php echo esc_attr( $slug ); ?>" <?php echo $slug === $active_tab ? '' : 'style="display:none;"'; ?>>
+					<?php if ( ! empty( $tab['callback'] ) && is_callable( $tab['callback'] ) ) : ?>
+						<?php call_user_func( $tab['callback'], $values ); ?>
+					<?php endif; ?>
 				</div>
-				<ul class="nav nav-tabs mb-3" role="tablist">
-					<?php foreach ( $tabs as $slug => $tab ) : ?>
-						<li class="nav-item" role="presentation">
-							<a class="nav-link <?php echo esc_attr( $slug === $active_tab ? 'active' : '' ); ?>" href="#<?php echo esc_attr( $slug ); ?>" data-licencepress-billing-tab="<?php echo esc_attr( $slug ); ?>" aria-selected="<?php echo esc_attr( $slug === $active_tab ? 'true' : 'false' ); ?>">
-								<?php echo esc_html( $tab['label'] ?? ucfirst( str_replace( '-', ' ', $slug ) ) ); ?>
-							</a>
-						</li>
-					<?php endforeach; ?>
-				</ul>
-				<div class="tab-content">
-					<?php foreach ( $tabs as $slug => $tab ) : ?>
-						<div class="tab-pane licencepress-billing-tab-pane <?php echo esc_attr( $slug === $active_tab ? 'active show' : '' ); ?>" id="<?php echo esc_attr( $slug ); ?>" <?php echo $slug === $active_tab ? '' : 'style="display:none;"'; ?>>
-							<?php if ( ! empty( $tab['callback'] ) && is_callable( $tab['callback'] ) ) : ?>
-								<?php call_user_func( $tab['callback'], $values ); ?>
-							<?php endif; ?>
-						</div>
-					<?php endforeach; ?>
-				</div>
-			</div>
+			<?php endforeach; ?>
 		</div>
-		<?php
+	<?php
 	}
 
 	/**

@@ -63,6 +63,17 @@ final class FunctionsSettings {
 	 */
 	private function handle_direct_post(): void {
 		$action = wp_unslash( $_POST['action'] ?? '' );
+		if ( 'licencepress_save_general_settings' === $action ) {
+			if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
+				wp_die( esc_html__( 'You are not allowed to save LicencePress general settings.', 'licencepress' ), 403 );
+			}
+			check_admin_referer( 'licencepress_general', 'licencepress_general_nonce' );
+			$input = isset( $_POST['licencepress_general'] ) && is_array( $_POST['licencepress_general'] ) ? wp_unslash( $_POST['licencepress_general'] ) : array();
+			$this->sanitize_general( $input );
+			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-settings&tab=general' ) );
+			exit;
+		}
+
 		if ( 'licencepress_save_billing_settings' === $action ) {
 			if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
 				wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );

@@ -42,11 +42,11 @@ define( 'LICENCEPRESS_ASSETS_URL', LICENCEPRESS_URL . 'src/Assets' );
 define( 'LICENCEPRESS_ADMIN', LICENCEPRESS_DIR . 'src/Admin' );
 define( 'LICENCEPRESS_ADMIN_URL', LICENCEPRESS_URL . 'src/Admin' );
 define( 'LICENCEPRESS_LANGUAGES', LICENCEPRESS_DIR . 'src/languages' );
-define( 'LICENCEPRESS_INCLUDES', LICENCEPRESS_DIR . 'src/includes' );
+define( 'LICENCEPRESS_INCLUDES', LICENCEPRESS_DIR . 'src/Includes' );
 define( 'LICENCEPRESS_CORE', LICENCEPRESS_INCLUDES . '/Core' );
 define( 'LICENCEPRESS_SETTINGS', LICENCEPRESS_INCLUDES . '/Settings' );
 define( 'LICENCEPRESS_PLUGINS', LICENCEPRESS_INCLUDES . '/Plugins' );
-define( 'LICENCEPRESS_PLUGINS_URL', LICENCEPRESS_URL . 'src/includes/Plugins' );
+define( 'LICENCEPRESS_PLUGINS_URL', LICENCEPRESS_URL . 'src/Includes/Plugins' );
 
 $licencepress_autoloader = LICENCEPRESS_DIR . 'vendor/autoload.php';
 if ( is_readable( $licencepress_autoloader ) ) {

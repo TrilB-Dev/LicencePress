@@ -13,6 +13,8 @@ use LicencePress\Assets\Assets;
 use LicencePress\Admin\Manager\Settings\SettingsAccess;
 use LicencePress\Admin\Manager\Settings\SettingsGeneral;
 use LicencePress\Admin\Manager\Settings\SettingsPlugins;
+use LicencePress\Admin\Manager\Settings\SettingsBilling;
+use LicencePress\Admin\Manager\Settings\SettingsPolicies;
 use LicencePress\Includes\Functions\Helpers\RequestHelper;
 use LicencePress\Includes\Settings\Settings;
 
@@ -103,7 +105,15 @@ final class SettingsManager extends Manager {
 					</div>
 				</div>
 			<?php elseif ( 'billing' === $tab ) : ?>
-				<?php ( new SettingsBilling() )->render( Settings::get_group( 'billing', array() ) ?? array() ); ?>
+				<div class="card shadow-sm">
+					<div class="card-body">
+						<div class="mb-3">
+							<h5 class="h5 mb-1"><?php esc_html_e( 'Billing settings', 'licencepress' ); ?></h5>
+							<p class="text-secondary mb-0"><?php esc_html_e( 'Configure the default billing profile and invoice appearance for generated customer invoices.', 'licencepress' ); ?></p>
+						</div>
+							<?php ( new SettingsBilling() )->render( Settings::get_group( 'billing', array() ) ?? array() ); ?>
+					</div>
+				</div>
 			<?php elseif ( 'access' === $tab ) : ?>
 				<div class="card shadow-sm">
 					<div class="card-body">
@@ -113,6 +123,18 @@ final class SettingsManager extends Manager {
 						</div>
 						<table class="form-table" role="presentation"><tbody>
 							<?php ( new SettingsAccess() )->render( Settings::get_group( 'access', array() ) ?? array() ); ?>
+						</tbody></table>
+					</div>
+				</div>
+			<?php elseif ( 'policies' === $tab ) : ?>
+				<div class="card shadow-sm">
+					<div class="card-body">
+						<div class="mb-3">
+							<h5 class="h5 mb-1"><?php esc_html_e( 'Policies', 'licencepress' ); ?></h5>
+							<p class="text-secondary mb-0"><?php esc_html_e( 'Define the policies for managing licences.', 'licencepress' ); ?></p>
+						</div>
+						<table class="form-table" role="presentation"><tbody>
+							<?php ( new SettingsPolicies() )->render( Settings::get_group( 'policies', array() ) ?? array() ); ?>
 						</tbody></table>
 					</div>
 				</div>
@@ -129,7 +151,7 @@ final class SettingsManager extends Manager {
 	 * @return string The normalized tab.
 	 */
 	private function normalize_tab( string $tab ): string {
-		$allowed = array( 'general', 'billing', 'access', 'plugins', 'third-party' );
+		$allowed = array( 'general', 'billing', 'access', 'policies', 'plugins', 'third-party' );
 		if ( in_array( $tab, $allowed, true ) || $this->plugins_page->has_settings_page( $tab ) ) {
 			return $tab;
 		}

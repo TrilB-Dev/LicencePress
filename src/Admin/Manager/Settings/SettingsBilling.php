@@ -10,6 +10,8 @@ namespace LicencePress\Admin\Manager\Settings;
 
 use LicencePress\Includes\Functions\Helpers\FormFieldHelper;
 use LicencePress\Includes\Functions\Helpers\RequestHelper;
+use LicencePress\Includes\Plugins\Plugins;
+use LicencePress\Includes\Plugins\SettingsPageProviderInterface;
 use LicencePress\Includes\Plugins\TinyMCE\Includes\Functions\Helpers\TinyMCEHelper;
 use LicencePress\Includes\Settings\Settings;
 
@@ -62,6 +64,10 @@ final class SettingsBilling {
 				'label'    => __( 'Invoice Settings', 'licencepress' ),
 				'callback' => array( $this, 'render_invoice_tab' ),
 			),
+			'paypal'  => array(
+				'label'    => __( 'PayPal', 'licencepress' ),
+				'callback' => array( $this, 'render_paypal_tab' ),
+			),
 		);
 
 		$tabs = apply_filters( 'licencepress_billing_settings_tabs', $tabs );
@@ -98,6 +104,119 @@ final class SettingsBilling {
 	 * @param array<string, mixed> $values Current values.
 	 * @return void
 	 */
+	public function render_paypal_tab( array $values = array() ): void {
+		$plugin = Plugins::get_instance()->get_registered_plugins()['licencepress-paypal'] ?? null;
+		$group  = 'paypal';
+		$fields = array(
+			array(
+				'key'     => 'paypal_environment',
+				'label'   => __( 'Environment', 'licencepress' ),
+				'type'    => 'select',
+				'options' => array(
+					'sandbox' => __( 'Sandbox', 'licencepress' ),
+					'live'    => __( 'Live', 'licencepress' ),
+				),
+				'default' => 'sandbox',
+			),
+			array(
+				'key'     => 'paypal_live_client_id',
+				'label'   => __( 'Live Client ID', 'licencepress' ),
+				'type'    => 'text',
+				'default' => '',
+			),
+			array(
+				'key'     => 'paypal_live_client_secret',
+				'label'   => __( 'Live Client Secret', 'licencepress' ),
+				'type'    => 'text',
+				'default' => '',
+			),
+			array(
+				'key'     => 'paypal_sandbox_client_id',
+				'label'   => __( 'Sandbox Client ID', 'licencepress' ),
+				'type'    => 'text',
+				'default' => '',
+			),
+			array(
+				'key'     => 'paypal_sandbox_client_secret',
+				'label'   => __( 'Sandbox Client Secret', 'licencepress' ),
+				'type'    => 'text',
+				'default' => '',
+			),
+		);
+
+		if ( $plugin instanceof \LicencePress\Includes\Plugins\PluginInterface && $plugin instanceof SettingsPageProviderInterface ) {
+			$page = $plugin->get_settings_page();
+			if ( ! empty( $page['fields'] ) ) {
+				$group = $page['settings_group'] ?? $page['slug'] ?? 'paypal';
+				$fields = $page['fields'];
+			}
+		}
+
+		$values = Settings::get_group( $group, array() ) ?? array();
+		?>
+		<form method="post" action="" class="licencepress-settings-form">
+			<?php wp_nonce_field( 'licencepress_billing_general', 'licencepress_billing_general_nonce' ); ?>
+			<?php echo FormFieldHelper::input(
+				'action',
+				'licencepress_save_billing_settings',
+				array(
+					'type' => 'hidden',
+				)
+			); ?>
+			<?php foreach ( $fields as $field ) : ?>
+				<?php
+				$key = isset( $field['key'] ) ? sanitize_key( (string) $field['key'] ) : '';
+				if ( '' === $key ) {
+					continue;
+				}
+				$name = 'licencepress_' . sanitize_key( (string) $group ) . '[' . $key . ']';
+				$field_value = $values[ $key ] ?? ( $field['default'] ?? '' );
+				$type = sanitize_key( (string) ( $field['type'] ?? 'checkbox' ), 'checkbox' );
+				?>
+				<div class="mb-3">
+					<?php echo FormFieldHelper::label(
+						'licencepress-' . $key,
+						(string) ( $field['label'] ?? $key ),
+						array(
+							'description' => (string) ( $field['description'] ?? '' ),
+						)
+					); ?>
+					<?php if ( 'select' === $type ) : ?>
+						<?php echo FormFieldHelper::select(
+							$name,
+							(array) ( $field['options'] ?? array() ),
+							$field_value,
+							array( 'id' => 'licencepress-' . $key )
+						); ?>
+					<?php elseif ( 'text' === $type ) : ?>
+						<?php echo FormFieldHelper::input(
+							$name,
+							is_scalar( $field_value ) ? (string) $field_value : '',
+							array(
+								'id'   => 'licencepress-' . $key,
+								'type' => 'text',
+							)
+						); ?>
+					<?php elseif ( 'custom' === $type ) : ?>
+						<?php $render = $field['render'] ?? null; if ( is_callable( $render ) ) { call_user_func( $render, $field_value, $name, 'licencepress-' . $key ); } ?>
+					<?php else : ?>
+						<?php echo FormFieldHelper::checkbox(
+							$name,
+							'1',
+							'',
+							array(
+								'id'      => 'licencepress-' . $key,
+								'checked' => ! empty( $field_value ),
+							)
+						); ?>
+					<?php endif; ?>
+				</div>
+			<?php endforeach; ?>
+			<button class="btn btn-primary" type="submit"><?php esc_html_e( 'Save PayPal settings', 'licencepress' ); ?></button>
+		</form>
+		<?php
+	}
+
 	public function render_general_tab( array $values = array() ): void {
 		$values = wp_parse_args(
 			$values,

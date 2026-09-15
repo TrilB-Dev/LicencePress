@@ -9,6 +9,8 @@
 namespace LicencePress\Includes\Functions\Admin;
 
 use LicencePress\Includes\Functions\Helpers\PermalinkHelper;
+use LicencePress\Includes\Plugins\Plugins;
+use LicencePress\Includes\Plugins\SettingsPageProviderInterface;
 use LicencePress\Includes\Settings\Settings;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -80,8 +82,20 @@ final class FunctionsSettings {
 			}
 			check_admin_referer( 'licencepress_billing_general', 'licencepress_billing_general_nonce' );
 			$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
-			$this->sanitize_billing( $input );
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-settings&tab=billing' ) );
+			if ( ! empty( $input ) ) {
+				$this->sanitize_billing( $input );
+			}
+
+			$paypal_input = isset( $_POST['licencepress_paypal'] ) && is_array( $_POST['licencepress_paypal'] ) ? wp_unslash( $_POST['licencepress_paypal'] ) : array();
+			if ( ! empty( $paypal_input ) ) {
+				$plugin = Plugins::get_instance()->get_registered_plugins()['licencepress-paypal'] ?? null;
+				if ( $plugin instanceof SettingsPageProviderInterface ) {
+					$plugin->sanitize_settings( $paypal_input );
+				}
+			}
+
+			$billing_tab = ! empty( $paypal_input ) ? 'billing_tab=paypal#paypal' : 'billing_tab=general';
+			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-settings&tab=billing&' . $billing_tab ) );
 			exit;
 		}
 

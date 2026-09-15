@@ -34,7 +34,7 @@ final class PayPalOAuthHelper {
 		$environment = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
 		$client_id   = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '' ) );
 		if ( '' === $client_id ) {
-			return admin_url( 'admin.php?page=licencepress-paypal' );
+			return admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal&paypal_error=missing_client_id&paypal_environment=' . $environment );
 		}
 
 		$base_url = 'https://www.paypal.com/connect';
@@ -47,7 +47,7 @@ final class PayPalOAuthHelper {
 				'flowEntry'    => 'static',
 				'client_id'    => $client_id,
 				'scope'        => 'openid profile email https://uri.paypal.com/services/payments/reporting',
-				'redirect_uri' => admin_url( 'admin.php?page=licencepress-paypal&paypal_action=callback&paypal_environment=' . $environment ),
+				'redirect_uri' => admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal&paypal_action=callback&paypal_environment=' . $environment ),
 				'state'        => $state,
 			),
 			$base_url

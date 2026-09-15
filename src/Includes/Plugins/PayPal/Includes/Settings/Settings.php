@@ -262,7 +262,7 @@ final class Settings {
 		$settings    = is_array( $settings ) ? $settings : array();
 		$connected   = ! empty( $settings[ 'paypal_' . $environment . '_oauth_connected' ] );
 		$client_id   = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? '' ) );
-		$connect_url = admin_url( 'admin.php?page=licencepress-paypal&paypal_action=connect&paypal_environment=' . $environment );
+		$connect_url = admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal&paypal_action=connect&paypal_environment=' . $environment );
 		$status      = $connected ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
 		$tone        = $connected ? 'success' : 'warning';
 		$label       = 'sandbox' === $environment ? __( 'PayPal Sandbox connection', 'licencepress' ) : __( 'PayPal Live connection', 'licencepress' );

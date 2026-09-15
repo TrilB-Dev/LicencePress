@@ -172,6 +172,52 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertMatchesRegularExpression( '/^WPP-[A-Z0-9]{8}-[A-Z0-9]{8}$/', $preview['sample'] );
 	}
 
+	public function test_paypal_gateway_builds_an_environment_aware_sdk_client(): void {
+		$settings = array(
+			'paypal_environment'             => 'sandbox',
+			'paypal_sandbox_client_id'       => 'sandbox-client-id',
+			'paypal_sandbox_client_secret'   => 'sandbox-client-secret',
+			'paypal_live_client_id'          => 'live-client-id',
+			'paypal_live_client_secret'      => 'live-client-secret',
+		);
+
+		$client = \LicencePress\Includes\Plugins\PayPal\Includes\API\PayPalClient::build_sdk_client( $settings, 'sandbox' );
+
+		$this->assertInstanceOf( '\\PaypalServerSdkLib\\PaypalServerSdkClient', $client );
+		$this->assertSame( \PaypalServerSdkLib\Environment::SANDBOX, $client->getEnvironment() );
+	}
+
+	public function test_paypal_order_payload_includes_checkout_details(): void {
+		$payload = \LicencePress\Includes\Plugins\PayPal\Includes\API\PayPalClient::prepare_order_payload(
+			array(
+				'amount'      => '19.99',
+				'currency'    => 'USD',
+				'description' => 'LicencePress Pro',
+				'custom_id'   => 'licence-42',
+			),
+			'checkout'
+		);
+
+		$this->assertSame( 'CHECKOUT', $payload['intent'] );
+		$this->assertSame( 'licence-42', $payload['purchase_units'][0]['custom_id'] );
+		$this->assertSame( '19.99', $payload['purchase_units'][0]['amount']['value'] );
+		$this->assertSame( 'USD', $payload['purchase_units'][0]['amount']['currency_code'] );
+		$this->assertNotEmpty( $payload['application_context']['return_url'] );
+	}
+
+	public function test_paypal_oauth_redirect_stays_on_paypal_settings_page(): void {
+		$settings = array(
+			'paypal_environment'             => 'sandbox',
+			'paypal_sandbox_client_id'       => '',
+			'paypal_sandbox_client_secret'   => '',
+		);
+
+		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
+		$this->assertStringContainsString( 'page=licencepress&group=settings&tab=billing#paypal', $url );
+		$this->assertStringContainsString( 'paypal_error=missing_client_id', $url );
+		$this->assertStringContainsString( 'paypal_environment=sandbox', $url );
+	}
+
 	public function test_sidebar_links_keep_the_explicit_licencepress_route(): void {
 		$method = new \ReflectionMethod( '\\LicencePress\\Admin\\Manager\\UI\\Sidebar', 'item_link' );
 		$method->setAccessible( true );
@@ -333,6 +379,17 @@ final class LicenceCoreTest extends TestCase {
 		$this->assertSame( 'billing@acme.example', Settings::get( 'email_address' ) );
 		$this->assertSame( '<p>Thank you for your order.</p>', $invoice['invoice_style'] );
 		$this->assertSame( '<p>Thank you for your order.</p>', Settings::get( 'invoice_style' ) );
+	}
+
+	public function test_billing_settings_include_paypal_tab_and_form_fields(): void {
+		ob_start();
+		( new \LicencePress\Admin\Manager\Settings\SettingsBilling() )->render( array() );
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'data-licencepress-billing-tab="paypal"', $output );
+		$this->assertStringContainsString( 'PayPal', $output );
+		$this->assertStringContainsString( 'licencepress_paypal[paypal_environment]', $output );
+		$this->assertStringContainsString( 'licencepress_paypal[paypal_sandbox_client_id]', $output );
 	}
 
 	public function test_ambiguous_character_multiselect_shows_visible_tags(): void {

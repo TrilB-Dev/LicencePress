@@ -25,7 +25,8 @@
         }
     ],
     "require": {
-        "defuse/php-encryption": "^2.4"
+        "defuse/php-encryption": "^2.4",
+        "paypal/paypal-server-sdk": "2.0.0"
     },
     "require-dev": {
         "fortawesome/wordpress-fontawesome": "^5.2",

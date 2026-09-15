@@ -139,6 +139,11 @@ final class PayPal implements PluginInterface, SettingsProviderInterface, Settin
 					'hook'     => 'admin_init',
 					'callback' => 'maybe_handle_oauth_callback',
 				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'template_redirect',
+					'callback' => 'maybe_handle_oauth_callback',
+				),
 			)
 		)->run();
 	}

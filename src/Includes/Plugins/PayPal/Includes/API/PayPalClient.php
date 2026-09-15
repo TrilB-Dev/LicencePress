@@ -52,8 +52,8 @@ final class PayPalClient {
 		$currency     = strtoupper( sanitize_text_field( (string) ( $order_data['currency'] ?? 'USD' ) ) );
 		$description  = sanitize_text_field( (string) ( $order_data['description'] ?? '' ) );
 		$custom_id    = sanitize_text_field( (string) ( $order_data['custom_id'] ?? '' ) );
-		$return_url   = esc_url_raw( (string) ( $order_data['return_url'] ?? admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal' ) ) );
-		$cancel_url   = esc_url_raw( (string) ( $order_data['cancel_url'] ?? admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal' ) ) );
+		$return_url   = esc_url_raw( (string) ( $order_data['return_url'] ?? home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) ) );
+		$cancel_url   = esc_url_raw( (string) ( $order_data['cancel_url'] ?? home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) ) );
 		$line_items   = is_array( $order_data['items'] ?? null ) ? $order_data['items'] : array();
 		$purchase_unit = array(
 			'amount' => array(
@@ -138,7 +138,7 @@ final class PayPalClient {
 				'body'    => array(
 					'grant_type'   => 'authorization_code',
 					'code'         => $code,
-					'redirect_uri' => admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal&paypal_action=callback&paypal_environment=' . $environment ),
+					'redirect_uri' => home_url( '/?paypal_action=callback&paypal_environment=' . $environment ),
 				),
 			)
 		);

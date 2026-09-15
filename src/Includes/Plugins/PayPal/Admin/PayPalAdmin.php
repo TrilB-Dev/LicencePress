@@ -180,10 +180,6 @@ final class PayPalAdmin {
 	}
 
 	public static function maybe_handle_oauth_callback(): void {
-		if ( ! is_admin() || ! current_user_can( 'licencepress_paypal_manage' ) ) {
-			return;
-		}
-
 		if ( empty( $_GET['paypal_action'] ) || 'callback' !== sanitize_key( wp_unslash( $_GET['paypal_action'] ) ) ) {
 			return;
 		}
@@ -193,7 +189,7 @@ final class PayPalAdmin {
 		$environment = sanitize_key( wp_unslash( $_GET['paypal_environment'] ?? 'sandbox' ) );
 
 		if ( '' === $code || ! PayPalOAuthHelper::validate_state( $state, $environment ) ) {
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal' ) );
+			wp_safe_redirect( home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) );
 			exit;
 		}
 
@@ -202,14 +198,14 @@ final class PayPalAdmin {
 		$body     = PayPalClient::exchange_code_for_token( $settings, $code, $environment );
 
 		if ( ! is_array( $body ) ) {
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal' ) );
+			wp_safe_redirect( home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) );
 			exit;
 		}
 
 		$settings[ 'paypal_' . $environment . '_access_token' ]    = sanitize_text_field( (string) ( $body['access_token'] ?? '' ) );
 		$settings[ 'paypal_' . $environment . '_refresh_token' ]   = sanitize_text_field( (string) ( $body['refresh_token'] ?? '' ) );
 		$settings[ 'paypal_' . $environment . '_oauth_connected' ] = ! empty( $body['access_token'] );
-		$settings[ 'paypal_' . $environment . '_callback' ]        = admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal&paypal_action=callback&paypal_environment=' . $environment );
+		$settings[ 'paypal_' . $environment . '_callback' ]        = PayPalOAuthHelper::get_public_callback_url( $environment );
 		$settings['paypal_environment']                             = $environment;
 		$settings['paypal_access_token']                            = $settings[ 'paypal_' . $environment . '_access_token' ];
 		$settings['paypal_refresh_token']                           = $settings[ 'paypal_' . $environment . '_refresh_token' ];
@@ -220,7 +216,7 @@ final class PayPalAdmin {
 		LicencePressSettings::set_group( 'paypal', $settings );
 		PayPalOAuthHelper::clear_state( $environment );
 
-		wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal' ) );
+		wp_safe_redirect( home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) );
 		exit;
 	}
 }

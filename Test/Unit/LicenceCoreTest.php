@@ -213,9 +213,10 @@ final class LicenceCoreTest extends TestCase {
 		);
 
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
-		$this->assertStringContainsString( 'page=licencepress&group=settings&tab=billing#paypal', $url );
+		$this->assertStringContainsString( 'page=licencepress&group=settings&tab=billing', $url );
 		$this->assertStringContainsString( 'paypal_error=missing_client_id', $url );
 		$this->assertStringContainsString( 'paypal_environment=sandbox', $url );
+		$this->assertStringContainsString( '#paypal', $url );
 	}
 
 	public function test_sidebar_links_keep_the_explicit_licencepress_route(): void {

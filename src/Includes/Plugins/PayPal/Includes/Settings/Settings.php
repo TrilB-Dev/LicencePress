@@ -211,6 +211,25 @@ final class Settings {
 		$environment = self::normalize_environment( $environment );
 		return self::site_url( '/?paypal_action=webhook&paypal_environment=' . $environment );
 	}
+
+	public static function get_required_webhook_events(): array {
+		return array(
+			'CHECKOUT.ORDER.APPROVED',
+			'CHECKOUT.ORDER.COMPLETED',
+			'PAYMENT.CAPTURE.COMPLETED',
+			'PAYMENT.CAPTURE.DENIED',
+			'PAYMENT.CAPTURE.REFUNDED',
+			'PAYMENT.CAPTURE.REVERSED',
+			'BILLING.SUBSCRIPTION.CREATED',
+			'BILLING.SUBSCRIPTION.ACTIVATED',
+			'BILLING.SUBSCRIPTION.CANCELLED',
+			'BILLING.SUBSCRIPTION.EXPIRED',
+			'BILLING.SUBSCRIPTION.PAYMENT_FAILED',
+			'BILLING.SUBSCRIPTION.RE-ACTIVATED',
+			'BILLING.SUBSCRIPTION.SUSPENDED',
+			'BILLING.SUBSCRIPTION.UPDATED',
+		);
+	}
 	/**
 	 * Get the PayPal settings page configuration.
 	 *
@@ -329,6 +348,7 @@ final class Settings {
 		$environment = str_contains( $name, 'sandbox' ) || str_contains( $id, 'sandbox' ) ? 'sandbox' : 'live';
 		$url         = self::get_webhook_url( $environment );
 		$label       = 'sandbox' === $environment ? __( 'Sandbox webhook URL', 'licencepress' ) : __( 'Live webhook URL', 'licencepress' );
+		$events      = self::get_required_webhook_events();
 		?>
 		<div class="d-flex flex-column gap-2" style="max-width: 700px;">
 			<label class="form-label mb-0"><strong><?php echo esc_html( $label ); ?></strong></label>
@@ -340,6 +360,14 @@ final class Settings {
 				aria-label="<?php echo esc_attr( $label ); ?>"
 			/>
 			<small class="text-muted"><?php echo esc_html( __( 'Copy this URL and paste it into the PayPal webhook configuration for this environment.', 'licencepress' ) ); ?></small>
+			<div class="mt-2">
+				<strong><?php echo esc_html( __( 'Enable these events:', 'licencepress' ) ); ?></strong>
+				<ul class="mb-0 mt-2 ps-3">
+					<?php foreach ( $events as $event ) : ?>
+						<li><?php echo esc_html( $event ); ?></li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
 		</div>
 		<?php
 	}

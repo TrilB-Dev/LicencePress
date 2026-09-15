@@ -212,6 +212,7 @@ final class Settings {
 					'description' => __( 'Your PayPal REST API client ID.', 'licencepress' ),
 					'type'        => 'text',
 					'default'     => '',
+					'class'       => 'w-100',
 				),
 				array(
 					'key'         => 'paypal_client_secret',
@@ -219,6 +220,7 @@ final class Settings {
 					'description' => __( 'Your PayPal app secret. Store it securely and limit access to trusted admins.', 'licencepress' ),
 					'type'        => 'text',
 					'default'     => '',
+					'class'       => 'w-100',
 				),
 				array(
 					'key'         => 'paypal_sandbox_client_id',
@@ -226,6 +228,7 @@ final class Settings {
 					'description' => __( 'Your PayPal Sandbox REST API client ID.', 'licencepress' ),
 					'type'        => 'text',
 					'default'     => '',
+					'class'       => 'w-100',
 				),
 				array(
 					'key'         => 'paypal_sandbox_client_secret',
@@ -233,6 +236,7 @@ final class Settings {
 					'description' => __( 'Your PayPal Sandbox app secret. Store it securely and limit access to trusted admins.', 'licencepress' ),
 					'type'        => 'text',
 					'default'     => '',
+					'class'       => 'w-100',
 				),
 				array(
 					'key'         => 'paypal_oauth_connect',

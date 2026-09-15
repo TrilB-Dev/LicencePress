@@ -16,6 +16,7 @@ use LicencePress\Includes\Plugins\I18nProviderInterface;
 use LicencePress\Includes\Plugins\PluginInterface;
 use LicencePress\Includes\Plugins\SettingsProviderInterface;
 use LicencePress\Includes\Plugins\SettingsPageProviderInterface;
+use LicencePress\Includes\Plugins\PayPal\Admin\BillingSettingsPayPal;
 use LicencePress\Includes\Plugins\PayPal\Admin\PayPalAdmin;
 use LicencePress\Includes\Plugins\PayPal\Assets\Assets;
 use LicencePress\Includes\Plugins\PayPal\Includes\Core\I18n;
@@ -125,6 +126,7 @@ final class PayPal implements PluginInterface, SettingsProviderInterface, Settin
 		Includes::get_instance()->init();
 
 		$paypal_admin = new PayPalAdmin();
+		$billing_tabs = new BillingSettingsPayPal();
 
 		$this->loader->register_component(
 			$paypal_admin,
@@ -143,6 +145,15 @@ final class PayPal implements PluginInterface, SettingsProviderInterface, Settin
 					'type'     => 'action',
 					'hook'     => 'template_redirect',
 					'callback' => 'maybe_handle_oauth_callback',
+				),
+			)
+		)->register_component(
+			$billing_tabs,
+			array(
+				array(
+					'type'     => 'filter',
+					'hook'     => 'licencepress_billing_settings_tabs',
+					'callback' => 'register_billing_tab',
 				),
 			)
 		)->run();

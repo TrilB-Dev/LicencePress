@@ -2,33 +2,68 @@
 
 // phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited, Squiz.Commenting.VariableComment.Missing, Generic.CodeAnalysis.UnusedFunctionParameter
 
-namespace LicencePress\Test\Unit;
+namespace {
+	if ( ! function_exists( '\get_pages' ) ) {
+		function get_pages( $args = array() ) {
+			return array();
+		}
+	}
 
-if ( ! function_exists( '\get_pages' ) ) {
-	function get_pages( $args = array() ) {
-		return array();
+	if ( ! function_exists( 'add_filter' ) ) {
+		function add_filter( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
+			$GLOBALS['_licencepress_test_filters'][ $hook ][] = array(
+				'callback'      => $callback,
+				'priority'      => $priority,
+				'accepted_args' => $accepted_args,
+			);
+			return true;
+		}
+	}
+
+	if ( ! function_exists( 'apply_filters' ) ) {
+		function apply_filters( $hook, $value ) {
+			$filters = $GLOBALS['_licencepress_test_filters'] ?? array();
+			if ( empty( $filters[ $hook ] ) ) {
+				return $value;
+			}
+
+			foreach ( $filters[ $hook ] as $filter ) {
+				$value = call_user_func( $filter['callback'], $value );
+			}
+
+			return $value;
+		}
+	}
+
+	if ( ! function_exists( 'do_action_ref_array' ) ) {
+		function do_action_ref_array( $hook, $args ) {
+			return null;
+		}
 	}
 }
 
-use Defuse\Crypto\Key;
-use LicencePress\Includes\Core\PostType;
-use LicencePress\Includes\Core\Taxonomy;
-use LicencePress\Includes\Functions\Helpers\AMHelper;
-use LicencePress\Includes\Functions\Helpers\CronJobHelper;
-use LicencePress\Includes\Functions\Helpers\LicenceHelper;
-use LicencePress\Includes\Licence\EncryptionService;
-use LicencePress\Includes\Licence\KeyManager;
-use LicencePress\Includes\Licence\LicenceGenerator;
-use LicencePress\Includes\Licence\LicenceManager;
-use LicencePress\Includes\Licence\LicenceTypeManager;
-use LicencePress\Includes\Licence\LicenceValidator;
-use LicencePress\Includes\Settings\Settings;
-use LicencePress\Includes\Settings\SettingsManager;
-use PHPUnit\Framework\TestCase;
+namespace LicencePress\Test\Unit {
+	use Defuse\Crypto\Key;
+	use LicencePress\Includes\Core\PostType;
+	use LicencePress\Includes\Core\Taxonomy;
+	use LicencePress\Includes\Functions\Helpers\AMHelper;
+	use LicencePress\Includes\Functions\Helpers\CronJobHelper;
+	use LicencePress\Includes\Functions\Helpers\LicenceHelper;
+	use LicencePress\Includes\Licence\EncryptionService;
+	use LicencePress\Includes\Licence\KeyManager;
+	use LicencePress\Includes\Licence\LicenceGenerator;
+	use LicencePress\Includes\Licence\LicenceManager;
+	use LicencePress\Includes\Licence\LicenceTypeManager;
+	use LicencePress\Includes\Licence\LicenceValidator;
+	use LicencePress\Includes\Settings\Settings;
+	use LicencePress\Includes\Settings\SettingsManager;
+	use PHPUnit\Framework\TestCase;
 
-final class LicenceCoreTest extends TestCase {
+	final class LicenceCoreTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
+
+		$GLOBALS['_licencepress_test_filters'] = array();
 
 		\LicencePress\Includes\Settings\SettingsManager::reset_runtime_store();
 
@@ -383,14 +418,20 @@ final class LicenceCoreTest extends TestCase {
 	}
 
 	public function test_billing_settings_include_paypal_tab_and_form_fields(): void {
+		$billing_settings_paypal = new \LicencePress\Includes\Plugins\PayPal\Admin\BillingSettingsPayPal();
+		\add_filter( 'licencepress_billing_settings_tabs', array( $billing_settings_paypal, 'register_billing_tab' ) );
+
 		ob_start();
 		( new \LicencePress\Admin\Manager\Settings\SettingsBilling() )->render( array() );
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'data-licencepress-billing-tab="paypal"', $output );
 		$this->assertStringContainsString( 'PayPal', $output );
+		$this->assertStringContainsString( 'licencepress_paypal[paypal_checkout_enabled]', $output );
 		$this->assertStringContainsString( 'licencepress_paypal[paypal_environment]', $output );
-		$this->assertStringContainsString( 'licencepress_paypal[paypal_sandbox_client_id]', $output );
+		$this->assertStringContainsString( 'licencepress_paypal[paypal_currency]', $output );
+		$this->assertStringContainsString( 'licencepress_paypal[paypal_subscriptions_enabled]', $output );
+		$this->assertStringNotContainsString( 'licencepress_paypal[paypal_sandbox_client_id]', $output );
 	}
 
 	public function test_ambiguous_character_multiselect_shows_visible_tags(): void {
@@ -880,4 +921,6 @@ final class LicenceCoreTest extends TestCase {
 		$this->expectException( \InvalidArgumentException::class );
 		LicenceManager::create_license( $product_id, 'customer-retired-2', 30, 'https://example.com', array( 'support' ) );
 	}
+}
+
 }

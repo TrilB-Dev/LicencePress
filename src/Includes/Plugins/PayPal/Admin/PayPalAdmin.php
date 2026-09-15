@@ -189,7 +189,7 @@ final class PayPalAdmin {
 		$environment = sanitize_key( wp_unslash( $_GET['paypal_environment'] ?? 'sandbox' ) );
 
 		if ( '' === $code || ! PayPalOAuthHelper::validate_state( $state, $environment ) ) {
-			wp_safe_redirect( home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal&paypal_environment=' . $environment . ' ) );
 			exit;
 		}
 
@@ -198,7 +198,7 @@ final class PayPalAdmin {
 		$body     = PayPalClient::exchange_code_for_token( $settings, $code, $environment );
 
 		if ( ! is_array( $body ) ) {
-			wp_safe_redirect( home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&paypal_environment=' . $environment . '#paypal' ) );
 			exit;
 		}
 
@@ -216,7 +216,7 @@ final class PayPalAdmin {
 		LicencePressSettings::set_group( 'paypal', $settings );
 		PayPalOAuthHelper::clear_state( $environment );
 
-		wp_safe_redirect( home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&paypal_environment=' . $environment . '#paypal' ) );
 		exit;
 	}
 }

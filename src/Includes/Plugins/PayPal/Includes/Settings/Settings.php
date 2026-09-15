@@ -193,6 +193,24 @@ final class Settings {
 		$currency = strtoupper( $currency );
 		return '' !== $currency ? $currency : 'USD';
 	}
+
+	private static function site_url( string $path = '' ): string {
+		if ( function_exists( 'home_url' ) ) {
+			return home_url( $path );
+		}
+
+		$base_url = 'https://example.com';
+		if ( '' !== $path ) {
+			$base_url = rtrim( $base_url, '/' ) . '/' . ltrim( $path, '/' );
+		}
+
+		return $base_url;
+	}
+
+	public static function get_webhook_url( ?string $environment = null ): string {
+		$environment = self::normalize_environment( $environment );
+		return self::site_url( '/?paypal_action=webhook&paypal_environment=' . $environment );
+	}
 	/**
 	 * Get the PayPal settings page configuration.
 	 *
@@ -239,28 +257,11 @@ final class Settings {
 					'class'       => 'w-100',
 				),
 				array(
-					'key'         => 'paypal_live_callback',
-					'label'       => __( 'Live Callback URL', 'licencepress' ),
-					'description' => __( 'Public callback URL that PayPal uses for the live environment.', 'licencepress' ),
-					'type'        => 'text',
-					'default'     => '',
-					'class'       => 'w-100',
-				),
-				array(
-					'key'         => 'paypal_sandbox_callback',
-					'label'       => __( 'Sandbox Callback URL', 'licencepress' ),
-					'description' => __( 'Public callback URL that PayPal uses for the sandbox environment.', 'licencepress' ),
-					'type'        => 'text',
-					'default'     => '',
-					'class'       => 'w-100',
-				),
-				array(
-					'key'         => 'paypal_webhook_id',
-					'label'       => __( 'Webhook ID', 'licencepress' ),
-					'description' => __( 'The PayPal webhook ID assigned to this app for the active environment.', 'licencepress' ),
-					'type'        => 'text',
-					'default'     => '',
-					'class'       => 'w-100',
+					'key'         => 'paypal_live_webhook_url',
+					'label'       => __( 'Live webhook URL', 'licencepress' ),
+					'description' => __( 'Copy this URL into your PayPal live webhook configuration.', 'licencepress' ),
+					'type'        => 'custom',
+					'render'      => array( self::class, 'render_webhook_url' ),
 				),
 				array(
 					'key'         => 'paypal_oauth_connect',
@@ -268,6 +269,13 @@ final class Settings {
 					'description' => __( 'Complete the OAuth flow to unlock the sidebar configuration and PayPal operations.', 'licencepress' ),
 					'type'        => 'custom',
 					'render'      => array( self::class, 'render_oauth_connection' ),
+				),
+				array(
+					'key'         => 'paypal_sandbox_webhook_url',
+					'label'       => __( 'Sandbox webhook URL', 'licencepress' ),
+					'description' => __( 'Copy this URL into your PayPal sandbox webhook configuration.', 'licencepress' ),
+					'type'        => 'custom',
+					'render'      => array( self::class, 'render_webhook_url' ),
 				),
 				array(
 					'key'         => 'paypal_sandbox_oauth_connect',
@@ -313,6 +321,25 @@ final class Settings {
 					<?php echo esc_html( 'sandbox' === $environment ? __( 'Enter your PayPal Sandbox client ID and client secret first, then connect.', 'licencepress' ) : __( 'Enter your live PayPal client ID and client secret first, then connect.', 'licencepress' ) ); ?>
 				</div>
 			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	public static function render_webhook_url( $value, string $name, string $id ): void {
+		$environment = str_contains( $name, 'sandbox' ) || str_contains( $id, 'sandbox' ) ? 'sandbox' : 'live';
+		$url         = self::get_webhook_url( $environment );
+		$label       = 'sandbox' === $environment ? __( 'Sandbox webhook URL', 'licencepress' ) : __( 'Live webhook URL', 'licencepress' );
+		?>
+		<div class="d-flex flex-column gap-2" style="max-width: 700px;">
+			<label class="form-label mb-0"><strong><?php echo esc_html( $label ); ?></strong></label>
+			<input
+				type="text"
+				readonly
+				class="form-control font-monospace"
+				value="<?php echo esc_attr( $url ); ?>"
+				aria-label="<?php echo esc_attr( $label ); ?>"
+			/>
+			<small class="text-muted"><?php echo esc_html( __( 'Copy this URL and paste it into the PayPal webhook configuration for this environment.', 'licencepress' ) ); ?></small>
 		</div>
 		<?php
 	}

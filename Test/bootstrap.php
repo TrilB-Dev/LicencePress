@@ -439,7 +439,7 @@ if ( ! class_exists( 'wpdb' ) ) {
 				if ( '' !== $table && array_key_exists( $table, $this->tables ) ) {
 					return $table;
 				}
-				return '' !== $table ? $table : null;
+				return null;
 			}
 			if ( preg_match( '/FROM\s+`?([A-Za-z0-9_]+)`?/i', $query, $matches ) ) {
 				$table = $matches[1];

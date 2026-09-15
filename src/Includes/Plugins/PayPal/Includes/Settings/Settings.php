@@ -39,35 +39,57 @@ final class Settings {
 		BaseSettings::register_group(
 			self::GROUP,
 			array(
-				'paypal_client_id'             => '',
-				'paypal_client_secret'         => '',
-				'paypal_environment'           => self::DEFAULT_ENVIRONMENT,
-				'paypal_checkout_enabled'      => true,
-				'paypal_subscriptions_enabled' => false,
-				'paypal_oauth_connected'       => false,
-				'paypal_currency'              => 'USD',
-				'paypal_webhook_id'            => '',
-				'paypal_access_token'          => '',
-				'paypal_refresh_token'         => '',
+				'paypal_environment'                => self::DEFAULT_ENVIRONMENT,
+				'paypal_checkout_enabled'           => true,
+				'paypal_subscriptions_enabled'      => false,
+				'paypal_currency'                   => 'USD',
+				'paypal_webhook_id'                 => '',
+				'paypal_client_id'                  => '',
+				'paypal_client_secret'              => '',
+				'paypal_oauth_connected'            => false,
+				'paypal_access_token'               => '',
+				'paypal_refresh_token'              => '',
+				'paypal_callback'                   => '',
+				'paypal_live_client_id'             => '',
+				'paypal_live_client_secret'         => '',
+				'paypal_live_oauth_connected'       => false,
+				'paypal_live_access_token'          => '',
+				'paypal_live_refresh_token'         => '',
+				'paypal_live_callback'              => '',
+				'paypal_sandbox_client_id'          => '',
+				'paypal_sandbox_client_secret'      => '',
+				'paypal_sandbox_oauth_connected'    => false,
+				'paypal_sandbox_access_token'       => '',
+				'paypal_sandbox_refresh_token'      => '',
+				'paypal_sandbox_callback'           => '',
 			)
 		);
 	}
+
 	/**
-	 * Get the PayPal client ID.
+	 * Get the PayPal client ID for the active environment.
 	 *
+	 * @param string|null $environment The environment override.
 	 * @return string The client ID.
 	 */
-	public static function get_client_id(): string {
-		return sanitize_text_field( (string) BaseSettings::get( 'paypal_client_id', '' ) );
+	public static function get_client_id( ?string $environment = null ): string {
+		$environment = self::normalize_environment( $environment );
+		$key = 'paypal_' . $environment . '_client_id';
+		$value = sanitize_text_field( (string) BaseSettings::get( $key, BaseSettings::get( 'paypal_client_id', '' ) ) );
+		return '' !== $value ? $value : sanitize_text_field( (string) BaseSettings::get( 'paypal_client_id', '' ) );
 	}
 
 	/**
-	 * Get the PayPal client secret.
+	 * Get the PayPal client secret for the active environment.
 	 *
+	 * @param string|null $environment The environment override.
 	 * @return string The client secret.
 	 */
-	public static function get_client_secret(): string {
-		return sanitize_text_field( (string) BaseSettings::get( 'paypal_client_secret', '' ) );
+	public static function get_client_secret( ?string $environment = null ): string {
+		$environment = self::normalize_environment( $environment );
+		$key = 'paypal_' . $environment . '_client_secret';
+		$value = sanitize_text_field( (string) BaseSettings::get( $key, BaseSettings::get( 'paypal_client_secret', '' ) ) );
+		return '' !== $value ? $value : sanitize_text_field( (string) BaseSettings::get( 'paypal_client_secret', '' ) );
 	}
 
 	/**
@@ -77,16 +99,70 @@ final class Settings {
 	 */
 	public static function get_environment(): string {
 		$environment = sanitize_key( (string) BaseSettings::get( 'paypal_environment', self::DEFAULT_ENVIRONMENT ) );
-		return in_array( $environment, self::ENVIRONMENTS, true ) ? $environment : self::DEFAULT_ENVIRONMENT;
+		return self::normalize_environment( $environment );
 	}
 
 	/**
-	 * Check if PayPal OAuth is connected.
+	 * Get the PayPal callback URL for the supplied environment.
 	 *
+	 * @param string|null $environment The environment.
+	 * @return string The callback URL.
+	 */
+	public static function get_callback_url( ?string $environment = null ): string {
+		$environment = self::normalize_environment( $environment );
+		$key = 'paypal_' . $environment . '_callback';
+		$value = sanitize_text_field( (string) BaseSettings::get( $key, BaseSettings::get( 'paypal_callback', '' ) ) );
+		return '' !== $value ? $value : sanitize_text_field( (string) BaseSettings::get( 'paypal_callback', '' ) );
+	}
+
+	/**
+	 * Get the access token for the supplied environment.
+	 *
+	 * @param string|null $environment The environment.
+	 * @return string The access token.
+	 */
+	public static function get_access_token( ?string $environment = null ): string {
+		$environment = self::normalize_environment( $environment );
+		$key = 'paypal_' . $environment . '_access_token';
+		$value = sanitize_text_field( (string) BaseSettings::get( $key, BaseSettings::get( 'paypal_access_token', '' ) ) );
+		return '' !== $value ? $value : sanitize_text_field( (string) BaseSettings::get( 'paypal_access_token', '' ) );
+	}
+
+	/**
+	 * Get the refresh token for the supplied environment.
+	 *
+	 * @param string|null $environment The environment.
+	 * @return string The refresh token.
+	 */
+	public static function get_refresh_token( ?string $environment = null ): string {
+		$environment = self::normalize_environment( $environment );
+		$key = 'paypal_' . $environment . '_refresh_token';
+		$value = sanitize_text_field( (string) BaseSettings::get( $key, BaseSettings::get( 'paypal_refresh_token', '' ) ) );
+		return '' !== $value ? $value : sanitize_text_field( (string) BaseSettings::get( 'paypal_refresh_token', '' ) );
+	}
+
+	/**
+	 * Check if PayPal OAuth is connected for the active environment.
+	 *
+	 * @param string|null $environment The environment override.
 	 * @return bool True if connected, false otherwise.
 	 */
-	public static function is_oauth_connected(): bool {
-		return (bool) BaseSettings::get_bool( 'paypal_oauth_connected', false );
+	public static function is_oauth_connected( ?string $environment = null ): bool {
+		$environment = self::normalize_environment( $environment );
+		$key = 'paypal_' . $environment . '_oauth_connected';
+		$value = BaseSettings::get_bool( $key, BaseSettings::get_bool( 'paypal_oauth_connected', false ) );
+		return $value || BaseSettings::get_bool( 'paypal_oauth_connected', false );
+	}
+
+	/**
+	 * Normalize the supplied environment name.
+	 *
+	 * @param string|null $environment The raw environment value.
+	 * @return string The normalized environment.
+	 */
+	private static function normalize_environment( ?string $environment = null ): string {
+		$environment = sanitize_key( (string) ( $environment ?? BaseSettings::get( 'paypal_environment', self::DEFAULT_ENVIRONMENT ) ) );
+		return in_array( $environment, self::ENVIRONMENTS, true ) ? $environment : self::DEFAULT_ENVIRONMENT;
 	}
 
 	/**
@@ -131,17 +207,6 @@ final class Settings {
 			'layout'         => 'table',
 			'fields'         => array(
 				array(
-					'key'         => 'paypal_environment',
-					'label'       => __( 'Environment', 'licencepress' ),
-					'description' => __( 'Choose whether PayPal requests are sent to Sandbox or Live.', 'licencepress' ),
-					'type'        => 'select',
-					'options'     => array(
-						'sandbox' => __( 'Sandbox', 'licencepress' ),
-						'live'    => __( 'Live', 'licencepress' ),
-					),
-					'default'     => self::DEFAULT_ENVIRONMENT,
-				),
-				array(
 					'key'         => 'paypal_client_id',
 					'label'       => __( 'Client ID', 'licencepress' ),
 					'description' => __( 'Your PayPal REST API client ID.', 'licencepress' ),
@@ -156,25 +221,18 @@ final class Settings {
 					'default'     => '',
 				),
 				array(
-					'key'         => 'paypal_currency',
-					'label'       => __( 'Currency', 'licencepress' ),
-					'description' => __( 'Default currency code for licenses and subscriptions.', 'licencepress' ),
+					'key'         => 'paypal_sandbox_client_id',
+					'label'       => __( 'Sandbox Client ID', 'licencepress' ),
+					'description' => __( 'Your PayPal Sandbox REST API client ID.', 'licencepress' ),
 					'type'        => 'text',
-					'default'     => 'USD',
+					'default'     => '',
 				),
 				array(
-					'key'         => 'paypal_checkout_enabled',
-					'label'       => __( 'Enable one-time checkout', 'licencepress' ),
-					'description' => __( 'Allow one-time PayPal checkout for purchases and renewals.', 'licencepress' ),
-					'type'        => 'checkbox',
-					'default'     => true,
-				),
-				array(
-					'key'         => 'paypal_subscriptions_enabled',
-					'label'       => __( 'Enable subscriptions', 'licencepress' ),
-					'description' => __( 'Allow recurring plans and subscription billing.', 'licencepress' ),
-					'type'        => 'checkbox',
-					'default'     => false,
+					'key'         => 'paypal_sandbox_client_secret',
+					'label'       => __( 'Sandbox Client Secret', 'licencepress' ),
+					'description' => __( 'Your PayPal Sandbox app secret. Store it securely and limit access to trusted admins.', 'licencepress' ),
+					'type'        => 'text',
+					'default'     => '',
 				),
 				array(
 					'key'         => 'paypal_oauth_connect',
@@ -183,31 +241,36 @@ final class Settings {
 					'type'        => 'custom',
 					'render'      => array( self::class, 'render_oauth_connection' ),
 				),
+				array(
+					'key'         => 'paypal_sandbox_oauth_connect',
+					'label'       => __( 'PayPal Sandbox connection', 'licencepress' ),
+					'description' => __( 'Complete the OAuth flow to unlock the sidebar configuration and PayPal Sandbox operations.', 'licencepress' ),
+					'type'        => 'custom',
+					'render'      => array( self::class, 'render_oauth_connection' ),
+				),
 			),
 		);
 	}
 
 	public static function render_oauth_connection( $value, string $name, string $id ): void {
-		if ( 'paypal_oauth_connect' !== $name && 'paypal_oauth_connect' !== $id && '' !== $value ) {
-			$unused = $value . $name . $id;
-		}
-
+		$environment = str_contains( $name, 'sandbox' ) || str_contains( $id, 'sandbox' ) ? 'sandbox' : 'live';
 		$settings    = BaseSettings::get_group( self::GROUP, array() );
 		$settings    = is_array( $settings ) ? $settings : array();
-		$connected   = ! empty( $settings['paypal_oauth_connected'] );
-		$client_id   = sanitize_text_field( (string) ( $settings['paypal_client_id'] ?? '' ) );
-		$connect_url = admin_url( 'admin.php?page=licencepress-paypal&paypal_action=connect' );
+		$connected   = ! empty( $settings[ 'paypal_' . $environment . '_oauth_connected' ] );
+		$client_id   = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? '' ) );
+		$connect_url = admin_url( 'admin.php?page=licencepress-paypal&paypal_action=connect&paypal_environment=' . $environment );
 		$status      = $connected ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
 		$tone        = $connected ? 'success' : 'warning';
+		$label       = 'sandbox' === $environment ? __( 'PayPal Sandbox connection', 'licencepress' ) : __( 'PayPal Live connection', 'licencepress' );
 		$message     = $connected
-			? __( 'Your PayPal integration is active and the PayPal sidebar is available.', 'licencepress' )
-			: __( 'Connect PayPal to unlock the PayPal sidebar and checkout settings.', 'licencepress' );
+			? __( 'Your PayPal integration is active and the PayPal sidebar is available for this environment.', 'licencepress' )
+			: __( 'Connect this environment to unlock the PayPal sidebar and checkout settings.', 'licencepress' );
 		?>
 		<div class="d-flex flex-column gap-3" style="max-width: 540px;">
 			<div class="card border-<?php echo esc_attr( $tone ); ?> shadow-none mb-0">
 				<div class="card-body">
 					<div class="d-flex align-items-center justify-content-between gap-3 mb-2">
-						<strong><?php echo esc_html__( 'PayPal connection', 'licencepress' ); ?></strong>
+						<strong><?php echo esc_html( $label ); ?></strong>
 						<span class="badge bg-<?php echo esc_attr( $tone ); ?> text-uppercase"><?php echo esc_html( $status ); ?></span>
 					</div>
 					<div class="small text-muted"><?php echo esc_html( $message ); ?></div>
@@ -219,7 +282,7 @@ final class Settings {
 				</a>
 			<?php else : ?>
 				<div class="small text-secondary">
-					<?php echo esc_html__( 'Enter your PayPal client ID and client secret first, then connect.', 'licencepress' ); ?>
+					<?php echo esc_html( 'sandbox' === $environment ? __( 'Enter your PayPal Sandbox client ID and client secret first, then connect.', 'licencepress' ) : __( 'Enter your live PayPal client ID and client secret first, then connect.', 'licencepress' ) ); ?>
 				</div>
 			<?php endif; ?>
 		</div>
@@ -234,19 +297,26 @@ final class Settings {
 	public function sanitize( $input ): array {
 		$input = is_array( $input ) ? $input : array();
 
-		$environment        = sanitize_key( (string) ( $input['paypal_environment'] ?? '' ) );
-		$currency           = sanitize_text_field( (string) ( $input['paypal_currency'] ?? 'USD' ) );
-		$currency           = strtoupper( $currency );
-		$sanitized_currency = '' !== $currency ? $currency : 'USD';
-
 		$settings = array(
-			'paypal_environment'           => in_array( $environment, self::ENVIRONMENTS, true ) ? $environment : self::DEFAULT_ENVIRONMENT,
-			'paypal_client_id'             => sanitize_text_field( (string) ( $input['paypal_client_id'] ?? '' ) ),
-			'paypal_client_secret'         => sanitize_text_field( (string) ( $input['paypal_client_secret'] ?? '' ) ),
-			'paypal_currency'              => $sanitized_currency,
-			'paypal_checkout_enabled'      => ! empty( $input['paypal_checkout_enabled'] ),
-			'paypal_subscriptions_enabled' => ! empty( $input['paypal_subscriptions_enabled'] ),
-			'paypal_oauth_connected'       => ! empty( $input['paypal_oauth_connected'] ),
+			'paypal_environment'             => in_array( sanitize_key( (string) ( $input['paypal_environment'] ?? self::DEFAULT_ENVIRONMENT ) ), self::ENVIRONMENTS, true ) ? sanitize_key( (string) ( $input['paypal_environment'] ?? self::DEFAULT_ENVIRONMENT ) ) : self::DEFAULT_ENVIRONMENT,
+			'paypal_live_client_id'          => sanitize_text_field( (string) ( $input['paypal_live_client_id'] ?? $input['paypal_client_id'] ?? '' ) ),
+			'paypal_live_client_secret'      => sanitize_text_field( (string) ( $input['paypal_live_client_secret'] ?? $input['paypal_client_secret'] ?? '' ) ),
+			'paypal_live_oauth_connected'    => ! empty( $input['paypal_live_oauth_connected'] ) || ! empty( $input['paypal_oauth_connected'] ),
+			'paypal_live_access_token'       => sanitize_text_field( (string) ( $input['paypal_live_access_token'] ?? $input['paypal_access_token'] ?? '' ) ),
+			'paypal_live_refresh_token'      => sanitize_text_field( (string) ( $input['paypal_live_refresh_token'] ?? $input['paypal_refresh_token'] ?? '' ) ),
+			'paypal_live_callback'           => esc_url_raw( (string) ( $input['paypal_live_callback'] ?? $input['paypal_callback'] ?? '' ) ),
+			'paypal_sandbox_client_id'       => sanitize_text_field( (string) ( $input['paypal_sandbox_client_id'] ?? '' ) ),
+			'paypal_sandbox_client_secret'   => sanitize_text_field( (string) ( $input['paypal_sandbox_client_secret'] ?? '' ) ),
+			'paypal_sandbox_oauth_connected' => ! empty( $input['paypal_sandbox_oauth_connected'] ) || ! empty( $input['paypal_oauth_connected'] ),
+			'paypal_sandbox_access_token'    => sanitize_text_field( (string) ( $input['paypal_sandbox_access_token'] ?? $input['paypal_access_token'] ?? '' ) ),
+			'paypal_sandbox_refresh_token'   => sanitize_text_field( (string) ( $input['paypal_sandbox_refresh_token'] ?? $input['paypal_refresh_token'] ?? '' ) ),
+			'paypal_sandbox_callback'        => esc_url_raw( (string) ( $input['paypal_sandbox_callback'] ?? $input['paypal_callback'] ?? '' ) ),
+			'paypal_client_id'               => sanitize_text_field( (string) ( $input['paypal_live_client_id'] ?? $input['paypal_client_id'] ?? '' ) ),
+			'paypal_client_secret'           => sanitize_text_field( (string) ( $input['paypal_live_client_secret'] ?? $input['paypal_client_secret'] ?? '' ) ),
+			'paypal_oauth_connected'         => ! empty( $input['paypal_oauth_connect'] ) || ! empty( $input['paypal_live_oauth_connected'] ),
+			'paypal_access_token'            => sanitize_text_field( (string) ( $input['paypal_live_access_token'] ?? $input['paypal_access_token'] ?? '' ) ),
+			'paypal_refresh_token'           => sanitize_text_field( (string) ( $input['paypal_live_refresh_token'] ?? $input['paypal_refresh_token'] ?? '' ) ),
+			'paypal_callback'                => esc_url_raw( (string) ( $input['paypal_live_callback'] ?? $input['paypal_callback'] ?? '' ) ),
 		);
 
 		BaseSettings::set_group( self::GROUP, $settings );

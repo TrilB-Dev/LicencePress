@@ -32,8 +32,10 @@ final class TinyMCEHelper {
 		if ( function_exists( 'get_user_locale' ) ) {
 			$locale = get_user_locale();
 		}
+		$plugins_root      = defined( 'LICENCEPRESS_PLUGINS' ) ? LICENCEPRESS_PLUGINS : dirname( __DIR__, 4 );
+		$plugins_url_root  = defined( 'LICENCEPRESS_PLUGINS_URL' ) ? LICENCEPRESS_PLUGINS_URL : ( defined( 'LICENCEPRESS_URL' ) ? LICENCEPRESS_URL . 'src/Includes/Plugins' : '' );
 		$language_path     = '';
-		$language_dir      = dirname( LICENCEPRESS_PLUGINS ) . '/TinyMCE/Assets/tinymce/langs';
+		$language_dir      = $plugins_root . '/TinyMCE/Assets/tinymce/langs';
 		$locale_candidates = array( $locale, str_replace( '-', '_', $locale ), str_replace( '_', '-', $locale ), strtolower( $locale ) );
 		$language_files    = glob( $language_dir . '/*.js' );
 		if ( false === $language_files ) {
@@ -49,7 +51,7 @@ final class TinyMCEHelper {
 		}
 		$language_url = '';
 		if ( file_exists( $language_path ) ) {
-			$language_url = LICENCEPRESS_PLUGINS_URL . '/TinyMCE/Assets/tinymce/langs/' . basename( $language_path );
+			$language_url = $plugins_url_root . '/TinyMCE/Assets/tinymce/langs/' . basename( $language_path );
 		}
 		$toolbar   = array( 'blocks' );
 		$toolbar[] = '|';
@@ -85,10 +87,10 @@ final class TinyMCEHelper {
 			'license_key'   => 'gpl',
 			'plugins'       => implode( ' ', $plugins ),
 			'toolbar'       => implode( ' ', $toolbar ),
-			'base_url'      => LICENCEPRESS_PLUGINS_URL . '/TinyMCE/Assets/tinymce',
+			'base_url'      => $plugins_url_root . '/TinyMCE/Assets/tinymce',
 			'skin'          => $ui_skin,
-			'skin_url'      => LICENCEPRESS_PLUGINS_URL . '/TinyMCE/Assets/tinymce/skins/ui/' . $ui_skin,
-			'content_css'   => LICENCEPRESS_PLUGINS_URL . '/TinyMCE/Assets/tinymce/skins/content/' . $content_skin . '/content.min.css',
+			'skin_url'      => $plugins_url_root . '/TinyMCE/Assets/tinymce/skins/ui/' . $ui_skin,
+			'content_css'   => $plugins_url_root . '/TinyMCE/Assets/tinymce/skins/content/' . $content_skin . '/content.min.css',
 			'media_buttons' => $media_buttons,
 		);
 		if ( $language_url ) {

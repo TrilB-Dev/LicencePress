@@ -62,7 +62,7 @@ final class PayPalAdmin {
 		$settings = LicencePressSettings::get_group( 'paypal', array() );
 		$settings = is_array( $settings ) ? $settings : array();
 
-		if ( empty( $settings['paypal_oauth_connected'] ) ) {
+		if ( empty( $settings['paypal_oauth_connected'] ) && empty( $settings['paypal_live_oauth_connected'] ) && empty( $settings['paypal_sandbox_oauth_connected'] ) ) {
 			return array();
 		}
 
@@ -106,10 +106,9 @@ final class PayPalAdmin {
 	public static function render_dashboard(): void {
 		$settings    = LicencePressSettings::get_group( 'paypal', array() );
 		$settings    = is_array( $settings ) ? $settings : array();
-		$connected   = ! empty( $settings['paypal_oauth_connected'] );
-		$environment = strtoupper( (string) ( $settings['paypal_environment'] ?? 'sandbox' ) );
-		$client_id   = (string) ( $settings['paypal_client_id'] ?? '' );
-		?>
+		$environment = sanitize_key( (string) ( $settings['paypal_environment'] ?? 'sandbox' ) );
+		$connected   = ! empty( $settings[ 'paypal_' . $environment . '_oauth_connected' ] ) || ! empty( $settings['paypal_oauth_connected'] );
+		$client_id   = (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '' );
 		$client_id_label = '' !== $client_id ? $client_id : __( 'Not configured', 'licencepress' );
 		?>
 		<div class="wrap licencepress-paypal-wrap">
@@ -163,9 +162,10 @@ final class PayPalAdmin {
 			return;
 		}
 
-		$settings  = LicencePressSettings::get_group( 'paypal', array() );
-		$settings  = is_array( $settings ) ? $settings : array();
-		$client_id = sanitize_text_field( (string) ( $settings['paypal_client_id'] ?? '' ) );
+		$settings    = LicencePressSettings::get_group( 'paypal', array() );
+		$settings    = is_array( $settings ) ? $settings : array();
+		$environment = sanitize_key( wp_unslash( $_GET['paypal_environment'] ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
+		$client_id   = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '' ) );
 
 		if ( '' === $client_id ) {
 			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-paypal' ) );
@@ -173,9 +173,9 @@ final class PayPalAdmin {
 		}
 
 		$state = PayPalOAuthHelper::generate_state();
-		PayPalOAuthHelper::save_state( $state );
+		PayPalOAuthHelper::save_state( $state, $environment );
 
-		wp_safe_redirect( PayPalOAuthHelper::build_connect_url( $settings, $state ) );
+		wp_safe_redirect( PayPalOAuthHelper::build_connect_url( $settings, $state, $environment ) );
 		exit;
 	}
 
@@ -188,28 +188,37 @@ final class PayPalAdmin {
 			return;
 		}
 
-		$code  = sanitize_text_field( wp_unslash( $_GET['code'] ?? '' ) );
-		$state = sanitize_text_field( wp_unslash( $_GET['state'] ?? '' ) );
+		$code        = sanitize_text_field( wp_unslash( $_GET['code'] ?? '' ) );
+		$state       = sanitize_text_field( wp_unslash( $_GET['state'] ?? '' ) );
+		$environment = sanitize_key( wp_unslash( $_GET['paypal_environment'] ?? 'sandbox' ) );
 
-		if ( '' === $code || ! PayPalOAuthHelper::validate_state( $state ) ) {
+		if ( '' === $code || ! PayPalOAuthHelper::validate_state( $state, $environment ) ) {
 			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-paypal' ) );
 			exit;
 		}
 
 		$settings = LicencePressSettings::get_group( 'paypal', array() );
 		$settings = is_array( $settings ) ? $settings : array();
-		$body     = PayPalClient::exchange_code_for_token( $settings, $code );
+		$body     = PayPalClient::exchange_code_for_token( $settings, $code, $environment );
 
 		if ( ! is_array( $body ) ) {
 			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-paypal' ) );
 			exit;
 		}
 
-		$settings['paypal_access_token']    = sanitize_text_field( (string) ( $body['access_token'] ?? '' ) );
-		$settings['paypal_refresh_token']   = sanitize_text_field( (string) ( $body['refresh_token'] ?? '' ) );
-		$settings['paypal_oauth_connected'] = ! empty( $body['access_token'] );
+		$settings[ 'paypal_' . $environment . '_access_token' ]    = sanitize_text_field( (string) ( $body['access_token'] ?? '' ) );
+		$settings[ 'paypal_' . $environment . '_refresh_token' ]   = sanitize_text_field( (string) ( $body['refresh_token'] ?? '' ) );
+		$settings[ 'paypal_' . $environment . '_oauth_connected' ] = ! empty( $body['access_token'] );
+		$settings[ 'paypal_' . $environment . '_callback' ]        = admin_url( 'admin.php?page=licencepress-paypal&paypal_action=callback&paypal_environment=' . $environment );
+		$settings['paypal_environment']                             = $environment;
+		$settings['paypal_access_token']                            = $settings[ 'paypal_' . $environment . '_access_token' ];
+		$settings['paypal_refresh_token']                           = $settings[ 'paypal_' . $environment . '_refresh_token' ];
+		$settings['paypal_oauth_connected']                         = $settings[ 'paypal_' . $environment . '_oauth_connected' ];
+		$settings['paypal_callback']                                = $settings[ 'paypal_' . $environment . '_callback' ];
+		$settings['paypal_client_id']                               = $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '';
+		$settings['paypal_client_secret']                           = $settings[ 'paypal_' . $environment . '_client_secret' ] ?? $settings['paypal_client_secret'] ?? '';
 		LicencePressSettings::set_group( 'paypal', $settings );
-		PayPalOAuthHelper::clear_state();
+		PayPalOAuthHelper::clear_state( $environment );
 
 		wp_safe_redirect( admin_url( 'admin.php?page=licencepress-paypal' ) );
 		exit;

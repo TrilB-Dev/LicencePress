@@ -30,6 +30,8 @@ final class LicenceCoreTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
+		\LicencePress\Includes\Settings\SettingsManager::reset_runtime_store();
+
 		global $wpdb;
 		$wpdb->tables = array();
 

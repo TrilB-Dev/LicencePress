@@ -22,6 +22,13 @@ final class SettingsManager {
 	private static array $registered_groups = array();
 
 	/**
+	 * Runtime settings store used when the custom settings table is unavailable.
+	 *
+	 * @var array<string, array<string, mixed>>
+	 */
+	private static array $runtime_store = array();
+
+	/**
 	 * Registered settings keys.
 	 *
 	 * @var array<string, string>
@@ -127,7 +134,7 @@ final class SettingsManager {
 		global $wpdb;
 
 		if ( ! self::table_exists() ) {
-			return array();
+			return self::$runtime_store;
 		}
 
 		$column_name = self::has_column( 'setting_group' ) ? 'setting_group' : 'setting_key';
@@ -226,7 +233,8 @@ final class SettingsManager {
 		global $wpdb;
 
 		if ( ! self::table_exists() ) {
-			return null;
+			$normalized = self::normalize_group( $group );
+			return isset( self::$runtime_store[ $normalized ] ) ? self::$runtime_store[ $normalized ] : null;
 		}
 
 		$column_name = self::has_column( 'setting_group' ) ? 'setting_group' : 'setting_key';
@@ -248,6 +256,13 @@ final class SettingsManager {
 	 */
 	public static function set_group( string $group, array $settings ): bool {
 		global $wpdb;
+
+		$normalized_group = self::normalize_group( $group );
+		self::$runtime_store[ $normalized_group ] = $settings;
+
+		if ( ! self::table_exists() ) {
+			return true;
+		}
 
 		if ( self::has_column( 'setting_group' ) ) {
 			return false !== $wpdb->replace(
@@ -280,6 +295,10 @@ final class SettingsManager {
 	 * @param array  $defaults The default settings for the group.
 	 * @return bool True on success, false on failure.
 	 */
+	public static function reset_runtime_store(): void {
+		self::$runtime_store = array();
+	}
+
 	public static function register_group( string $group, array $defaults = array() ): bool {
 		$group = self::normalize_group( $group );
 		if ( '' === $group ) {

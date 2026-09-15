@@ -168,7 +168,7 @@ final class PayPalAdmin {
 		$client_id   = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '' ) );
 
 		if ( '' === $client_id ) {
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal&paypal_error=missing_client_id&paypal_environment=' . $environment ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&paypal_error=missing_client_id&paypal_environment=' . $environment . '#paypal' ) );
 			exit;
 		}
 

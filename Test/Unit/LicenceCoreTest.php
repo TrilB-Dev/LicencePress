@@ -434,6 +434,23 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringNotContainsString( 'licencepress_paypal[paypal_sandbox_client_id]', $output );
 	}
 
+	public function test_paypal_oauth_connect_url_keeps_action_before_hash_fragment(): void {
+		\LicencePress\Includes\Settings\Settings::set_group(
+			'paypal',
+			array(
+				'paypal_sandbox_client_id' => 'sandbox-client-123',
+			)
+		);
+
+		ob_start();
+		\LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings::render_oauth_connection( '', 'paypal_sandbox_oauth_connect', 'paypal_sandbox_oauth_connect' );
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'paypal_action=connect', $output );
+		$this->assertStringContainsString( '#paypal', $output );
+		$this->assertLessThan( strpos( $output, '#paypal' ), strpos( $output, 'paypal_action=connect' ) );
+	}
+
 	public function test_ambiguous_character_multiselect_shows_visible_tags(): void {
 		ob_start();
 		( new \LicencePress\Admin\Manager\Settings\SettingsGeneral() )->render(

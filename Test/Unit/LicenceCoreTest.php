@@ -254,6 +254,20 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringContainsString( '#paypal', $url );
 	}
 
+	public function test_paypal_oauth_connect_uses_official_connect_endpoint_and_public_callback(): void {
+		$settings = array(
+			'paypal_environment'       => 'sandbox',
+			'paypal_sandbox_client_id' => 'sandbox-client-id',
+		);
+
+		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
+
+		$this->assertStringStartsWith( 'https://www.sandbox.paypal.com/connect?', $url );
+		$this->assertStringContainsString( 'client_id=sandbox-client-id', $url );
+		$this->assertStringContainsString( 'state=state-123', $url );
+		$this->assertStringContainsString( 'redirect_uri=https%3A%2F%2Fexample.com%2F%3Fpaypal_action%3Dcallback%26paypal_environment%3Dsandbox', $url );
+	}
+
 	public function test_sidebar_links_keep_the_explicit_licencepress_route(): void {
 		$method = new \ReflectionMethod( '\\LicencePress\\Admin\\Manager\\UI\\Sidebar', 'item_link' );
 		$method->setAccessible( true );
@@ -449,6 +463,30 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringContainsString( 'paypal_action=connect', $output );
 		$this->assertStringContainsString( '#paypal', $output );
 		$this->assertLessThan( strpos( $output, '#paypal' ), strpos( $output, 'paypal_action=connect' ) );
+	}
+
+	public function test_demo_plugin_slug_is_ignored_during_plugin_discovery(): void {
+		$plugins = \LicencePress\Includes\Plugins\Plugins::get_instance();
+		$before  = $plugins->get_registered_plugins();
+
+		$plugin = new class() implements \LicencePress\Includes\Plugins\PluginInterface {
+			public function get_slug(): string { return 'demo-plugin-demo'; }
+			public function get_name(): string { return 'Demo Plugin'; }
+			public function get_version(): string { return '1.0.0'; }
+			public function get_icon(): string { return ''; }
+			public function get_author(): string { return 'Test'; }
+			public function get_author_uri(): string { return 'https://example.com'; }
+			public function get_description(): string { return 'Demo plugin'; }
+			public function get_uri(): string { return 'https://example.com'; }
+			public function get_license(): string { return 'GPL'; }
+			public function is_active(): bool { return true; }
+			public function init(): void {}
+		};
+
+		$plugins->register_plugin_instance( $plugin );
+
+		$this->assertArrayNotHasKey( 'demo-plugin-demo', $plugins->get_registered_plugins() );
+		$this->assertSame( $before, $plugins->get_registered_plugins() );
 	}
 
 	public function test_ambiguous_character_multiselect_shows_visible_tags(): void {

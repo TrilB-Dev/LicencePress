@@ -73,6 +73,13 @@ final class PayPalOAuthHelper {
 			return self::site_url( '/?page=licencepress&group=settings&tab=billing&paypal_error=missing_client_id&paypal_environment=' . $environment . '#paypal' );
 		}
 
+		/*
+		 * PayPal's official PHP Server SDK implements the OAuth 2 client-credentials
+		 * grant used for API access. It does not handle the user consent authorization
+		 * code flow for PayPal Connect login. We therefore launch the consent flow
+		 * manually using the official PayPal Connect endpoint and then exchange the
+		 * returned authorization code at the OAuth token endpoint.
+		 */
 		$base_url = 'https://www.paypal.com/connect';
 		if ( 'sandbox' === $environment ) {
 			$base_url = 'https://www.sandbox.paypal.com/connect';

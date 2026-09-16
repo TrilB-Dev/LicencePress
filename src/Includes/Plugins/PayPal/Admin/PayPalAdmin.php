@@ -154,7 +154,11 @@ final class PayPalAdmin {
 	}
 
 	public static function maybe_handle_oauth_connect(): void {
-		if ( ! is_admin() || ! current_user_can( 'licencepress_paypal_manage' ) ) {
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'licencepress_paypal_manage' ) && ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
@@ -180,7 +184,15 @@ final class PayPalAdmin {
 	}
 
 	public static function maybe_handle_oauth_callback(): void {
+		if ( ! is_admin() ) {
+			return;
+		}
+
 		if ( empty( $_GET['paypal_action'] ) || 'callback' !== sanitize_key( wp_unslash( $_GET['paypal_action'] ) ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'licencepress_paypal_manage' ) && ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 

@@ -90,13 +90,14 @@ final class SettingsPlugins {
 								$value,
 								array( 'id' => 'licencepress-' . $key )
 							); ?>
-						<?php elseif ( 'text' === $type ) : ?>
+						<?php elseif ( in_array( $type, array( 'text', 'password' ), true ) ) : ?>
 							<?php echo FormFieldHelper::input(
 								$name,
 								is_scalar( $value ) ? (string) $value : '',
 								array(
-									'id'   => 'licencepress-' . $key,
-									'type' => 'text',
+									'id'    => 'licencepress-' . $key,
+									'type'  => $type,
+									'class' => (string) ( $field['class'] ?? '' ),
 								)
 							); ?>
 						<?php elseif ( 'custom' === $type ) : ?>

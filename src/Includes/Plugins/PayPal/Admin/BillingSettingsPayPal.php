@@ -108,13 +108,14 @@ final class BillingSettingsPayPal {
 							$field_value,
 							array( 'id' => 'licencepress-' . $key )
 						); ?>
-					<?php elseif ( 'text' === $type ) : ?>
+					<?php elseif ( in_array( $type, array( 'text', 'password' ), true ) ) : ?>
 						<?php echo FormFieldHelper::input(
 							$name,
 							is_scalar( $field_value ) ? (string) $field_value : '',
 							array(
-								'id'   => 'licencepress-' . $key,
-								'type' => 'text',
+								'id'    => 'licencepress-' . $key,
+								'type'  => $type,
+								'class' => 'w-100',
 							)
 						); ?>
 					<?php elseif ( 'custom' === $type ) : ?>

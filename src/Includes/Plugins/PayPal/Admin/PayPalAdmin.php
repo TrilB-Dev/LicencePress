@@ -189,7 +189,7 @@ final class PayPalAdmin {
 		$environment = sanitize_key( wp_unslash( $_GET['paypal_environment'] ?? 'sandbox' ) );
 
 		if ( '' === $code || ! PayPalOAuthHelper::validate_state( $state, $environment ) ) {
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal&paypal_environment=' . $environment . ' ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&paypal_environment=' . $environment . '#paypal' ) );
 			exit;
 		}
 

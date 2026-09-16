@@ -602,13 +602,14 @@ final class SettingsPlugins {
 						'attributes'          => $field['attributes'] ?? array(),
 					)
 				);
-			} elseif ( in_array( $type, array( 'text', 'email', 'url', 'number' ), true ) ) {
+			} elseif ( in_array( $type, array( 'text', 'email', 'url', 'number', 'password' ), true ) ) {
 				echo FormFieldHelper::input(
 					$name,
 					is_scalar( $value ) ? (string) $value : '',
 					array(
-						'id'   => $id,
-						'type' => $type,
+						'id'    => $id,
+						'type'  => $type,
+						'class' => (string) ( $field['class'] ?? '' ),
 					)
 				);
 			} elseif ( 'textarea' === $type ) {

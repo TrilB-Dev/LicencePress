@@ -467,7 +467,7 @@ namespace LicencePress\Test\Unit {
 		\LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings::render_oauth_connection( '', 'paypal_sandbox_oauth_connect', 'paypal_sandbox_oauth_connect' );
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'paypal_oauth', $output );
+		$this->assertStringContainsString( 'paypal_oauth=1', $output );
 		$this->assertStringContainsString( 'paypal_environment=sandbox', $output );
 		$this->assertStringNotContainsString( 'admin.php?page=licencepress', $output );
 	}

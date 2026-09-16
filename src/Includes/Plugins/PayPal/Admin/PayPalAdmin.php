@@ -156,7 +156,7 @@ final class PayPalAdmin {
 	public static function maybe_handle_oauth_connect(): void {
 		error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect fired: ' . wp_json_encode( $_GET ) );
 
-		if ( empty( $_GET['paypal_oauth'] ) ) {
+		if ( ! isset( $_GET['paypal_oauth'] ) ) {
 			error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect exit: paypal_oauth missing.' );
 			return;
 		}
@@ -198,7 +198,7 @@ final class PayPalAdmin {
 	public static function maybe_handle_oauth_callback(): void {
 		error_log( '[LicencePress][PayPal] maybe_handle_oauth_callback fired: ' . wp_json_encode( $_GET ) );
 
-		if ( empty( $_GET['paypal_action'] ) || 'callback' !== sanitize_key( wp_unslash( $_GET['paypal_action'] ) ) ) {
+		if ( ! isset( $_GET['paypal_action'] ) || 'callback' !== sanitize_key( wp_unslash( $_GET['paypal_action'] ) ) ) {
 			error_log( '[LicencePress][PayPal] maybe_handle_oauth_callback exit: paypal_action not callback.' );
 			return;
 		}

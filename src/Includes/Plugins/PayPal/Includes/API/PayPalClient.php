@@ -121,8 +121,12 @@ final class PayPalClient {
 		$environment   = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
 		$client_id     = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '' ) );
 		$client_secret = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_secret' ] ?? $settings['paypal_client_secret'] ?? '' ) );
+		$redirect_uri  = home_url( '/?paypal_action=callback&paypal_environment=' . $environment );
+
+		error_log( '[LicencePress][PayPal] token exchange start env=' . $environment . ' client_id_set=' . ( '' !== $client_id ? 'yes' : 'no' ) . ' client_secret_set=' . ( '' !== $client_secret ? 'yes' : 'no' ) . ' redirect_uri=' . $redirect_uri );
 
 		if ( '' === $client_id || '' === $client_secret || '' === $code ) {
+			error_log( '[LicencePress][PayPal] token exchange aborted: missing client_id/client_secret/code.' );
 			return null;
 		}
 
@@ -138,16 +142,21 @@ final class PayPalClient {
 				'body'    => array(
 					'grant_type'   => 'authorization_code',
 					'code'         => $code,
-					'redirect_uri' => home_url( '/?paypal_action=callback&paypal_environment=' . $environment ),
+					'redirect_uri' => $redirect_uri,
 				),
 			)
 		);
 
 		if ( is_wp_error( $response ) ) {
+			error_log( '[LicencePress][PayPal] token exchange wp_remote_post error: ' . $response->get_error_message() );
 			return null;
 		}
 
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		$status_code = wp_remote_retrieve_response_code( $response );
+		$body_raw    = wp_remote_retrieve_body( $response );
+		error_log( '[LicencePress][PayPal] token exchange HTTP status=' . (string) $status_code . ' body=' . (string) $body_raw );
+
+		$body = json_decode( $body_raw, true );
 		return is_array( $body ) ? $body : null;
 	}
 }

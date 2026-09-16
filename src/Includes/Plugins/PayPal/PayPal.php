@@ -20,6 +20,7 @@ use LicencePress\Includes\Plugins\PayPal\Admin\BillingSettingsPayPal;
 use LicencePress\Includes\Plugins\PayPal\Admin\PayPalAdmin;
 use LicencePress\Includes\Plugins\PayPal\Assets\Assets;
 use LicencePress\Includes\Plugins\PayPal\Includes\Core\I18n;
+use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper;
 use LicencePress\Includes\Plugins\PayPal\Includes\Includes;
 
 final class PayPal implements PluginInterface, SettingsProviderInterface, SettingsPageProviderInterface, AssetsProviderInterface, I18nProviderInterface, AdminMenuProviderInterface, AdminSidebarProviderInterface {
@@ -124,6 +125,7 @@ final class PayPal implements PluginInterface, SettingsProviderInterface, Settin
 	 */
 	public function init(): void {
 		Includes::get_instance()->init();
+		PayPalOAuthHelper::register_allowed_redirect_hosts();
 
 		$paypal_admin = new PayPalAdmin();
 		$billing_tabs = new BillingSettingsPayPal();

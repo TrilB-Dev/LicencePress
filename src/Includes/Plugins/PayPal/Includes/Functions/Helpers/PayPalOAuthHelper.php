@@ -10,6 +10,36 @@
 namespace LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers;
 
 final class PayPalOAuthHelper {
+	public static function register_allowed_redirect_hosts(): array {
+		$hosts = array(
+			'paypal.com',
+			'sandbox.paypal.com',
+			'www.paypal.com',
+			'www.sandbox.paypal.com',
+		);
+
+		if ( function_exists( 'add_filter' ) ) {
+			add_filter(
+				'allowed_redirect_hosts',
+				static function ( array $existing_hosts ) use ( $hosts ): array {
+					foreach ( $hosts as $host ) {
+						$existing_hosts[] = $host;
+					}
+
+					return array_values( array_unique( array_filter( $existing_hosts ) ) );
+				},
+				10,
+				1
+			);
+		}
+
+		if ( function_exists( 'apply_filters' ) ) {
+			return apply_filters( 'allowed_redirect_hosts', $hosts );
+		}
+
+		return $hosts;
+	}
+
 	private static function site_url( string $path = '' ): string {
 		if ( function_exists( 'home_url' ) ) {
 			return home_url( $path );

@@ -275,6 +275,15 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringNotContainsString( 'paypal_environment=', $url );
 	}
 
+	public function test_paypal_oauth_redirects_are_allowed_for_paypal_hosts(): void {
+		$hosts = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::register_allowed_redirect_hosts();
+
+		$this->assertContains( 'www.paypal.com', $hosts );
+		$this->assertContains( 'www.sandbox.paypal.com', $hosts );
+		$this->assertContains( 'paypal.com', $hosts );
+		$this->assertContains( 'sandbox.paypal.com', $hosts );
+	}
+
 	public function test_sidebar_links_keep_the_explicit_licencepress_route(): void {
 		$method = new \ReflectionMethod( '\\LicencePress\\Admin\\Manager\\UI\\Sidebar', 'item_link' );
 		$method->setAccessible( true );

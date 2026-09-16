@@ -9,6 +9,7 @@
 
 namespace LicencePress\Includes\Plugins\PayPal\Includes\API;
 
+use LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings as PayPalSettings;
 use PaypalServerSdkLib\Authentication\ClientCredentialsAuthCredentialsBuilder;
 use PaypalServerSdkLib\Environment;
 use PaypalServerSdkLib\PaypalServerSdkClient;
@@ -27,8 +28,8 @@ final class PayPalClient {
 
 	public static function build_sdk_client( array $settings, ?string $environment = null ): PaypalServerSdkClient {
 		$environment = self::normalize_environment( $settings, $environment );
-		$client_id   = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '' ) );
-		$secret      = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_secret' ] ?? $settings['paypal_client_secret'] ?? '' ) );
+		$client_id   = PayPalSettings::get_client_id( $environment );
+		$secret      = PayPalSettings::get_client_secret( $environment );
 
 		$builder = PaypalServerSdkClientBuilder::init()
 			->environment( 'live' === $environment ? Environment::PRODUCTION : Environment::SANDBOX );
@@ -119,8 +120,8 @@ final class PayPalClient {
 
 	public static function exchange_code_for_token( array $settings, string $code, ?string $environment = null ): ?array {
 		$environment   = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
-		$client_id     = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '' ) );
-		$client_secret = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_secret' ] ?? $settings['paypal_client_secret'] ?? '' ) );
+		$client_id     = PayPalSettings::get_client_id( $environment );
+		$client_secret = PayPalSettings::get_client_secret( $environment );
 		$redirect_uri  = home_url( '/?paypal_action=callback&paypal_environment=' . $environment );
 
 		error_log( '[LicencePress][PayPal] token exchange start env=' . $environment . ' client_id_set=' . ( '' !== $client_id ? 'yes' : 'no' ) . ' client_secret_set=' . ( '' !== $client_secret ? 'yes' : 'no' ) . ' redirect_uri=' . $redirect_uri );

@@ -9,6 +9,7 @@
 
 namespace LicencePress\Includes\Plugins\PayPal\Includes\Settings;
 
+use LicencePress\Includes\Functions\Helpers\EncryptionHelper;
 use LicencePress\Includes\Settings\Settings as BaseSettings;
 
 final class Settings {
@@ -72,11 +73,29 @@ final class Settings {
 	 * @param string|null $environment The environment override.
 	 * @return string The client ID.
 	 */
+	private static function decrypt_value( ?string $value ): string {
+		if ( ! is_string( $value ) || '' === $value ) {
+			return '';
+		}
+
+		$decrypted = EncryptionHelper::decrypt( $value );
+		return null !== $decrypted ? $decrypted : $value;
+	}
+
+	private static function encrypt_value( ?string $value ): string {
+		if ( ! is_string( $value ) || '' === trim( (string) $value ) ) {
+			return '';
+		}
+
+		$encrypted = EncryptionHelper::encrypt( $value );
+		return null !== $encrypted ? $encrypted : $value;
+	}
+
 	public static function get_client_id( ?string $environment = null ): string {
 		$environment = self::normalize_environment( $environment );
 		$key = 'paypal_' . $environment . '_client_id';
-		$value = sanitize_text_field( (string) BaseSettings::get( $key, BaseSettings::get( 'paypal_client_id', '' ) ) );
-		return '' !== $value ? $value : sanitize_text_field( (string) BaseSettings::get( 'paypal_client_id', '' ) );
+		$value = self::decrypt_value( BaseSettings::get( $key, BaseSettings::get( 'paypal_client_id', '' ) ) );
+		return '' !== $value ? sanitize_text_field( $value ) : sanitize_text_field( (string) self::decrypt_value( BaseSettings::get( 'paypal_client_id', '' ) ) );
 	}
 
 	/**
@@ -88,8 +107,8 @@ final class Settings {
 	public static function get_client_secret( ?string $environment = null ): string {
 		$environment = self::normalize_environment( $environment );
 		$key = 'paypal_' . $environment . '_client_secret';
-		$value = sanitize_text_field( (string) BaseSettings::get( $key, BaseSettings::get( 'paypal_client_secret', '' ) ) );
-		return '' !== $value ? $value : sanitize_text_field( (string) BaseSettings::get( 'paypal_client_secret', '' ) );
+		$value = self::decrypt_value( BaseSettings::get( $key, BaseSettings::get( 'paypal_client_secret', '' ) ) );
+		return '' !== $value ? sanitize_text_field( $value ) : sanitize_text_field( (string) self::decrypt_value( BaseSettings::get( 'paypal_client_secret', '' ) ) );
 	}
 
 	/**
@@ -247,7 +266,7 @@ final class Settings {
 					'key'         => 'paypal_client_id',
 					'label'       => __( 'Client ID', 'licencepress' ),
 					'description' => __( 'Your PayPal REST API client ID.', 'licencepress' ),
-					'type'        => 'text',
+					'type'        => 'password',
 					'default'     => '',
 					'class'       => 'w-100',
 				),
@@ -255,7 +274,7 @@ final class Settings {
 					'key'         => 'paypal_client_secret',
 					'label'       => __( 'Client Secret', 'licencepress' ),
 					'description' => __( 'Your PayPal app secret. Store it securely and limit access to trusted admins.', 'licencepress' ),
-					'type'        => 'text',
+					'type'        => 'password',
 					'default'     => '',
 					'class'       => 'w-100',
 				),
@@ -263,7 +282,7 @@ final class Settings {
 					'key'         => 'paypal_sandbox_client_id',
 					'label'       => __( 'Sandbox Client ID', 'licencepress' ),
 					'description' => __( 'Your PayPal Sandbox REST API client ID.', 'licencepress' ),
-					'type'        => 'text',
+					'type'        => 'password',
 					'default'     => '',
 					'class'       => 'w-100',
 				),
@@ -271,7 +290,7 @@ final class Settings {
 					'key'         => 'paypal_sandbox_client_secret',
 					'label'       => __( 'Sandbox Client Secret', 'licencepress' ),
 					'description' => __( 'Your PayPal Sandbox app secret. Store it securely and limit access to trusted admins.', 'licencepress' ),
-					'type'        => 'text',
+					'type'        => 'password',
 					'default'     => '',
 					'class'       => 'w-100',
 				),
@@ -382,20 +401,20 @@ final class Settings {
 
 		$settings = array(
 			'paypal_environment'             => in_array( sanitize_key( (string) ( $input['paypal_environment'] ?? self::DEFAULT_ENVIRONMENT ) ), self::ENVIRONMENTS, true ) ? sanitize_key( (string) ( $input['paypal_environment'] ?? self::DEFAULT_ENVIRONMENT ) ) : self::DEFAULT_ENVIRONMENT,
-			'paypal_live_client_id'          => sanitize_text_field( (string) ( $input['paypal_live_client_id'] ?? $input['paypal_client_id'] ?? '' ) ),
-			'paypal_live_client_secret'      => sanitize_text_field( (string) ( $input['paypal_live_client_secret'] ?? $input['paypal_client_secret'] ?? '' ) ),
+			'paypal_live_client_id'          => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_live_client_id'] ?? $input['paypal_client_id'] ?? '' ) ) ),
+			'paypal_live_client_secret'      => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_live_client_secret'] ?? $input['paypal_client_secret'] ?? '' ) ) ),
 			'paypal_live_oauth_connected'    => ! empty( $input['paypal_live_oauth_connected'] ) || ! empty( $input['paypal_oauth_connected'] ),
 			'paypal_live_access_token'       => sanitize_text_field( (string) ( $input['paypal_live_access_token'] ?? $input['paypal_access_token'] ?? '' ) ),
 			'paypal_live_refresh_token'      => sanitize_text_field( (string) ( $input['paypal_live_refresh_token'] ?? $input['paypal_refresh_token'] ?? '' ) ),
 			'paypal_live_callback'           => esc_url_raw( (string) ( $input['paypal_live_callback'] ?? $input['paypal_callback'] ?? '' ) ),
-			'paypal_sandbox_client_id'       => sanitize_text_field( (string) ( $input['paypal_sandbox_client_id'] ?? '' ) ),
-			'paypal_sandbox_client_secret'   => sanitize_text_field( (string) ( $input['paypal_sandbox_client_secret'] ?? '' ) ),
+			'paypal_sandbox_client_id'       => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_sandbox_client_id'] ?? '' ) ) ),
+			'paypal_sandbox_client_secret'   => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_sandbox_client_secret'] ?? '' ) ) ),
 			'paypal_sandbox_oauth_connected' => ! empty( $input['paypal_sandbox_oauth_connected'] ) || ! empty( $input['paypal_oauth_connected'] ),
 			'paypal_sandbox_access_token'    => sanitize_text_field( (string) ( $input['paypal_sandbox_access_token'] ?? $input['paypal_access_token'] ?? '' ) ),
 			'paypal_sandbox_refresh_token'   => sanitize_text_field( (string) ( $input['paypal_sandbox_refresh_token'] ?? $input['paypal_refresh_token'] ?? '' ) ),
 			'paypal_sandbox_callback'        => esc_url_raw( (string) ( $input['paypal_sandbox_callback'] ?? $input['paypal_callback'] ?? '' ) ),
-			'paypal_client_id'               => sanitize_text_field( (string) ( $input['paypal_live_client_id'] ?? $input['paypal_client_id'] ?? '' ) ),
-			'paypal_client_secret'           => sanitize_text_field( (string) ( $input['paypal_live_client_secret'] ?? $input['paypal_client_secret'] ?? '' ) ),
+			'paypal_client_id'               => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_live_client_id'] ?? $input['paypal_client_id'] ?? '' ) ) ),
+			'paypal_client_secret'           => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_live_client_secret'] ?? $input['paypal_client_secret'] ?? '' ) ) ),
 			'paypal_oauth_connected'         => ! empty( $input['paypal_oauth_connect'] ) || ! empty( $input['paypal_live_oauth_connected'] ),
 			'paypal_access_token'            => sanitize_text_field( (string) ( $input['paypal_live_access_token'] ?? $input['paypal_access_token'] ?? '' ) ),
 			'paypal_refresh_token'           => sanitize_text_field( (string) ( $input['paypal_live_refresh_token'] ?? $input['paypal_refresh_token'] ?? '' ) ),

@@ -11,6 +11,7 @@ namespace LicencePress\Includes\Plugins\PayPal\Admin;
 
 use LicencePress\Includes\Plugins\PayPal\Includes\API\PayPalClient;
 use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper;
+use LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings as PayPalSettings;
 use LicencePress\Includes\Settings\Settings as LicencePressSettings;
 
 final class PayPalAdmin {
@@ -174,7 +175,7 @@ final class PayPalAdmin {
 		$settings    = LicencePressSettings::get_group( 'paypal', array() );
 		$settings    = is_array( $settings ) ? $settings : array();
 		$environment = sanitize_key( wp_unslash( $_GET['paypal_environment'] ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
-		$client_id   = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '' ) );
+		$client_id   = PayPalSettings::get_client_id( $environment );
 
 		error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect environment=' . $environment . ' client_id_set=' . ( '' !== $client_id ? 'yes' : 'no' ) );
 
@@ -221,6 +222,8 @@ final class PayPalAdmin {
 
 		$settings = LicencePressSettings::get_group( 'paypal', array() );
 		$settings = is_array( $settings ) ? $settings : array();
+		$settings[ 'paypal_' . $environment . '_client_id' ]     = PayPalSettings::get_client_id( $environment );
+		$settings[ 'paypal_' . $environment . '_client_secret' ] = PayPalSettings::get_client_secret( $environment );
 		error_log( '[LicencePress][PayPal] exchanging code for token in environment=' . $environment );
 		$body = PayPalClient::exchange_code_for_token( $settings, $code, $environment );
 

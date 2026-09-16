@@ -247,7 +247,7 @@ namespace LicencePress\Test\Unit {
 			'paypal_sandbox_client_secret'   => '',
 		);
 
-		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
+		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
 		$this->assertStringContainsString( 'page=licencepress&group=settings&tab=billing', $url );
 		$this->assertStringContainsString( 'paypal_error=missing_client_id', $url );
 		$this->assertStringContainsString( 'paypal_environment=sandbox', $url );
@@ -260,12 +260,19 @@ namespace LicencePress\Test\Unit {
 			'paypal_sandbox_client_id' => 'sandbox-client-id',
 		);
 
-		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
+		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
 
 		$this->assertStringStartsWith( 'https://www.sandbox.paypal.com/connect?', $url );
 		$this->assertStringContainsString( 'client_id=sandbox-client-id', $url );
 		$this->assertStringContainsString( 'state=state-123', $url );
 		$this->assertStringContainsString( 'redirect_uri=https%3A%2F%2Fexample.com%2F%3Fpaypal_action%3Dcallback%26paypal_environment%3Dsandbox', $url );
+	}
+
+	public function test_paypal_oauth_success_redirect_returns_to_billing_settings_hash(): void {
+		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::get_success_redirect_url();
+
+		$this->assertStringContainsString( 'admin.php?page=licencepress&group=settings&tab=billing#paypal', $url );
+		$this->assertStringNotContainsString( 'paypal_environment=', $url );
 	}
 
 	public function test_sidebar_links_keep_the_explicit_licencepress_route(): void {
@@ -460,9 +467,9 @@ namespace LicencePress\Test\Unit {
 		\LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings::render_oauth_connection( '', 'paypal_sandbox_oauth_connect', 'paypal_sandbox_oauth_connect' );
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'paypal_action=connect', $output );
-		$this->assertStringContainsString( '#paypal', $output );
-		$this->assertLessThan( strpos( $output, '#paypal' ), strpos( $output, 'paypal_action=connect' ) );
+		$this->assertStringContainsString( 'paypal_oauth', $output );
+		$this->assertStringContainsString( 'paypal_environment=sandbox', $output );
+		$this->assertStringNotContainsString( 'admin.php?page=licencepress', $output );
 	}
 
 	public function test_demo_plugin_slug_is_ignored_during_plugin_discovery(): void {

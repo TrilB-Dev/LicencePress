@@ -10,7 +10,7 @@
 namespace LicencePress\Includes\Plugins\PayPal\Admin;
 
 use LicencePress\Includes\Plugins\PayPal\Includes\API\PayPalClient;
-use LicencePress\Includes\Plugins\PayPal\Includes\Functions\PayPalOAuthHelper;
+use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper;
 use LicencePress\Includes\Settings\Settings as LicencePressSettings;
 
 final class PayPalAdmin {
@@ -154,7 +154,7 @@ final class PayPalAdmin {
 	}
 
 	public static function maybe_handle_oauth_connect(): void {
-		if ( ! is_admin() ) {
+		if ( empty( $_GET['paypal_oauth'] ) ) {
 			return;
 		}
 
@@ -162,8 +162,8 @@ final class PayPalAdmin {
 			return;
 		}
 
-		if ( empty( $_GET['paypal_action'] ) || 'connect' !== sanitize_key( wp_unslash( $_GET['paypal_action'] ) ) ) {
-			return;
+		if ( ! isset( $_GET['paypal_environment'] ) ) {
+			$_GET['paypal_environment'] = 'sandbox';
 		}
 
 		$settings    = LicencePressSettings::get_group( 'paypal', array() );
@@ -184,10 +184,6 @@ final class PayPalAdmin {
 	}
 
 	public static function maybe_handle_oauth_callback(): void {
-		if ( ! is_admin() ) {
-			return;
-		}
-
 		if ( empty( $_GET['paypal_action'] ) || 'callback' !== sanitize_key( wp_unslash( $_GET['paypal_action'] ) ) ) {
 			return;
 		}
@@ -228,7 +224,7 @@ final class PayPalAdmin {
 		LicencePressSettings::set_group( 'paypal', $settings );
 		PayPalOAuthHelper::clear_state( $environment );
 
-		wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&paypal_environment=' . $environment . '#paypal' ) );
+		wp_safe_redirect( PayPalOAuthHelper::get_success_redirect_url() );
 		exit;
 	}
 }

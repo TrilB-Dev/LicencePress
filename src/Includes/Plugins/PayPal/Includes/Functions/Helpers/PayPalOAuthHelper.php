@@ -7,7 +7,7 @@
  * @since 1.0.0
  */
 
-namespace LicencePress\Includes\Plugins\PayPal\Includes\Functions;
+namespace LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers;
 
 final class PayPalOAuthHelper {
 	private static function site_url( string $path = '' ): string {
@@ -64,6 +64,14 @@ final class PayPalOAuthHelper {
 	public static function get_public_callback_url( ?string $environment = null ): string {
 		$environment = sanitize_key( (string) ( $environment ?? 'sandbox' ) );
 		return self::site_url( '/?paypal_action=callback&paypal_environment=' . $environment );
+	}
+
+	public static function get_success_redirect_url(): string {
+		if ( function_exists( 'admin_url' ) ) {
+			return admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal' );
+		}
+
+		return self::site_url( '/?page=licencepress&group=settings&tab=billing#paypal' );
 	}
 
 	public static function build_connect_url( array $settings, string $state, ?string $environment = null ): string {

@@ -285,6 +285,20 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringNotContainsString( 'client_id=' . rawurlencode( $encrypted_id ), $url );
 	}
 
+	public function test_paypal_oauth_prefers_server_config_over_admin_store(): void {
+		if ( ! defined( 'LICENCEPRESS_PAYPAL_LIVE_CLIENT_ID' ) ) {
+			define( 'LICENCEPRESS_PAYPAL_LIVE_CLIENT_ID', 'server-live-client-id' );
+		}
+		if ( ! defined( 'LICENCEPRESS_PAYPAL_LIVE_CLIENT_SECRET' ) ) {
+			define( 'LICENCEPRESS_PAYPAL_LIVE_CLIENT_SECRET', 'server-live-client-secret' );
+		}
+
+		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( array(), 'state-789', 'live' );
+
+		$this->assertStringContainsString( 'client_id=server-live-client-id', $url );
+		$this->assertSame( 'server-live-client-secret', \LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings::get_client_secret( 'live' ) );
+	}
+
 	public function test_paypal_oauth_success_redirect_returns_to_billing_settings_hash(): void {
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::get_success_redirect_url();
 

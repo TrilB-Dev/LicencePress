@@ -91,8 +91,39 @@ final class Settings {
 		return null !== $encrypted ? $encrypted : $value;
 	}
 
+	private static function get_configured_value( string $environment, string $key_suffix ): string {
+		$constant_map = array(
+			'live'    => array(
+				'client_id'     => 'LICENCEPRESS_PAYPAL_LIVE_CLIENT_ID',
+				'client_secret' => 'LICENCEPRESS_PAYPAL_LIVE_CLIENT_SECRET',
+			),
+			'sandbox' => array(
+				'client_id'     => 'LICENCEPRESS_PAYPAL_SANDBOX_CLIENT_ID',
+				'client_secret' => 'LICENCEPRESS_PAYPAL_SANDBOX_CLIENT_SECRET',
+			),
+		);
+
+		foreach ( $constant_map[ $environment ] ?? array() as $suffix => $constant_name ) {
+			if ( $suffix === $key_suffix && defined( $constant_name ) ) {
+				return (string) constant( $constant_name );
+			}
+		}
+
+		$generic_constant = 'LICENCEPRESS_PAYPAL_' . strtoupper( $key_suffix );
+		if ( defined( $generic_constant ) ) {
+			return (string) constant( $generic_constant );
+		}
+
+		return '';
+	}
+
 	public static function get_client_id( ?string $environment = null ): string {
 		$environment = self::normalize_environment( $environment );
+		$constant_value = self::get_configured_value( $environment, 'client_id' );
+		if ( '' !== $constant_value ) {
+			return sanitize_text_field( $constant_value );
+		}
+
 		$key = 'paypal_' . $environment . '_client_id';
 		$value = self::decrypt_value( BaseSettings::get( $key, BaseSettings::get( 'paypal_client_id', '' ) ) );
 		return '' !== $value ? sanitize_text_field( $value ) : sanitize_text_field( (string) self::decrypt_value( BaseSettings::get( 'paypal_client_id', '' ) ) );
@@ -106,6 +137,11 @@ final class Settings {
 	 */
 	public static function get_client_secret( ?string $environment = null ): string {
 		$environment = self::normalize_environment( $environment );
+		$constant_value = self::get_configured_value( $environment, 'client_secret' );
+		if ( '' !== $constant_value ) {
+			return sanitize_text_field( $constant_value );
+		}
+
 		$key = 'paypal_' . $environment . '_client_secret';
 		$value = self::decrypt_value( BaseSettings::get( $key, BaseSettings::get( 'paypal_client_secret', '' ) ) );
 		return '' !== $value ? sanitize_text_field( $value ) : sanitize_text_field( (string) self::decrypt_value( BaseSettings::get( 'paypal_client_secret', '' ) ) );
@@ -280,36 +316,18 @@ final class Settings {
 			'layout'         => 'table',
 			'fields'         => array(
 				array(
-					'key'         => 'paypal_client_id',
-					'label'       => __( 'Client ID', 'licencepress' ),
-					'description' => __( 'Your PayPal REST API client ID.', 'licencepress' ),
-					'type'        => 'text',
-					'default'     => '',
-					'class'       => 'w-100',
+					'key'         => 'paypal_live_client_config',
+					'label'       => __( 'Live PayPal app configuration', 'licencepress' ),
+					'description' => __( 'Use the PayPal app configuration from your server environment. The app secret is kept server-side and is not stored in the WordPress admin form.', 'licencepress' ),
+					'type'        => 'custom',
+					'render'      => array( self::class, 'render_oauth_connection' ),
 				),
 				array(
-					'key'         => 'paypal_client_secret',
-					'label'       => __( 'Client Secret', 'licencepress' ),
-					'description' => __( 'Your PayPal app secret. Store it securely and limit access to trusted admins.', 'licencepress' ),
-					'type'        => 'password',
-					'default'     => '',
-					'class'       => 'w-100',
-				),
-				array(
-					'key'         => 'paypal_sandbox_client_id',
-					'label'       => __( 'Sandbox Client ID', 'licencepress' ),
-					'description' => __( 'Your PayPal Sandbox REST API client ID.', 'licencepress' ),
-					'type'        => 'text',
-					'default'     => '',
-					'class'       => 'w-100',
-				),
-				array(
-					'key'         => 'paypal_sandbox_client_secret',
-					'label'       => __( 'Sandbox Client Secret', 'licencepress' ),
-					'description' => __( 'Your PayPal Sandbox app secret. Store it securely and limit access to trusted admins.', 'licencepress' ),
-					'type'        => 'password',
-					'default'     => '',
-					'class'       => 'w-100',
+					'key'         => 'paypal_sandbox_client_config',
+					'label'       => __( 'Sandbox PayPal app configuration', 'licencepress' ),
+					'description' => __( 'Use the PayPal sandbox app configuration from your server environment. Store the secret outside WordPress so it is not exposed in the admin dashboard.', 'licencepress' ),
+					'type'        => 'custom',
+					'render'      => array( self::class, 'render_oauth_connection' ),
 				),
 				array(
 					'key'         => 'paypal_live_webhook_url',
@@ -373,7 +391,7 @@ final class Settings {
 				</a>
 			<?php else : ?>
 				<div class="small text-secondary">
-					<?php echo esc_html( 'sandbox' === $environment ? __( 'Enter your PayPal Sandbox client ID and client secret first, then connect.', 'licencepress' ) : __( 'Enter your live PayPal client ID and client secret first, then connect.', 'licencepress' ) ); ?>
+					<?php echo esc_html( 'sandbox' === $environment ? __( 'Configure the PayPal Sandbox app from your server environment and then connect.', 'licencepress' ) : __( 'Configure the live PayPal app from your server environment and then connect.', 'licencepress' ) ); ?>
 				</div>
 			<?php endif; ?>
 		</div>

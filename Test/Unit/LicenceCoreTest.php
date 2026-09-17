@@ -207,19 +207,9 @@ namespace LicencePress\Test\Unit {
 		$this->assertMatchesRegularExpression( '/^WPP-[A-Z0-9]{8}-[A-Z0-9]{8}$/', $preview['sample'] );
 	}
 
-	public function test_paypal_gateway_builds_an_environment_aware_sdk_client(): void {
-		$settings = array(
-			'paypal_environment'             => 'sandbox',
-			'paypal_sandbox_client_id'       => 'sandbox-client-id',
-			'paypal_sandbox_client_secret'   => 'sandbox-client-secret',
-			'paypal_live_client_id'          => 'live-client-id',
-			'paypal_live_client_secret'      => 'live-client-secret',
-		);
-
-		$client = \LicencePress\Includes\Plugins\PayPal\Includes\API\PayPalClient::build_sdk_client( $settings, 'sandbox' );
-
-		$this->assertInstanceOf( '\\PaypalServerSdkLib\\PaypalServerSdkClient', $client );
-		$this->assertSame( \PaypalServerSdkLib\Environment::SANDBOX, $client->getEnvironment() );
+	public function test_paypal_gateway_uses_raw_http_requests_instead_of_paypal_php_sdk(): void {
+		$this->assertFalse( method_exists( '\\LicencePress\\Includes\\Plugins\\PayPal\\Includes\\API\\PayPalClient', 'build_sdk_client' ) );
+		$this->assertTrue( method_exists( '\\LicencePress\\Includes\\Plugins\\PayPal\\Includes\\API\\PayPalClient', 'create_order' ) );
 	}
 
 	public function test_paypal_order_payload_includes_checkout_details(): void {

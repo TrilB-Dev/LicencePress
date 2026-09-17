@@ -10,9 +10,6 @@
 namespace LicencePress\Includes\Plugins\PayPal\Includes\API;
 
 use LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings as PayPalSettings;
-use PaypalServerSdkLib\Environment;
-use PaypalServerSdkLib\PaypalServerSdkClient;
-use PaypalServerSdkLib\PaypalServerSdkClientBuilder;
 
 final class PayPalClient {
 	public static function api_base_url( array $settings, ?string $environment = null ): string {
@@ -25,28 +22,66 @@ final class PayPalClient {
 		return 'live' === $environment ? 'live' : 'sandbox';
 	}
 
-	public static function build_sdk_client( array $settings, ?string $environment = null ): PaypalServerSdkClient {
-		$environment = self::normalize_environment( $settings, $environment );
+	private static function make_request( array $settings, string $action, array $options = array(), string $method = 'GET', int $expected_status = 200 ): ?array {
+		$environment = self::normalize_environment( $settings, $settings['paypal_environment'] ?? null );
 		$credentials = PayPalSettings::get_client_credentials( $environment );
 		$client_id   = $credentials['client_id'];
 		$secret      = $credentials['client_secret'];
+		$headers     = array(
+			'Accept'       => 'application/json',
+			'Content-Type' => 'application/json',
+		);
 
-		$builder = PaypalServerSdkClientBuilder::init()
-			->environment( 'live' === $environment ? Environment::PRODUCTION : Environment::SANDBOX );
-
-		/*
-		 * The PayPal Connect flow used for merchant onboarding is the OAuth 2
-		 * authorization-code flow. The client-credentials flow is intentionally
-		 * disabled here until we explicitly re-enable the server-to-server API
-		 * credential path for checkout actions.
-		 */
 		if ( '' !== $client_id && '' !== $secret ) {
-			$builder = $builder->clientCredentialsAuthCredentials(
-				\PaypalServerSdkLib\Authentication\ClientCredentialsAuthCredentialsBuilder::init( $client_id, $secret )
-			);
+			$headers['Authorization'] = 'Basic ' . base64_encode( $client_id . ':' . $secret ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		}
 
-		return $builder->build();
+		if ( isset( $options['headers'] ) && is_array( $options['headers'] ) ) {
+			$headers = wp_parse_args( $options['headers'], $headers );
+		}
+
+		$request_url = self::api_base_url( $settings, $environment ) . '/' . ltrim( $action, '/' );
+		$args = array(
+			'method'    => strtoupper( $method ),
+			'headers'   => $headers,
+			'timeout'   => 30,
+			'sslverify' => false,
+		);
+
+		if ( 'GET' === strtoupper( $method ) && ! empty( $options ) ) {
+			$request_url = function_exists( '\\add_query_arg' ) ? \add_query_arg( $options, $request_url ) : $request_url;
+		} elseif ( ! empty( $options ) ) {
+			$body = $options['body'] ?? $options;
+			if ( isset( $body['body'] ) && is_array( $body['body'] ) ) {
+				$body = $body['body'];
+			}
+			$args['body'] = function_exists( '\\wp_json_encode' ) ? \wp_json_encode( $body ) : json_encode( $body );
+		}
+
+		$response = function_exists( '\\wp_remote_request' ) ? \wp_remote_request( $request_url, $args ) : null;
+		if ( is_wp_error( $response ) ) {
+			error_log( '[LicencePress][PayPal] API request failed: ' . $response->get_error_message() );
+			return null;
+		}
+
+		$status_code = wp_remote_retrieve_response_code( $response );
+		$body        = wp_remote_retrieve_body( $response );
+		$decoded     = '' !== $body ? json_decode( $body, true ) : array();
+
+		if ( ! is_array( $decoded ) ) {
+			return null;
+		}
+
+		if ( $status_code < 200 || $status_code >= 300 ) {
+			error_log( '[LicencePress][PayPal] API request returned status ' . (string) $status_code . ' for ' . $action . ': ' . (string) $body );
+			return null;
+		}
+
+		if ( $expected_status > 0 && $status_code !== $expected_status ) {
+			return $decoded;
+		}
+
+		return $decoded;
 	}
 
 	public static function prepare_order_payload( array $order_data, string $intent = 'CHECKOUT' ): array {
@@ -59,8 +94,8 @@ final class PayPalClient {
 		$currency     = strtoupper( sanitize_text_field( (string) ( $order_data['currency'] ?? 'USD' ) ) );
 		$description  = sanitize_text_field( (string) ( $order_data['description'] ?? '' ) );
 		$custom_id    = sanitize_text_field( (string) ( $order_data['custom_id'] ?? '' ) );
-		$return_url   = esc_url_raw( (string) ( $order_data['return_url'] ?? home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) ) );
-		$cancel_url   = esc_url_raw( (string) ( $order_data['cancel_url'] ?? home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) ) );
+		$return_url   = esc_url_raw( (string) ( $order_data['return_url'] ?? ( function_exists( '\\home_url' ) ? \home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) : 'https://example.com/?page=licencepress&group=settings&tab=billing#paypal' ) ) );
+		$cancel_url   = esc_url_raw( (string) ( $order_data['cancel_url'] ?? ( function_exists( '\\home_url' ) ? \home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) : 'https://example.com/?page=licencepress&group=settings&tab=billing#paypal' ) ) );
 		$line_items   = is_array( $order_data['items'] ?? null ) ? $order_data['items'] : array();
 		$purchase_unit = array(
 			'amount' => array(
@@ -89,39 +124,21 @@ final class PayPalClient {
 
 	public static function create_order( array $settings, array $order_data, ?string $environment = null ): ?array {
 		$environment = self::normalize_environment( $settings, $environment );
-		$client      = self::build_sdk_client( $settings, $environment );
-		$payload     = self::prepare_order_payload( $order_data );
+		$settings['paypal_environment'] = $environment;
+		$payload = self::prepare_order_payload( $order_data );
 
-		try {
-			$response = $client->getOrdersController()->createOrder( array( 'body' => $payload ) );
-			if ( ! $response || ! $response->isSuccess() ) {
-				return null;
-			}
-			$result = $response->getResult();
-			return is_array( $result ) ? $result : (array) $result;
-		} catch ( \Throwable $exception ) {
-			return null;
-		}
+		return self::make_request( $settings, 'v2/checkout/orders', array( 'body' => $payload ), 'POST', 201 );
 	}
 
 	public static function capture_order( array $settings, string $order_id, ?string $environment = null ): ?array {
 		$environment = self::normalize_environment( $settings, $environment );
-		$client      = self::build_sdk_client( $settings, $environment );
+		$settings['paypal_environment'] = $environment;
 
 		if ( '' === trim( $order_id ) ) {
 			return null;
 		}
 
-		try {
-			$response = $client->getOrdersController()->captureOrder( array( 'id' => $order_id ) );
-			if ( ! $response || ! $response->isSuccess() ) {
-				return null;
-			}
-			$result = $response->getResult();
-			return is_array( $result ) ? $result : (array) $result;
-		} catch ( \Throwable $exception ) {
-			return null;
-		}
+		return self::make_request( $settings, 'v2/checkout/orders/' . rawurlencode( $order_id ) . '/capture', array(), 'POST', 201 );
 	}
 
 	public static function exchange_code_for_token( array $settings, string $code, ?string $environment = null ): ?array {

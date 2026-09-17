@@ -569,6 +569,16 @@ final class SettingsPlugins {
 						'type' => 'text',
 					)
 				);
+			} elseif ( 'table' === $layout && 'password' === $type ) {
+				echo FormFieldHelper::input(
+					$name,
+					is_scalar( $value ) ? (string) $value : '',
+					array(
+						'id'    => $id,
+						'type'  => 'password',
+						'class' => (string) ( $field['class'] ?? '' ),
+					)
+				);
 			} elseif ( 'table' === $layout ) {
 				echo FormFieldHelper::checkbox(
 					$name,

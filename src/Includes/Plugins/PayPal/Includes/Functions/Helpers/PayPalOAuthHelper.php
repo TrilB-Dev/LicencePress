@@ -93,7 +93,13 @@ final class PayPalOAuthHelper {
 
 	public static function get_public_callback_url( ?string $environment = null ): string {
 		$environment = sanitize_key( (string) ( $environment ?? 'sandbox' ) );
-		return self::site_url( '/?paypal_action=callback&paypal_environment=' . $environment );
+		$callback    = self::site_url( '/?paypal_action=callback&paypal_environment=' . $environment );
+
+		if ( function_exists( 'apply_filters' ) ) {
+			$callback = (string) apply_filters( 'licencepress_paypal_callback_url', $callback, $environment );
+		}
+
+		return $callback;
 	}
 
 	public static function get_success_redirect_url(): string {
@@ -117,18 +123,24 @@ final class PayPalOAuthHelper {
 		 * code flow for PayPal Connect login. We therefore launch the consent flow
 		 * manually using the official PayPal Connect endpoint and then exchange the
 		 * returned authorization code at the OAuth token endpoint.
+		 *
+		 * The authorization-code flow requires an explicit response_type=code value.
 		 */
 		$base_url = 'https://www.paypal.com/connect';
 		if ( 'sandbox' === $environment ) {
 			$base_url = 'https://www.sandbox.paypal.com/connect';
 		}
 
+		$callback_url = self::get_public_callback_url( $environment );
+		error_log( '[LicencePress][PayPal] OAuth redirect_uri=' . $callback_url . ' env=' . $environment );
+
 		return self::build_query_string(
 			array(
 				'flowEntry'    => 'static',
 				'client_id'    => $client_id,
 				'scope'        => 'openid profile email https://uri.paypal.com/services/payments/reporting',
-				'redirect_uri' => self::get_public_callback_url( $environment ),
+				'redirect_uri' => $callback_url,
+				'response_type' => 'code',
 				'state'        => $state,
 			),
 			$base_url

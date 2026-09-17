@@ -10,6 +10,7 @@
 namespace LicencePress\Includes\Plugins\PayPal\Admin;
 
 use LicencePress\Includes\Plugins\PayPal\Includes\API\PayPalClient;
+use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalConnectionService;
 use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper;
 use LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings as PayPalSettings;
 use LicencePress\Includes\Settings\Settings as LicencePressSettings;
@@ -167,31 +168,21 @@ final class PayPalAdmin {
 			return;
 		}
 
-		if ( ! isset( $_GET['paypal_environment'] ) ) {
-			$_GET['paypal_environment'] = 'sandbox';
-			error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect defaulted environment to sandbox.' );
-		}
-
-		$settings    = LicencePressSettings::get_group( 'paypal', array() );
-		$settings    = is_array( $settings ) ? $settings : array();
+		$settings = LicencePressSettings::get_group( 'paypal', array() );
+		$settings = is_array( $settings ) ? $settings : array();
 		$environment = sanitize_key( wp_unslash( $_GET['paypal_environment'] ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
-		$client_id   = PayPalSettings::get_client_id( $environment );
+		$connect_url = PayPalConnectionService::start_oauth_connect( $settings, $environment );
+		$client_id = PayPalSettings::get_client_id( $environment );
 
 		error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect environment=' . $environment . ' client_id_set=' . ( '' !== $client_id ? 'yes' : 'no' ) );
 
-		if ( '' === $client_id ) {
+		if ( false === strpos( $connect_url, 'client_id=' ) ) {
 			error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect missing client ID for environment=' . $environment );
 			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&paypal_error=missing_client_id&paypal_environment=' . $environment . '#paypal' ) );
 			exit;
 		}
 
-		$state = PayPalOAuthHelper::generate_state();
-		PayPalOAuthHelper::save_state( $state, $environment );
-		error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect generated state=' . $state . ' for environment=' . $environment );
-
-		$connect_url = PayPalOAuthHelper::build_connect_url( $settings, $state, $environment );
 		error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect redirecting to PayPal: ' . $connect_url );
-
 		wp_safe_redirect( $connect_url );
 		exit;
 	}
@@ -212,42 +203,21 @@ final class PayPalAdmin {
 		$code        = sanitize_text_field( wp_unslash( $_GET['code'] ?? '' ) );
 		$state       = sanitize_text_field( wp_unslash( $_GET['state'] ?? '' ) );
 		$environment = sanitize_key( wp_unslash( $_GET['paypal_environment'] ?? 'sandbox' ) );
+		$request     = array(
+			'code'               => $code,
+			'state'              => $state,
+			'paypal_environment' => $environment,
+		);
 		error_log( '[LicencePress][PayPal] callback state=' . $state . ' env=' . $environment . ' code_present=' . ( '' !== $code ? 'yes' : 'no' ) );
 
-		if ( '' === $code || ! PayPalOAuthHelper::validate_state( $state, $environment ) ) {
-			error_log( '[LicencePress][PayPal] callback failed: missing code or invalid state. code=' . ( '' !== $code ? 'present' : 'missing' ) );
+		$result = PayPalConnectionService::complete_oauth_connect( $request );
+		if ( empty( $result['success'] ) ) {
+			error_log( '[LicencePress][PayPal] callback failed: ' . ( $result['error'] ?? 'unknown_error' ) . ' env=' . ( $result['environment'] ?? $environment ) );
 			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&paypal_environment=' . $environment . '#paypal' ) );
 			exit;
 		}
 
-		$settings = LicencePressSettings::get_group( 'paypal', array() );
-		$settings = is_array( $settings ) ? $settings : array();
-		$settings[ 'paypal_' . $environment . '_client_id' ]     = PayPalSettings::get_client_id( $environment );
-		$settings[ 'paypal_' . $environment . '_client_secret' ] = PayPalSettings::get_client_secret( $environment );
-		error_log( '[LicencePress][PayPal] exchanging code for token in environment=' . $environment );
-		$body = PayPalClient::exchange_code_for_token( $settings, $code, $environment );
-
-		if ( ! is_array( $body ) ) {
-			error_log( '[LicencePress][PayPal] token exchange failed for environment=' . $environment . ' response=' . wp_json_encode( $body ) );
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&paypal_environment=' . $environment . '#paypal' ) );
-			exit;
-		}
-
-		$settings[ 'paypal_' . $environment . '_access_token' ]    = sanitize_text_field( (string) ( $body['access_token'] ?? '' ) );
-		$settings[ 'paypal_' . $environment . '_refresh_token' ]   = sanitize_text_field( (string) ( $body['refresh_token'] ?? '' ) );
-		$settings[ 'paypal_' . $environment . '_oauth_connected' ] = ! empty( $body['access_token'] );
-		$settings[ 'paypal_' . $environment . '_callback' ]        = PayPalOAuthHelper::get_public_callback_url( $environment );
-		$settings['paypal_environment']                             = $environment;
-		$settings['paypal_access_token']                            = $settings[ 'paypal_' . $environment . '_access_token' ];
-		$settings['paypal_refresh_token']                           = $settings[ 'paypal_' . $environment . '_refresh_token' ];
-		$settings['paypal_oauth_connected']                         = $settings[ 'paypal_' . $environment . '_oauth_connected' ];
-		$settings['paypal_callback']                                = $settings[ 'paypal_' . $environment . '_callback' ];
-		$settings['paypal_client_id']                               = $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '';
-		$settings['paypal_client_secret']                           = $settings[ 'paypal_' . $environment . '_client_secret' ] ?? $settings['paypal_client_secret'] ?? '';
-		LicencePressSettings::set_group( 'paypal', $settings );
-		PayPalOAuthHelper::clear_state( $environment );
-		error_log( '[LicencePress][PayPal] OAuth success for environment=' . $environment . ' token_received=' . ( ! empty( $body['access_token'] ) ? 'yes' : 'no' ) );
-
+		error_log( '[LicencePress][PayPal] OAuth success for environment=' . ( $result['environment'] ?? $environment ) . ' token_received=' . ( ! empty( $result['body']['access_token'] ) ? 'yes' : 'no' ) );
 		wp_safe_redirect( PayPalOAuthHelper::get_success_redirect_url() );
 		exit;
 	}

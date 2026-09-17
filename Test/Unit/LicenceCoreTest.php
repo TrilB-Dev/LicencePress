@@ -495,6 +495,22 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringNotContainsString( 'licencepress_paypal[paypal_sandbox_client_id]', $output );
 	}
 
+	public function test_paypal_oauth_connect_button_is_visible_without_stored_client_id(): void {
+		\LicencePress\Includes\Settings\Settings::set_group(
+			'paypal',
+			array(
+				'paypal_sandbox_client_id' => '',
+			)
+		);
+
+		ob_start();
+		\LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings::render_oauth_connection( '', 'paypal_sandbox_oauth_connect', 'paypal_sandbox_oauth_connect' );
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Connect PayPal', $output );
+		$this->assertStringContainsString( 'Configure the PayPal Sandbox app', $output );
+	}
+
 	public function test_paypal_oauth_connect_url_keeps_action_before_hash_fragment(): void {
 		\LicencePress\Includes\Settings\Settings::set_group(
 			'paypal',

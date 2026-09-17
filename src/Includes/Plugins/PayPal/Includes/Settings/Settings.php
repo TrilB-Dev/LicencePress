@@ -334,15 +334,15 @@ final class Settings {
 					<div class="small text-muted"><?php echo esc_html( $message ); ?></div>
 				</div>
 			</div>
-			<?php if ( '' !== $client_id ) : ?>
-				<a class="btn btn-primary align-self-start" href="<?php echo esc_url( $connect_url ); ?>">
-					<?php echo esc_html( $connected ? __( 'Reconnect PayPal', 'licencepress' ) : __( 'Connect PayPal', 'licencepress' ) ); ?>
-				</a>
-			<?php else : ?>
-				<div class="small text-secondary">
-					<?php echo esc_html( 'sandbox' === $environment ? __( 'Configure the PayPal Sandbox app from your server environment and then connect.', 'licencepress' ) : __( 'Configure the live PayPal app from your server environment and then connect.', 'licencepress' ) ); ?>
-				</div>
-			<?php endif; ?>
+			<a
+				class="btn <?php echo esc_attr( '' !== $client_id ? 'btn-primary' : 'btn-outline-primary' ); ?> align-self-start"
+				href="<?php echo esc_url( $connect_url ); ?>"
+			>
+				<?php echo esc_html( $connected ? __( 'Reconnect PayPal', 'licencepress' ) : __( 'Connect PayPal', 'licencepress' ) ); ?>
+			</a>
+			<div class="small text-secondary">
+				<?php echo esc_html( '' !== $client_id ? __( 'The PayPal app is configured and ready to connect.', 'licencepress' ) : ( 'sandbox' === $environment ? __( 'Configure the PayPal Sandbox app from your server environment and then connect.', 'licencepress' ) : __( 'Configure the live PayPal app from your server environment and then connect.', 'licencepress' ) ) ); ?>
+			</div>
 		</div>
 		<?php
 	}

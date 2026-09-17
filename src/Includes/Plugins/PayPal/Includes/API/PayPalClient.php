@@ -28,8 +28,9 @@ final class PayPalClient {
 
 	public static function build_sdk_client( array $settings, ?string $environment = null ): PaypalServerSdkClient {
 		$environment = self::normalize_environment( $settings, $environment );
-		$client_id   = PayPalSettings::get_client_id( $environment );
-		$secret      = PayPalSettings::get_client_secret( $environment );
+		$credentials = PayPalSettings::get_client_credentials( $environment );
+		$client_id   = $credentials['client_id'];
+		$secret      = $credentials['client_secret'];
 
 		$builder = PaypalServerSdkClientBuilder::init()
 			->environment( 'live' === $environment ? Environment::PRODUCTION : Environment::SANDBOX );
@@ -119,9 +120,10 @@ final class PayPalClient {
 	}
 
 	public static function exchange_code_for_token( array $settings, string $code, ?string $environment = null ): ?array {
-		$environment   = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
-		$client_id     = PayPalSettings::get_client_id( $environment );
-		$client_secret = PayPalSettings::get_client_secret( $environment );
+		$environment = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
+		$credentials = PayPalSettings::get_client_credentials( $environment );
+		$client_id   = $credentials['client_id'];
+		$client_secret = $credentials['client_secret'];
 		$redirect_uri  = home_url( '/?paypal_action=callback&paypal_environment=' . $environment );
 
 		error_log( '[LicencePress][PayPal] token exchange start env=' . $environment . ' client_id_set=' . ( '' !== $client_id ? 'yes' : 'no' ) . ' client_secret_set=' . ( '' !== $client_secret ? 'yes' : 'no' ) . ' redirect_uri=' . $redirect_uri );

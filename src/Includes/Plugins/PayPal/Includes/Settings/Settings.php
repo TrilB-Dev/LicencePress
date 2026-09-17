@@ -112,6 +112,23 @@ final class Settings {
 	}
 
 	/**
+	 * Get the decrypted PayPal client credentials for the supplied environment.
+	 *
+	 * @param string|null $environment The environment override.
+	 * @return array{client_id:string, client_secret:string} Decrypted key pair.
+	 */
+	public static function get_client_credentials( ?string $environment = null ): array {
+		$environment = self::normalize_environment( $environment );
+		$client_id = self::get_client_id( $environment );
+		$secret    = self::get_client_secret( $environment );
+
+		return array(
+			'client_id'     => $client_id,
+			'client_secret' => $secret,
+		);
+	}
+
+	/**
 	 * Get the PayPal environment.
 	 *
 	 * @return string The environment.

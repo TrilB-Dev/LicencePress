@@ -10,7 +10,6 @@
 namespace LicencePress\Includes\Plugins\PayPal\Includes\API;
 
 use LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings as PayPalSettings;
-use PaypalServerSdkLib\Authentication\ClientCredentialsAuthCredentialsBuilder;
 use PaypalServerSdkLib\Environment;
 use PaypalServerSdkLib\PaypalServerSdkClient;
 use PaypalServerSdkLib\PaypalServerSdkClientBuilder;
@@ -35,9 +34,15 @@ final class PayPalClient {
 		$builder = PaypalServerSdkClientBuilder::init()
 			->environment( 'live' === $environment ? Environment::PRODUCTION : Environment::SANDBOX );
 
+		/*
+		 * The PayPal Connect flow used for merchant onboarding is the OAuth 2
+		 * authorization-code flow. The client-credentials flow is intentionally
+		 * disabled here until we explicitly re-enable the server-to-server API
+		 * credential path for checkout actions.
+		 */
 		if ( '' !== $client_id && '' !== $secret ) {
-			$builder->clientCredentialsAuthCredentials(
-				ClientCredentialsAuthCredentialsBuilder::init( $client_id, $secret )
+			$builder = $builder->clientCredentialsAuthCredentials(
+				\PaypalServerSdkLib\Authentication\ClientCredentialsAuthCredentialsBuilder::init( $client_id, $secret )
 			);
 		}
 

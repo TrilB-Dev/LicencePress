@@ -567,6 +567,7 @@ final class SettingsPlugins {
 					array(
 						'id'   => $id,
 						'type' => 'text',
+						'class' => (string) ( $field['class'] ?? '' ),
 					)
 				);
 			} elseif ( 'table' === $layout && 'password' === $type ) {

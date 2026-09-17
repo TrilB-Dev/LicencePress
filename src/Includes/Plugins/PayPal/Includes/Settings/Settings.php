@@ -279,29 +279,6 @@ final class Settings {
 		return $base_url;
 	}
 
-	public static function get_webhook_url( ?string $environment = null ): string {
-		$environment = self::normalize_environment( $environment );
-		return self::site_url( '/?paypal_action=webhook&paypal_environment=' . $environment );
-	}
-
-	public static function get_required_webhook_events(): array {
-		return array(
-			'CHECKOUT.ORDER.APPROVED',
-			'CHECKOUT.ORDER.COMPLETED',
-			'PAYMENT.CAPTURE.COMPLETED',
-			'PAYMENT.CAPTURE.DENIED',
-			'PAYMENT.CAPTURE.REFUNDED',
-			'PAYMENT.CAPTURE.REVERSED',
-			'BILLING.SUBSCRIPTION.CREATED',
-			'BILLING.SUBSCRIPTION.ACTIVATED',
-			'BILLING.SUBSCRIPTION.CANCELLED',
-			'BILLING.SUBSCRIPTION.EXPIRED',
-			'BILLING.SUBSCRIPTION.PAYMENT_FAILED',
-			'BILLING.SUBSCRIPTION.RE-ACTIVATED',
-			'BILLING.SUBSCRIPTION.SUSPENDED',
-			'BILLING.SUBSCRIPTION.UPDATED',
-		);
-	}
 	/**
 	 * Get the PayPal settings page configuration.
 	 *
@@ -329,34 +306,6 @@ final class Settings {
 					'type'        => 'custom',
 					'render'      => array( self::class, 'render_oauth_connection' ),
 				),
-				array(
-					'key'         => 'paypal_live_webhook_url',
-					'label'       => __( 'Live webhook URL', 'licencepress' ),
-					'description' => __( 'Copy this URL into your PayPal live webhook configuration.', 'licencepress' ),
-					'type'        => 'custom',
-					'render'      => array( self::class, 'render_webhook_url' ),
-				),
-				array(
-					'key'         => 'paypal_oauth_connect',
-					'label'       => __( 'PayPal connection', 'licencepress' ),
-					'description' => __( 'Complete the OAuth flow to unlock the sidebar configuration and PayPal operations.', 'licencepress' ),
-					'type'        => 'custom',
-					'render'      => array( self::class, 'render_oauth_connection' ),
-				),
-				array(
-					'key'         => 'paypal_sandbox_webhook_url',
-					'label'       => __( 'Sandbox webhook URL', 'licencepress' ),
-					'description' => __( 'Copy this URL into your PayPal sandbox webhook configuration.', 'licencepress' ),
-					'type'        => 'custom',
-					'render'      => array( self::class, 'render_webhook_url' ),
-				),
-				array(
-					'key'         => 'paypal_sandbox_oauth_connect',
-					'label'       => __( 'PayPal Sandbox connection', 'licencepress' ),
-					'description' => __( 'Complete the OAuth flow to unlock the sidebar configuration and PayPal Sandbox operations.', 'licencepress' ),
-					'type'        => 'custom',
-					'render'      => array( self::class, 'render_oauth_connection' ),
-				),
 			),
 		);
 	}
@@ -366,7 +315,7 @@ final class Settings {
 		$settings    = BaseSettings::get_group( self::GROUP, array() );
 		$settings    = is_array( $settings ) ? $settings : array();
 		$connected   = ! empty( $settings[ 'paypal_' . $environment . '_oauth_connected' ] );
-		$client_id   = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? '' ) );
+		$client_id   = self::get_client_id( $environment );
 		$connect_url = self::site_url( '/?paypal_oauth=1&paypal_environment=' . $environment );
 		$status      = $connected ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
 		$tone        = $connected ? 'success' : 'warning';
@@ -450,7 +399,7 @@ final class Settings {
 			'paypal_sandbox_callback'        => esc_url_raw( (string) ( $input['paypal_sandbox_callback'] ?? $input['paypal_callback'] ?? '' ) ),
 			'paypal_client_id'               => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_live_client_id'] ?? $input['paypal_client_id'] ?? '' ) ) ),
 			'paypal_client_secret'           => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_live_client_secret'] ?? $input['paypal_client_secret'] ?? '' ) ) ),
-			'paypal_oauth_connected'         => ! empty( $input['paypal_oauth_connect'] ) || ! empty( $input['paypal_live_oauth_connected'] ),
+			'paypal_oauth_connected'         => ! empty( $input['paypal_oauth_connect'] ) || ! empty( $input['paypal_live_oauth_connected'] ) || ! empty( $input['paypal_sandbox_oauth_connected'] ),
 			'paypal_access_token'            => sanitize_text_field( (string) ( $input['paypal_live_access_token'] ?? $input['paypal_access_token'] ?? '' ) ),
 			'paypal_refresh_token'           => sanitize_text_field( (string) ( $input['paypal_live_refresh_token'] ?? $input['paypal_refresh_token'] ?? '' ) ),
 			'paypal_callback'                => esc_url_raw( (string) ( $input['paypal_live_callback'] ?? $input['paypal_callback'] ?? '' ) ),

@@ -268,6 +268,23 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringContainsString( 'redirect_uri=https%3A%2F%2Fexample.com%2F%3Fpaypal_action%3Dcallback%26paypal_environment%3Dsandbox', $url );
 	}
 
+	public function test_paypal_oauth_connect_uses_decrypted_client_id_from_settings_store(): void {
+		$encrypted_id = \LicencePress\Includes\Functions\Helpers\EncryptionHelper::encrypt( 'live-client-id-123' );
+		\LicencePress\Includes\Settings\Settings::set_group(
+			'paypal',
+			array(
+				'paypal_environment'       => 'live',
+				'paypal_live_client_id'    => $encrypted_id,
+				'paypal_live_client_secret' => 'secret',
+			)
+		);
+
+		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( array(), 'state-456', 'live' );
+
+		$this->assertStringContainsString( 'client_id=live-client-id-123', $url );
+		$this->assertStringNotContainsString( 'client_id=' . rawurlencode( $encrypted_id ), $url );
+	}
+
 	public function test_paypal_oauth_success_redirect_returns_to_billing_settings_hash(): void {
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::get_success_redirect_url();
 

@@ -9,6 +9,8 @@
 
 namespace LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers;
 
+use LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings as PayPalSettings;
+
 final class PayPalOAuthHelper {
 	public static function register_allowed_redirect_hosts(): array {
 		$hosts = array(
@@ -112,7 +114,13 @@ final class PayPalOAuthHelper {
 
 	public static function build_connect_url( array $settings, string $state, ?string $environment = null ): string {
 		$environment = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
-		$client_id   = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '' ) );
+		$client_id   = PayPalSettings::get_client_id( $environment );
+		if ( '' === $client_id ) {
+			$legacy_client_id = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '' ) );
+			if ( '' !== $legacy_client_id ) {
+				$client_id = $legacy_client_id;
+			}
+		}
 		if ( '' === $client_id ) {
 			return self::site_url( '/?page=licencepress&group=settings&tab=billing&paypal_error=missing_client_id&paypal_environment=' . $environment . '#paypal' );
 		}

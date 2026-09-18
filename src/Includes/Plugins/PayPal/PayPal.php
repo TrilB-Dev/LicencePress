@@ -169,7 +169,8 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 					'callback' => 'register_billing_tab',
 				),
 			)
-		)->run();
+		)->add_action( 'rest_api_init', $this, 'register_rest_routes' )
+		->run();
 	}
 	/**
 	 * Register the settings for the plugin.

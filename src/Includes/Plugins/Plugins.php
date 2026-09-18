@@ -407,7 +407,7 @@ class Plugins {
 			}
 
 			if ( $plugin instanceof RestRouteProviderInterface ) {
-				$plugin->register_rest_routes();
+				add_action( 'rest_api_init', array( $plugin, 'register_rest_routes' ) );
 			}
 
 			if ( $plugin instanceof FrontendProviderInterface ) {

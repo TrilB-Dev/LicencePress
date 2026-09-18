@@ -10,6 +10,7 @@
 namespace LicencePress\Includes\Plugins\PayPal\Includes\Settings;
 
 use LicencePress\Includes\Functions\Helpers\EncryptionHelper;
+use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalConnectionService;
 use LicencePress\Includes\Settings\Settings as BaseSettings;
 
 final class Settings {
@@ -316,7 +317,7 @@ final class Settings {
 		$settings    = is_array( $settings ) ? $settings : array();
 		$connected   = ! empty( $settings[ 'paypal_' . $environment . '_oauth_connected' ] );
 		$client_id   = self::get_client_id( $environment );
-		$connect_url = self::site_url( '/?paypal_oauth=1&paypal_environment=' . $environment );
+		$connect_url = PayPalConnectionService::start_oauth_connect( $settings, $environment );
 		$status      = $connected ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
 		$tone        = $connected ? 'success' : 'warning';
 		$label       = 'sandbox' === $environment ? __( 'PayPal Sandbox connection', 'licencepress' ) : __( 'PayPal Live connection', 'licencepress' );

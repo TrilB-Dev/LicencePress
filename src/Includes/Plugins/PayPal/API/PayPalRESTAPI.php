@@ -1,0 +1,305 @@
+<?php
+/**
+ * Clean PayPal REST API facade for OAuth connect and credential storage.
+ *
+ * @package LicencePress
+ * @subpackage Includes\Plugins\PayPal\API
+ */
+
+namespace LicencePress\Includes\Plugins\PayPal\API;
+
+use LicencePress\Includes\Functions\Helpers\EncryptionHelper;
+use LicencePress\Includes\Plugins\PayPal\API\Models\PayPalConnectionSettings;
+use LicencePress\Includes\Plugins\PayPal\Includes\API\PayPalClient;
+use LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings as PayPalSettings;
+use LicencePress\Includes\Settings\Settings as BaseSettings;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+final class PayPalRESTAPI {
+	public const CONNECT_URL_SANDBOX = 'https://www.sandbox.paypal.com/connect';
+	public const CONNECT_URL_LIVE    = 'https://www.paypal.com/connect';
+
+	public static function normalize_environment( array $settings = array(), ?string $environment = null ): string {
+		$raw = sanitize_key( (string) ( $environment ?? ( $settings['environment'] ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) ) );
+		return in_array( $raw, array( 'sandbox', 'live' ), true ) ? $raw : 'sandbox';
+	}
+
+	public static function resolve_redirect_uri( ?string $environment = null ): string {
+		$environment = self::normalize_environment( array(), $environment );
+		if ( function_exists( 'home_url' ) ) {
+			return home_url( '/?paypal_action=callback&paypal_environment=' . $environment );
+		}
+
+		return 'https://example.com/?paypal_action=callback&paypal_environment=' . $environment;
+	}
+
+	private static function generate_state(): string {
+		if ( function_exists( 'wp_generate_uuid4' ) ) {
+			return wp_generate_uuid4();
+		}
+
+		$random = function_exists( 'random_bytes' ) ? bin2hex( random_bytes( 16 ) ) : md5( uniqid( (string) microtime( true ), true ) );
+		return md5( $random . microtime( true ) );
+	}
+
+	public static function save_oauth_state( string $state, ?string $environment = null ): bool {
+		$environment = self::normalize_environment( array(), $environment );
+		$user_id = function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0;
+		$transient_key = 'licencepress_paypal_oauth_state_' . $user_id . '_' . $environment;
+		if ( function_exists( 'set_transient' ) ) {
+			return (bool) set_transient( $transient_key, $state, 600 );
+		}
+
+		return true;
+	}
+
+	public static function validate_oauth_state( string $state, ?string $environment = null ): bool {
+		$environment = self::normalize_environment( array(), $environment );
+		$user_id = function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0;
+		$transient_key = 'licencepress_paypal_oauth_state_' . $user_id . '_' . $environment;
+		$expected = function_exists( 'get_transient' ) ? get_transient( $transient_key ) : null;
+		return '' !== $state && $state === (string) $expected;
+	}
+
+	public static function clear_oauth_state( ?string $environment = null ): void {
+		$environment = self::normalize_environment( array(), $environment );
+		$user_id = function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0;
+		$transient_key = 'licencepress_paypal_oauth_state_' . $user_id . '_' . $environment;
+		if ( function_exists( 'delete_transient' ) ) {
+			delete_transient( $transient_key );
+		}
+	}
+
+	public static function build_connect_url( array $settings = array(), ?string $environment = null ): string {
+		$environment = self::normalize_environment( $settings, $environment );
+		$client_id = trim( (string) ( $settings['client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
+		if ( '' === $client_id ) {
+			return admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&paypal_error=missing_client_id&paypal_environment=' . $environment . '#paypal' );
+		}
+
+		$state = self::generate_state();
+		self::save_oauth_state( $state, $environment );
+		$redirect_uri = self::resolve_redirect_uri( $environment );
+		$base_url = 'sandbox' === $environment ? self::CONNECT_URL_SANDBOX : self::CONNECT_URL_LIVE;
+
+		$query = array(
+			'flowEntry'     => 'static',
+			'client_id'     => $client_id,
+			'scope'         => 'openid profile email https://uri.paypal.com/services/payments/reporting',
+			'redirect_uri'  => $redirect_uri,
+			'response_type' => 'code',
+			'state'         => $state,
+		);
+
+		if ( function_exists( 'add_query_arg' ) ) {
+			return add_query_arg( $query, $base_url );
+		}
+
+		$separator = false === strpos( $base_url, '?' ) ? '?' : '&';
+		$parts = array();
+		foreach ( $query as $key => $value ) {
+			$parts[] = rawurlencode( (string) $key ) . '=' . rawurlencode( (string) $value );
+		}
+
+		return $base_url . $separator . implode( '&', $parts );
+	}
+
+	private static function normalize_payload( $model_or_array ): array {
+		if ( is_object( $model_or_array ) && method_exists( $model_or_array, 'to_array' ) ) {
+			$model_or_array = $model_or_array->to_array();
+		}
+
+		return is_array( $model_or_array ) ? $model_or_array : array();
+	}
+
+	private static function request_api( string $path, string $method = 'GET', array $payload = array(), ?string $environment = null ): array {
+		$environment = self::normalize_environment( array(), $environment );
+		$token = PayPalClient::get_access_token( $environment );
+		if ( '' === $token ) {
+			return array(
+				'success' => false,
+				'error' => 'missing_access_token',
+				'environment' => $environment,
+			);
+		}
+
+		$base_url = 'https://api-m.' . ( 'sandbox' === $environment ? 'sandbox.' : '' ) . 'paypal.com';
+		$args = array(
+			'timeout' => 30,
+			'headers' => array(
+				'Authorization' => 'Bearer ' . $token,
+				'Content-Type'  => 'application/json',
+			),
+		);
+
+		if ( 'GET' !== strtoupper( $method ) ) {
+			$args['body'] = wp_json_encode( $payload );
+		}
+
+		$response = wp_remote_request( $base_url . $path, $args );
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error' => $response->get_error_message(),
+				'environment' => $environment,
+			);
+		}
+
+		$status_code = wp_remote_retrieve_response_code( $response );
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			$body = array();
+		}
+
+		return array(
+			'success' => $status_code >= 200 && $status_code < 300,
+			'status_code' => $status_code,
+			'body' => $body,
+			'environment' => $environment,
+		);
+	}
+
+	public static function create_product( $product, ?string $environment = null ): array {
+		$environment = self::normalize_environment( array(), $environment );
+		$payload = self::normalize_payload( $product );
+		return self::request_api( '/v1/catalogs/products', 'POST', $payload, $environment );
+	}
+
+	public static function get_product( string $product_id, ?string $environment = null ): array {
+		$environment = self::normalize_environment( array(), $environment );
+		return self::request_api( '/v1/catalogs/products/' . rawurlencode( $product_id ), 'GET', array(), $environment );
+	}
+
+	public static function create_plan( $plan, ?string $environment = null ): array {
+		$environment = self::normalize_environment( array(), $environment );
+		$payload = self::normalize_payload( $plan );
+		return self::request_api( '/v1/billing/plans', 'POST', $payload, $environment );
+	}
+
+	public static function get_plan( string $plan_id, ?string $environment = null ): array {
+		$environment = self::normalize_environment( array(), $environment );
+		return self::request_api( '/v1/billing/plans/' . rawurlencode( $plan_id ), 'GET', array(), $environment );
+	}
+
+	public static function create_subscription( $subscription, ?string $environment = null ): array {
+		$environment = self::normalize_environment( array(), $environment );
+		$payload = self::normalize_payload( $subscription );
+		return self::request_api( '/v1/billing/subscriptions', 'POST', $payload, $environment );
+	}
+
+	public static function get_subscription( string $subscription_id, ?string $environment = null ): array {
+		$environment = self::normalize_environment( array(), $environment );
+		return self::request_api( '/v1/billing/subscriptions/' . rawurlencode( $subscription_id ), 'GET', array(), $environment );
+	}
+
+	public static function activate_subscription( string $subscription_id, string $reason = 'Activation requested by LicencePress', ?string $environment = null ): array {
+		$environment = self::normalize_environment( array(), $environment );
+		return self::request_api(
+			'/v1/billing/subscriptions/' . rawurlencode( $subscription_id ) . '/activate',
+			'POST',
+			array(
+				'reason' => $reason,
+			),
+			$environment
+		);
+	}
+
+	public static function save_oauth_credentials( array $settings ): bool {
+		$environment = self::normalize_environment( $settings, $settings['environment'] ?? ( $settings['paypal_environment'] ?? null ) );
+		$client_id   = trim( (string) ( $settings['client_id'] ?? $settings['paypal_' . $environment . '_client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
+		$secret      = trim( (string) ( $settings['client_secret'] ?? $settings['paypal_' . $environment . '_client_secret'] ?? PayPalSettings::get_client_secret( $environment ) ) );
+		$app_name    = sanitize_text_field( (string) ( $settings['app_name'] ?? 'LicencePress PayPal' ) );
+		$redirect_uri = self::resolve_redirect_uri( $environment );
+
+		if ( '' === $client_id || '' === $secret ) {
+			return false;
+		}
+
+		$group = BaseSettings::get_group( 'paypal', array() );
+		if ( ! is_array( $group ) ) {
+			$group = array();
+		}
+
+		$group['paypal_environment'] = $environment;
+		$group['paypal_' . $environment . '_client_id'] = EncryptionHelper::encrypt( $client_id ) ?? $client_id;
+		$group['paypal_' . $environment . '_client_secret'] = EncryptionHelper::encrypt( $secret ) ?? $secret;
+		$group['paypal_' . $environment . '_app_name'] = $app_name;
+		$group['paypal_' . $environment . '_redirect_uri'] = $redirect_uri;
+		$group['paypal_' . $environment . '_oauth_connected'] = true;
+		$group['paypal_' . $environment . '_callback'] = $redirect_uri;
+		$group['paypal_client_id'] = $group['paypal_' . $environment . '_client_id'];
+		$group['paypal_client_secret'] = $group['paypal_' . $environment . '_client_secret'];
+		$group['paypal_oauth_connected'] = true;
+		$group['paypal_callback'] = $redirect_uri;
+		$group['paypal_access_token'] = trim( (string) ( $settings['access_token'] ?? $group['paypal_access_token'] ?? '' ) );
+		$group['paypal_refresh_token'] = trim( (string) ( $settings['refresh_token'] ?? $group['paypal_refresh_token'] ?? '' ) );
+
+		return BaseSettings::set_group( 'paypal', $group );
+	}
+
+	public static function exchange_authorization_code( string $code, ?string $environment = null ): ?array {
+		$environment = self::normalize_environment( array(), $environment );
+		$client_id   = PayPalSettings::get_client_id( $environment );
+		$client_secret = PayPalSettings::get_client_secret( $environment );
+		$redirect_uri = self::resolve_redirect_uri( $environment );
+
+		if ( '' === trim( $code ) || '' === $client_id || '' === $client_secret ) {
+			return null;
+		}
+
+		$response = wp_remote_post(
+			'https://api-m.' . ( 'sandbox' === $environment ? 'sandbox.' : '' ) . 'paypal.com/v1/oauth2/token',
+			array(
+				'timeout' => 30,
+				'headers' => array(
+					'Accept'        => 'application/json',
+					'Authorization' => 'Basic ' . base64_encode( $client_id . ':' . $client_secret ),
+					'Content-Type'  => 'application/x-www-form-urlencoded',
+				),
+				'body' => array(
+					'grant_type'   => 'authorization_code',
+					'code'         => $code,
+					'redirect_uri' => $redirect_uri,
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			return null;
+		}
+
+		if ( ! empty( $body['access_token'] ) ) {
+			$settings = BaseSettings::get_group( 'paypal', array() );
+			if ( is_array( $settings ) ) {
+				$settings['paypal_' . $environment . '_access_token'] = sanitize_text_field( (string) $body['access_token'] );
+				$settings['paypal_' . $environment . '_refresh_token'] = sanitize_text_field( (string) ( $body['refresh_token'] ?? '' ) );
+				$settings['paypal_' . $environment . '_oauth_connected'] = true;
+				$settings['paypal_access_token'] = $settings['paypal_' . $environment . '_access_token'];
+				$settings['paypal_refresh_token'] = $settings['paypal_' . $environment . '_refresh_token'];
+				$settings['paypal_oauth_connected'] = true;
+				BaseSettings::set_group( 'paypal', $settings );
+			}
+		}
+
+		return $body;
+	}
+
+	public static function get_app_model( array $settings = array(), ?string $environment = null ): PayPalConnectionSettings {
+		$environment = self::normalize_environment( $settings, $environment );
+		$app = new PayPalConnectionSettings();
+		$app->environment = $environment;
+		$app->client_id = trim( (string) ( $settings['client_id'] ?? $settings['paypal_' . $environment . '_client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
+		$app->client_secret = trim( (string) ( $settings['client_secret'] ?? $settings['paypal_' . $environment . '_client_secret'] ?? PayPalSettings::get_client_secret( $environment ) ) );
+		$app->redirect_uri = self::resolve_redirect_uri( $environment );
+		$app->connected = ! empty( BaseSettings::get_group( 'paypal', array() )['paypal_' . $environment . '_oauth_connected'] ?? false );
+		return $app;
+	}
+}

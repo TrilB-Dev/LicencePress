@@ -1,187 +1,425 @@
 <?php
 /**
- * PayPal REST client helpers.
+ * Raw PayPal REST client used instead of the PayPal PHP SDK.
  *
  * @package LicencePress
  * @subpackage Includes\Plugins\PayPal\Includes\API
- * @since 1.0.0
  */
 
 namespace LicencePress\Includes\Plugins\PayPal\Includes\API;
 
 use LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings as PayPalSettings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 final class PayPalClient {
-	public static function api_base_url( array $settings, ?string $environment = null ): string {
-		$environment = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
-		return 'sandbox' === $environment ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
+	public static function get_api_base_url( ?string $environment = null ): string {
+		$environment = sanitize_key( (string) ( $environment ?? PayPalSettings::get_environment() ) );
+		if ( 'live' === $environment ) {
+			return 'https://api-m.paypal.com';
+		}
+
+		return 'https://api-m.sandbox.paypal.com';
 	}
 
-	public static function normalize_environment( array $settings, ?string $environment = null ): string {
-		$environment = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
-		return 'live' === $environment ? 'live' : 'sandbox';
-	}
-
-	private static function make_request( array $settings, string $action, array $options = array(), string $method = 'GET', int $expected_status = 200 ): ?array {
-		$environment = self::normalize_environment( $settings, $settings['paypal_environment'] ?? null );
+	public static function get_access_token( ?string $environment = null ): string {
+		$environment = sanitize_key( (string) ( $environment ?? PayPalSettings::get_environment() ) );
 		$credentials = PayPalSettings::get_client_credentials( $environment );
-		$client_id   = $credentials['client_id'];
-		$secret      = $credentials['client_secret'];
-		$headers     = array(
-			'Accept'       => 'application/json',
-			'Content-Type' => 'application/json',
-		);
-
-		if ( '' !== $client_id && '' !== $secret ) {
-			$headers['Authorization'] = 'Basic ' . base64_encode( $client_id . ':' . $secret ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		}
-
-		if ( isset( $options['headers'] ) && is_array( $options['headers'] ) ) {
-			$headers = wp_parse_args( $options['headers'], $headers );
-		}
-
-		$request_url = self::api_base_url( $settings, $environment ) . '/' . ltrim( $action, '/' );
-		$args = array(
-			'method'    => strtoupper( $method ),
-			'headers'   => $headers,
-			'timeout'   => 30,
-			'sslverify' => false,
-		);
-
-		if ( 'GET' === strtoupper( $method ) && ! empty( $options ) ) {
-			$request_url = function_exists( '\\add_query_arg' ) ? \add_query_arg( $options, $request_url ) : $request_url;
-		} elseif ( ! empty( $options ) ) {
-			$body = $options['body'] ?? $options;
-			if ( isset( $body['body'] ) && is_array( $body['body'] ) ) {
-				$body = $body['body'];
-			}
-			$args['body'] = function_exists( '\\wp_json_encode' ) ? \wp_json_encode( $body ) : json_encode( $body );
-		}
-
-		$response = function_exists( '\\wp_remote_request' ) ? \wp_remote_request( $request_url, $args ) : null;
-		if ( is_wp_error( $response ) ) {
-			error_log( '[LicencePress][PayPal] API request failed: ' . $response->get_error_message() );
-			return null;
-		}
-
-		$status_code = wp_remote_retrieve_response_code( $response );
-		$body        = wp_remote_retrieve_body( $response );
-		$decoded     = '' !== $body ? json_decode( $body, true ) : array();
-
-		if ( ! is_array( $decoded ) ) {
-			return null;
-		}
-
-		if ( $status_code < 200 || $status_code >= 300 ) {
-			error_log( '[LicencePress][PayPal] API request returned status ' . (string) $status_code . ' for ' . $action . ': ' . (string) $body );
-			return null;
-		}
-
-		if ( $expected_status > 0 && $status_code !== $expected_status ) {
-			return $decoded;
-		}
-
-		return $decoded;
-	}
-
-	public static function prepare_order_payload( array $order_data, string $intent = 'CHECKOUT' ): array {
-		$intent = strtoupper( sanitize_key( (string) $intent ) );
-		if ( '' === $intent ) {
-			$intent = 'CHECKOUT';
-		}
-
-		$amount       = (string) ( $order_data['amount'] ?? '0.00' );
-		$currency     = strtoupper( sanitize_text_field( (string) ( $order_data['currency'] ?? 'USD' ) ) );
-		$description  = sanitize_text_field( (string) ( $order_data['description'] ?? '' ) );
-		$custom_id    = sanitize_text_field( (string) ( $order_data['custom_id'] ?? '' ) );
-		$return_url   = esc_url_raw( (string) ( $order_data['return_url'] ?? ( function_exists( '\\home_url' ) ? \home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) : 'https://example.com/?page=licencepress&group=settings&tab=billing#paypal' ) ) );
-		$cancel_url   = esc_url_raw( (string) ( $order_data['cancel_url'] ?? ( function_exists( '\\home_url' ) ? \home_url( '/?page=licencepress&group=settings&tab=billing#paypal' ) : 'https://example.com/?page=licencepress&group=settings&tab=billing#paypal' ) ) );
-		$line_items   = is_array( $order_data['items'] ?? null ) ? $order_data['items'] : array();
-		$purchase_unit = array(
-			'amount' => array(
-				'currency_code' => '' !== $currency ? $currency : 'USD',
-				'value'         => '' !== $amount ? $amount : '0.00',
-			),
-			'description' => $description,
-			'custom_id'    => $custom_id,
-		);
-
-		if ( ! empty( $line_items ) ) {
-			$purchase_unit['items'] = $line_items;
-		}
-
-		return array(
-			'intent' => $intent,
-			'purchase_units' => array( $purchase_unit ),
-			'application_context' => array(
-				'brand_name' => sanitize_text_field( (string) ( $order_data['brand_name'] ?? 'LicencePress' ) ),
-				'return_url' => $return_url,
-				'cancel_url' => $cancel_url,
-				'locale'     => sanitize_text_field( (string) ( $order_data['locale'] ?? 'en-US' ) ),
-			),
-		);
-	}
-
-	public static function create_order( array $settings, array $order_data, ?string $environment = null ): ?array {
-		$environment = self::normalize_environment( $settings, $environment );
-		$settings['paypal_environment'] = $environment;
-		$payload = self::prepare_order_payload( $order_data );
-
-		return self::make_request( $settings, 'v2/checkout/orders', array( 'body' => $payload ), 'POST', 201 );
-	}
-
-	public static function capture_order( array $settings, string $order_id, ?string $environment = null ): ?array {
-		$environment = self::normalize_environment( $settings, $environment );
-		$settings['paypal_environment'] = $environment;
-
-		if ( '' === trim( $order_id ) ) {
-			return null;
-		}
-
-		return self::make_request( $settings, 'v2/checkout/orders/' . rawurlencode( $order_id ) . '/capture', array(), 'POST', 201 );
-	}
-
-	public static function exchange_code_for_token( array $settings, string $code, ?string $environment = null ): ?array {
-		$environment = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
-		$credentials = PayPalSettings::get_client_credentials( $environment );
-		$client_id   = $credentials['client_id'];
-		$client_secret = $credentials['client_secret'];
-		$redirect_uri  = home_url( '/?paypal_action=callback&paypal_environment=' . $environment );
-
-		error_log( '[LicencePress][PayPal] token exchange start env=' . $environment . ' client_id_set=' . ( '' !== $client_id ? 'yes' : 'no' ) . ' client_secret_set=' . ( '' !== $client_secret ? 'yes' : 'no' ) . ' redirect_uri=' . $redirect_uri );
-
-		if ( '' === $client_id || '' === $client_secret || '' === $code ) {
-			error_log( '[LicencePress][PayPal] token exchange aborted: missing client_id/client_secret/code.' );
-			return null;
+		$client_id = $credentials['client_id'];
+		$secret = $credentials['client_secret'];
+		if ( '' === $client_id || '' === $secret ) {
+			return '';
 		}
 
 		$response = wp_remote_post(
-			self::api_base_url( $settings, $environment ) . '/v1/oauth2/token',
+			self::get_api_base_url( $environment ) . '/v1/oauth2/token',
 			array(
 				'timeout' => 30,
 				'headers' => array(
-					'Accept'        => 'application/json',
-					'Authorization' => 'Basic ' . base64_encode( $client_id . ':' . $client_secret ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+					'Authorization' => 'Basic ' . base64_encode( $client_id . ':' . $secret ),
 					'Content-Type'  => 'application/x-www-form-urlencoded',
 				),
-				'body'    => array(
-					'grant_type'   => 'authorization_code',
-					'code'         => $code,
-					'redirect_uri' => $redirect_uri,
+				'body' => array(
+					'grant_type' => 'client_credentials',
 				),
 			)
 		);
 
 		if ( is_wp_error( $response ) ) {
-			error_log( '[LicencePress][PayPal] token exchange wp_remote_post error: ' . $response->get_error_message() );
-			return null;
+			return '';
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
-		$body_raw    = wp_remote_retrieve_body( $response );
-		error_log( '[LicencePress][PayPal] token exchange HTTP status=' . (string) $status_code . ' body=' . (string) $body_raw );
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		return is_array( $body ) && ! empty( $body['access_token'] ) ? (string) $body['access_token'] : '';
+	}
 
-		$body = json_decode( $body_raw, true );
-		return is_array( $body ) ? $body : null;
+	public static function prepare_order_payload( array $order_data, string $checkout_type = 'checkout' ): array {
+		$amount = isset( $order_data['amount'] ) ? (string) $order_data['amount'] : '0.00';
+		$currency = isset( $order_data['currency'] ) ? strtoupper( (string) $order_data['currency'] ) : 'USD';
+		$description = isset( $order_data['description'] ) ? (string) $order_data['description'] : 'LicencePress order';
+		$custom_id = isset( $order_data['custom_id'] ) ? (string) $order_data['custom_id'] : '';
+		$return_url = isset( $order_data['return_url'] ) ? (string) $order_data['return_url'] : ( function_exists( 'home_url' ) ? home_url( '/?paypal_action=checkout_return' ) : 'https://example.com/?paypal_action=checkout_return' );
+		$cancel_url = isset( $order_data['cancel_url'] ) ? (string) $order_data['cancel_url'] : ( function_exists( 'home_url' ) ? home_url( '/?paypal_action=checkout_cancel' ) : 'https://example.com/?paypal_action=checkout_cancel' );
+
+		return array(
+			'intent' => 'CHECKOUT',
+			'purchase_units' => array(
+				array(
+					'reference_id' => $custom_id !== '' ? 'default' : 'order-reference',
+					'custom_id' => $custom_id,
+					'description' => $description,
+					'amount' => array(
+						'currency_code' => $currency,
+						'value' => $amount,
+					),
+				),
+			),
+			'application_context' => array(
+				'return_url' => $return_url,
+				'cancel_url' => $cancel_url,
+				'brand_name' => 'LicencePress',
+				'landing_page' => 'LOGIN',
+				'user_action' => 'PAY_NOW',
+			),
+		);
+	}
+
+	public static function create_product( array $payload, ?string $environment = null ): array {
+		$environment = sanitize_key( (string) ( $environment ?? PayPalSettings::get_environment() ) );
+		$token = self::get_access_token( $environment );
+		if ( '' === $token ) {
+			return array(
+				'success' => false,
+				'error' => 'missing_access_token',
+			);
+		}
+
+		$response = wp_remote_post(
+			self::get_api_base_url( $environment ) . '/v1/catalogs/products',
+			array(
+				'timeout' => 30,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+				'body' => wp_json_encode( $payload ),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error' => $response->get_error_message(),
+			);
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			return array(
+				'success' => false,
+				'error' => 'invalid_response',
+			);
+		}
+
+		return array(
+			'success' => true,
+			'body' => $body,
+		);
+	}
+
+	public static function get_product( string $product_id, ?string $environment = null ): array {
+		$environment = sanitize_key( (string) ( $environment ?? PayPalSettings::get_environment() ) );
+		$token = self::get_access_token( $environment );
+		if ( '' === $token ) {
+			return array(
+				'success' => false,
+				'error' => 'missing_access_token',
+			);
+		}
+
+		$response = wp_remote_get(
+			self::get_api_base_url( $environment ) . '/v1/catalogs/products/' . rawurlencode( $product_id ),
+			array(
+				'timeout' => 30,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $token,
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error' => $response->get_error_message(),
+			);
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			return array(
+				'success' => false,
+				'error' => 'invalid_response',
+			);
+		}
+
+		return array(
+			'success' => true,
+			'body' => $body,
+		);
+	}
+
+	public static function create_plan( array $payload, ?string $environment = null ): array {
+		$environment = sanitize_key( (string) ( $environment ?? PayPalSettings::get_environment() ) );
+		$token = self::get_access_token( $environment );
+		if ( '' === $token ) {
+			return array(
+				'success' => false,
+				'error' => 'missing_access_token',
+			);
+		}
+
+		$response = wp_remote_post(
+			self::get_api_base_url( $environment ) . '/v1/billing/plans',
+			array(
+				'timeout' => 30,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+				'body' => wp_json_encode( $payload ),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error' => $response->get_error_message(),
+			);
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			return array(
+				'success' => false,
+				'error' => 'invalid_response',
+			);
+		}
+
+		return array(
+			'success' => true,
+			'body' => $body,
+		);
+	}
+
+	public static function create_subscription( array $payload, ?string $environment = null ): array {
+		$environment = sanitize_key( (string) ( $environment ?? PayPalSettings::get_environment() ) );
+		$token = self::get_access_token( $environment );
+		if ( '' === $token ) {
+			return array(
+				'success' => false,
+				'error' => 'missing_access_token',
+			);
+		}
+
+		$response = wp_remote_post(
+			self::get_api_base_url( $environment ) . '/v1/billing/subscriptions',
+			array(
+				'timeout' => 30,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+				'body' => wp_json_encode( $payload ),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error' => $response->get_error_message(),
+			);
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			return array(
+				'success' => false,
+				'error' => 'invalid_response',
+			);
+		}
+
+		return array(
+			'success' => true,
+			'body' => $body,
+		);
+	}
+
+	public static function get_plan( string $plan_id, ?string $environment = null ): array {
+		$environment = sanitize_key( (string) ( $environment ?? PayPalSettings::get_environment() ) );
+		$token = self::get_access_token( $environment );
+		if ( '' === $token ) {
+			return array(
+				'success' => false,
+				'error' => 'missing_access_token',
+			);
+		}
+
+		$response = wp_remote_get(
+			self::get_api_base_url( $environment ) . '/v1/billing/plans/' . rawurlencode( $plan_id ),
+			array(
+				'timeout' => 30,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $token,
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error' => $response->get_error_message(),
+			);
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			return array(
+				'success' => false,
+				'error' => 'invalid_response',
+			);
+		}
+
+		return array(
+			'success' => true,
+			'body' => $body,
+		);
+	}
+
+	public static function get_subscription( string $subscription_id, ?string $environment = null ): array {
+		$environment = sanitize_key( (string) ( $environment ?? PayPalSettings::get_environment() ) );
+		$token = self::get_access_token( $environment );
+		if ( '' === $token ) {
+			return array(
+				'success' => false,
+				'error' => 'missing_access_token',
+			);
+		}
+
+		$response = wp_remote_get(
+			self::get_api_base_url( $environment ) . '/v1/billing/subscriptions/' . rawurlencode( $subscription_id ),
+			array(
+				'timeout' => 30,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $token,
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error' => $response->get_error_message(),
+			);
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			return array(
+				'success' => false,
+				'error' => 'invalid_response',
+			);
+		}
+
+		return array(
+			'success' => true,
+			'body' => $body,
+		);
+	}
+
+	public static function create_order( array $payload, ?string $environment = null ): array {
+		$environment = sanitize_key( (string) ( $environment ?? PayPalSettings::get_environment() ) );
+		$token = self::get_access_token( $environment );
+		if ( '' === $token ) {
+			return array(
+				'success' => false,
+				'error' => 'missing_access_token',
+			);
+		}
+
+		$response = wp_remote_post(
+			self::get_api_base_url( $environment ) . '/v2/checkout/orders',
+			array(
+				'timeout' => 30,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+				'body' => wp_json_encode( $payload ),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error' => $response->get_error_message(),
+			);
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			return array(
+				'success' => false,
+				'error' => 'invalid_response',
+			);
+		}
+
+		return array(
+			'success' => true,
+			'body' => $body,
+		);
+	}
+
+	public static function capture_order( string $order_id, ?string $environment = null ): array {
+		$environment = sanitize_key( (string) ( $environment ?? PayPalSettings::get_environment() ) );
+		$token = self::get_access_token( $environment );
+		if ( '' === $token ) {
+			return array(
+				'success' => false,
+				'error' => 'missing_access_token',
+			);
+		}
+
+		$response = wp_remote_post(
+			self::get_api_base_url( $environment ) . '/v2/checkout/orders/' . rawurlencode( $order_id ) . '/capture',
+			array(
+				'timeout' => 30,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'error' => $response->get_error_message(),
+			);
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			return array(
+				'success' => false,
+				'error' => 'invalid_response',
+			);
+		}
+
+		return array(
+			'success' => true,
+			'body' => $body,
+		);
 	}
 }

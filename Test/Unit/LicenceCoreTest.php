@@ -259,6 +259,24 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringContainsString( 'state=state-rest', $url );
 	}
 
+	public function test_paypal_rest_api_builds_connect_url_and_persists_encrypted_credentials(): void {
+		$settings = array(
+			'client_id'     => 'sandbox-client-id',
+			'client_secret' => 'sandbox-client-secret',
+			'environment'   => 'sandbox',
+		);
+
+		$connect_url = \LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI::build_connect_url( $settings );
+		$this->assertStringStartsWith( 'https://www.sandbox.paypal.com/connect?', $connect_url );
+		$this->assertStringContainsString( 'client_id=sandbox-client-id', $connect_url );
+		$this->assertStringContainsString( 'response_type=code', $connect_url );
+
+		$saved = \LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI::save_oauth_credentials( $settings );
+		$this->assertTrue( $saved );
+		$this->assertNotSame( 'sandbox-client-secret', \LicencePress\Includes\Settings\Settings::get( 'paypal_sandbox_client_secret' ) );
+		$this->assertSame( 'sandbox-client-id', \LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings::get_client_id( 'sandbox' ) );
+	}
+
 	public function test_paypal_oauth_connect_uses_official_connect_endpoint_and_public_callback(): void {
 		$settings = array(
 			'paypal_environment'       => 'sandbox',
@@ -1043,6 +1061,84 @@ namespace LicencePress\Test\Unit {
 
 		$this->expectException( \InvalidArgumentException::class );
 		LicenceManager::create_license( $product_id, 'customer-retired-2', 30, 'https://example.com', array( 'support' ) );
+	}
+
+	public function test_paypal_subscription_models_can_build_minimal_product_plan_and_subscription_payloads(): void {
+		$product = new \LicencePress\Includes\Plugins\PayPal\API\Models\Product();
+		$product->set_name( 'LicencePress Pro' );
+		$product->set_type( 'SERVICE' );
+		$product->set_description( 'LicencePress subscription product' );
+
+		$this->assertSame( 'LicencePress Pro', $product->get_name() );
+		$this->assertSame( 'SERVICE', $product->get_type() );
+		$this->assertSame( 'LicencePress subscription product', $product->get_description() );
+
+		$plan = new \LicencePress\Includes\Plugins\PayPal\API\Models\Plan( $product );
+		$plan->set_name( 'LicencePress Pro Monthly' );
+		$plan->set_product_id( $product->get_id() ?: 'PROD-123' );
+		$plan->set_billing_cycles(
+			array(
+				array(
+					'frequency' => array(
+						'interval_unit' => 'MONTH',
+						'interval_count' => 1,
+					),
+					'tenure_type' => 'REGULAR',
+					'sequence' => 1,
+					'total_cycles' => 0,
+					'pricing_scheme' => array(
+						'fixed_price' => array(
+							'value' => '19.99',
+							'currency_code' => 'USD',
+						),
+					),
+				),
+			)
+		);
+		$plan->set_payment_preferences(
+			array(
+				'auto_bill_outstanding' => true,
+				'payment_failure_threshold' => 3,
+			)
+		);
+
+		$this->assertSame( 'LicencePress Pro Monthly', $plan->get_name() );
+		$this->assertSame( 'PROD-123', $plan->get_product_id() );
+		$this->assertCount( 1, $plan->get_billing_cycles() );
+		$this->assertSame( 'REGULAR', $plan->get_billing_cycles()[0]['tenure_type'] );
+
+		$subscription = new \LicencePress\Includes\Plugins\PayPal\API\Models\Subscription( $plan );
+		$subscription->set_plan_id( $plan->get_id() ?: 'PLAN-123' );
+		$subscription->set_subscriber(
+			array(
+				'name' => array(
+					'given_name' => 'Ada',
+					'surname' => 'Lovelace',
+				),
+				'email_address' => 'ada@example.com',
+			)
+		);
+		$subscription->set_application_context(
+			array(
+				'brand_name' => 'LicencePress',
+				'return_url' => 'https://example.com/return',
+				'cancel_url' => 'https://example.com/cancel',
+			)
+		);
+
+		$payload = $subscription->to_array();
+		$this->assertSame( 'PLAN-123', $payload['plan_id'] );
+		$this->assertSame( 'ada@example.com', $payload['subscriber']['email_address'] );
+		$this->assertSame( 'LicencePress', $payload['application_context']['brand_name'] );
+	}
+
+	public function test_paypal_rest_api_supports_product_plan_and_subscription_methods(): void {
+		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI', 'create_product' ) );
+		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI', 'create_plan' ) );
+		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI', 'create_subscription' ) );
+		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI', 'get_product' ) );
+		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI', 'get_plan' ) );
+		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI', 'get_subscription' ) );
 	}
 }
 

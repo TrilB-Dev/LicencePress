@@ -1,15 +1,18 @@
 <?php
 /**
- * OAuth helper functions for the PayPal plugin.
+ * Helper methods for the PayPal OAuth connect flow.
  *
  * @package LicencePress
- * @subpackage Includes\Plugins\PayPal\Includes\Functions
- * @since 1.0.0
+ * @subpackage Includes\Plugins\PayPal\Includes\Functions\Helpers
  */
 
 namespace LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers;
 
 use LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings as PayPalSettings;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 final class PayPalOAuthHelper {
 	public static function register_allowed_redirect_hosts(): array {
@@ -47,12 +50,12 @@ final class PayPalOAuthHelper {
 			return home_url( $path );
 		}
 
-		$uri = 'https://example.com';
-		if ( '' !== $path ) {
-			$uri = rtrim( $uri, '/' ) . '/' . ltrim( $path, '/' );
+		$base = 'https://example.com';
+		if ( '' === $path ) {
+			return $base;
 		}
 
-		return $uri;
+		return rtrim( $base, '/' ) . '/' . ltrim( $path, '/' );
 	}
 
 	private static function build_query_string( array $query, string $base_url ): string {
@@ -61,7 +64,7 @@ final class PayPalOAuthHelper {
 		}
 
 		$separator = false === strpos( $base_url, '?' ) ? '?' : '&';
-		$parts     = array();
+		$parts = array();
 		foreach ( $query as $key => $value ) {
 			$parts[] = rawurlencode( (string) $key ) . '=' . rawurlencode( (string) $value );
 		}
@@ -74,28 +77,40 @@ final class PayPalOAuthHelper {
 	}
 
 	public static function generate_state(): string {
-		return function_exists( 'wp_generate_uuid4' ) ? wp_generate_uuid4() : md5( wp_rand() . microtime() );
+		if ( function_exists( 'wp_generate_uuid4' ) ) {
+			return wp_generate_uuid4();
+		}
+
+		$random = function_exists( 'random_bytes' ) ? bin2hex( random_bytes( 16 ) ) : md5( uniqid( (string) microtime( true ), true ) );
+		return md5( $random . microtime( true ) );
 	}
 
 	public static function save_state( string $state, ?string $environment = null ): void {
 		$environment = sanitize_key( (string) ( $environment ?? 'sandbox' ) );
-		set_transient( 'licencepress_paypal_oauth_state_' . get_current_user_id() . '_' . $environment, $state, 600 );
+		$user_id = function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0;
+		if ( function_exists( 'set_transient' ) ) {
+			set_transient( 'licencepress_paypal_oauth_state_' . $user_id . '_' . $environment, $state, 600 );
+		}
 	}
 
 	public static function validate_state( string $state, ?string $environment = null ): bool {
 		$environment = sanitize_key( (string) ( $environment ?? 'sandbox' ) );
-		$expected    = get_transient( 'licencepress_paypal_oauth_state_' . get_current_user_id() . '_' . $environment );
+		$user_id = function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0;
+		$expected = function_exists( 'get_transient' ) ? get_transient( 'licencepress_paypal_oauth_state_' . $user_id . '_' . $environment ) : null;
 		return '' !== $state && $state === (string) $expected;
 	}
 
 	public static function clear_state( ?string $environment = null ): void {
 		$environment = sanitize_key( (string) ( $environment ?? 'sandbox' ) );
-		delete_transient( 'licencepress_paypal_oauth_state_' . get_current_user_id() . '_' . $environment );
+		$user_id = function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0;
+		if ( function_exists( 'delete_transient' ) ) {
+			delete_transient( 'licencepress_paypal_oauth_state_' . $user_id . '_' . $environment );
+		}
 	}
 
 	public static function get_public_callback_url( ?string $environment = null ): string {
 		$environment = sanitize_key( (string) ( $environment ?? 'sandbox' ) );
-		$callback    = self::site_url( '/?paypal_action=callback&paypal_environment=' . $environment );
+		$callback = self::site_url( '/?paypal_action=callback&paypal_environment=' . $environment );
 
 		if ( function_exists( 'apply_filters' ) ) {
 			$callback = (string) apply_filters( 'licencepress_paypal_callback_url', $callback, $environment );
@@ -109,38 +124,18 @@ final class PayPalOAuthHelper {
 			return admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal' );
 		}
 
-		return self::site_url( '/?page=licencepress&group=settings&tab=billing#paypal' );
+		return self::site_url( '/wp-admin/admin.php?page=licencepress&group=settings&tab=billing#paypal' );
 	}
 
 	public static function build_connect_url( array $settings, string $state, ?string $environment = null ): string {
-		$environment = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
-		$client_id   = PayPalSettings::get_client_id( $environment );
-		if ( '' === $client_id ) {
-			$legacy_client_id = sanitize_text_field( (string) ( $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? '' ) );
-			if ( '' !== $legacy_client_id ) {
-				$client_id = $legacy_client_id;
-			}
-		}
+		$environment = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? ( $settings['environment'] ?? 'sandbox' ) ) ) );
+		$client_id = trim( (string) ( $settings['client_id'] ?? $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
 		if ( '' === $client_id ) {
 			return self::site_url( '/?page=licencepress&group=settings&tab=billing&paypal_error=missing_client_id&paypal_environment=' . $environment . '#paypal' );
 		}
 
-		/*
-		 * PayPal's official PHP Server SDK implements the OAuth 2 client-credentials
-		 * grant used for API access. It does not handle the user consent authorization
-		 * code flow for PayPal Connect login. We therefore launch the consent flow
-		 * manually using the official PayPal Connect endpoint and then exchange the
-		 * returned authorization code at the OAuth token endpoint.
-		 *
-		 * The authorization-code flow requires an explicit response_type=code value.
-		 */
-		$base_url = 'https://www.paypal.com/connect';
-		if ( 'sandbox' === $environment ) {
-			$base_url = 'https://www.sandbox.paypal.com/connect';
-		}
-
+		$base_url = 'sandbox' === $environment ? 'https://www.sandbox.paypal.com/connect' : 'https://www.paypal.com/connect';
 		$callback_url = self::get_public_callback_url( $environment );
-		error_log( '[LicencePress][PayPal] OAuth redirect_uri=' . $callback_url . ' env=' . $environment );
 
 		return self::build_query_string(
 			array(

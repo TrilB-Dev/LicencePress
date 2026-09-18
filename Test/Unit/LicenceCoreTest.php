@@ -244,6 +244,21 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringContainsString( '#paypal', $url );
 	}
 
+	public function test_paypal_rest_connect_route_returns_connect_url(): void {
+		$plugin = new \LicencePress\Includes\Plugins\PayPal\PayPal();
+		$this->assertTrue( method_exists( $plugin, 'register_rest_routes' ) );
+		$this->assertTrue( $plugin instanceof \LicencePress\Includes\Plugins\RestRouteProviderInterface );
+
+		$settings = array(
+			'paypal_environment'       => 'sandbox',
+			'paypal_sandbox_client_id' => 'sandbox-client-id',
+		);
+		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-rest', 'sandbox' );
+		$this->assertStringStartsWith( 'https://www.sandbox.paypal.com/connect?', $url );
+		$this->assertStringContainsString( 'client_id=sandbox-client-id', $url );
+		$this->assertStringContainsString( 'state=state-rest', $url );
+	}
+
 	public function test_paypal_oauth_connect_uses_official_connect_endpoint_and_public_callback(): void {
 		$settings = array(
 			'paypal_environment'       => 'sandbox',

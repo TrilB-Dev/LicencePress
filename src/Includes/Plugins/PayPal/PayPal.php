@@ -14,16 +14,22 @@ use LicencePress\Includes\Plugins\AdminSidebarProviderInterface;
 use LicencePress\Includes\Plugins\AssetsProviderInterface;
 use LicencePress\Includes\Plugins\I18nProviderInterface;
 use LicencePress\Includes\Plugins\PluginInterface;
+use LicencePress\Includes\Plugins\RestRouteProviderInterface;
 use LicencePress\Includes\Plugins\SettingsProviderInterface;
 use LicencePress\Includes\Plugins\SettingsPageProviderInterface;
 use LicencePress\Includes\Plugins\PayPal\Admin\BillingSettingsPayPal;
 use LicencePress\Includes\Plugins\PayPal\Admin\PayPalAdmin;
 use LicencePress\Includes\Plugins\PayPal\Assets\Assets;
 use LicencePress\Includes\Plugins\PayPal\Includes\Core\I18n;
+use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalConnectionService;
 use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper;
 use LicencePress\Includes\Plugins\PayPal\Includes\Includes;
+use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
 
-final class PayPal implements PluginInterface, SettingsProviderInterface, SettingsPageProviderInterface, AssetsProviderInterface, I18nProviderInterface, AdminMenuProviderInterface, AdminSidebarProviderInterface {
+final class PayPal implements PluginInterface, RestRouteProviderInterface, SettingsProviderInterface, SettingsPageProviderInterface, AssetsProviderInterface, I18nProviderInterface, AdminMenuProviderInterface, AdminSidebarProviderInterface {
 	/**
 	 * The loader helper instance.
 	 *
@@ -197,6 +203,83 @@ final class PayPal implements PluginInterface, SettingsProviderInterface, Settin
 	 */
 	public function register_assets(): void {
 		( new Assets() )->register();
+	}
+
+	public function register_rest_routes(): void {
+		register_rest_route(
+			'licencepress/v1',
+			'/paypal/connect',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( self::class, 'rest_connect' ),
+				'permission_callback' => array( self::class, 'rest_permission_callback' ),
+			)
+		);
+
+		register_rest_route(
+			'licencepress/v1',
+			'/paypal/callback',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( self::class, 'rest_callback' ),
+				'permission_callback' => array( self::class, 'rest_permission_callback' ),
+			)
+		);
+	}
+
+	public static function rest_permission_callback(): bool {
+		return current_user_can( 'licencepress_paypal_manage' ) || current_user_can( 'manage_options' );
+	}
+
+	public static function rest_connect( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$settings = array();
+		$body     = $request->get_json_params();
+		if ( ! is_array( $body ) ) {
+			$body = $request->get_body_params();
+		}
+		if ( ! is_array( $body ) ) {
+			$body = array();
+		}
+
+		$environment = sanitize_key( (string) ( $body['environment'] ?? $body['paypal_environment'] ?? 'sandbox' ) );
+		$settings['paypal_environment'] = $environment;
+
+		$connect_url = PayPalConnectionService::start_oauth_connect( $settings, $environment );
+		if ( false === strpos( $connect_url, 'client_id=' ) ) {
+			return new WP_Error( 'paypal_missing_client_id', __( 'PayPal client ID is not configured for this environment.', 'licencepress' ) );
+		}
+
+		return new WP_REST_Response(
+			array(
+				'success'     => true,
+				'environment' => $environment,
+				'connect_url' => $connect_url,
+			),
+			200
+		);
+	}
+
+	public static function rest_callback( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$data = array(
+			'code'               => sanitize_text_field( (string) $request->get_param( 'code' ) ),
+			'state'              => sanitize_text_field( (string) $request->get_param( 'state' ) ),
+			'paypal_environment' => sanitize_key( (string) $request->get_param( 'paypal_environment' ) ),
+		);
+
+		$result = PayPalConnectionService::complete_oauth_connect( $data );
+		if ( empty( $result['success'] ) ) {
+			return new WP_Error( $result['error'] ?? 'paypal_oauth_callback_failed', __( 'PayPal OAuth callback failed.', 'licencepress' ) );
+		}
+
+		return new WP_REST_Response(
+			array(
+				'success'     => true,
+				'environment' => $result['environment'] ?? 'sandbox',
+				'connected'   => true,
+				'token'       => $result['body']['access_token'] ?? '',
+			),
+			200
+		);
 	}
 	/**
 	 * Load the text domain for the plugin.

@@ -13,6 +13,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 abstract class AbstractModel {
+	/**
+	 * Loads the model with the given properties.
+	 *
+	 * @param array $props The properties to load into the model.
+	 * @return $this The current model instance.
+	 */
 	public function load( $props ) {
 		if ( empty( $props ) ) {
 			return $this;
@@ -34,7 +40,13 @@ abstract class AbstractModel {
 
 		return $this;
 	}
-
+	/**
+	 * Sets a property on the model, using a setter method if available.
+	 *
+	 * @param string $prop  The property name.
+	 * @param mixed  $value The value to set.
+	 * @return void
+	 */
 	protected function set_property( $prop, $value ) {
 		$method = 'set_' . str_replace( '-', '_', $prop );
 		if ( method_exists( $this, $method ) ) {
@@ -46,7 +58,12 @@ abstract class AbstractModel {
 			$this->{$prop} = $value;
 		}
 	}
-
+	/**
+	 * Converts the model to an associative array, excluding null values.
+	 *
+	 * @return array The model represented as an associative array.
+	 * @since 1.0.0
+	 */
 	public function to_array() {
 		$array = get_object_vars( $this );
 		foreach ( $array as $key => $value ) {

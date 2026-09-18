@@ -17,6 +17,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class PayPalConnectionService {
+	/**
+	 * Starts the PayPal OAuth connection process.
+	 *
+	 * @param array       $settings    The PayPal settings array.
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @return string The URL to redirect the user to for OAuth connection.
+	 * @since 1.0.0
+	 */
 	public static function start_oauth_connect( array $settings = array(), ?string $environment = null ): string {
 		$environment = self::normalize_environment( $settings, $environment );
 		$state = PayPalOAuthHelper::generate_state();
@@ -30,7 +38,13 @@ final class PayPalConnectionService {
 
 		return PayPalOAuthHelper::build_connect_url( $effective_settings, $state, $environment );
 	}
-
+	/**
+	 * Completes the PayPal OAuth connection process.
+	 *
+	 * @param array $request The request array containing the OAuth response parameters.
+	 * @return array The result of the OAuth connection attempt.
+	 * @since 1.0.0
+	 */
 	public static function complete_oauth_connect( array $request ): array {
 		$environment = self::normalize_environment( $request, $request['paypal_environment'] ?? null );
 		$code = sanitize_text_field( (string) ( $request['code'] ?? '' ) );
@@ -77,7 +91,14 @@ final class PayPalConnectionService {
 			'environment' => $environment,
 		);
 	}
-
+	/**
+	 * Normalizes the PayPal environment value.
+	 *
+	 * @param array       $settings    The settings array containing the environment information.
+	 * @param string|null $environment The environment value to normalize.
+	 * @return string The normalized environment ('sandbox' or 'live').
+	 * @since 1.0.0
+	 */
 	private static function normalize_environment( array $settings, ?string $environment = null ): string {
 		$raw = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? ( $settings['environment'] ?? 'sandbox' ) ) ) );
 		return in_array( $raw, array( 'sandbox', 'live' ), true ) ? $raw : 'sandbox';

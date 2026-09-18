@@ -4,6 +4,7 @@
  *
  * @package LicencePress
  * @subpackage Includes\Plugins\PayPal\API
+ * @version 1.0.0
  */
 
 namespace LicencePress\Includes\Plugins\PayPal\API;
@@ -19,14 +20,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 final class PayPalRESTAPI {
+	/**
+	 * PayPal connect URL for sandbox environment.
+	 *
+	 * @since 1.0.0
+	 */
 	public const CONNECT_URL_SANDBOX = 'https://www.sandbox.paypal.com/connect';
+	/**
+	 * PayPal connect URL for live environment.
+	 *
+	 * @since 1.0.0
+	 */
 	public const CONNECT_URL_LIVE    = 'https://www.paypal.com/connect';
-
+    /**
+	 * Normalizes the PayPal environment value.
+	 *
+	 * @param array       $settings    The settings array containing the environment information.
+	 * @param string|null $environment The environment value to normalize.
+	 * @return string The normalized environment ('sandbox' or 'live').
+	 * @since 1.0.0
+	 */
 	public static function normalize_environment( array $settings = array(), ?string $environment = null ): string {
 		$raw = sanitize_key( (string) ( $environment ?? ( $settings['environment'] ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) ) );
 		return in_array( $raw, array( 'sandbox', 'live' ), true ) ? $raw : 'sandbox';
 	}
-
+    /**
+	 * Resolves the redirect URI for the OAuth callback based on the environment.
+	 *
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @return string The resolved redirect URI.
+	 * @since 1.0.0
+	 */
 	public static function resolve_redirect_uri( ?string $environment = null ): string {
 		$environment = self::normalize_environment( array(), $environment );
 		if ( function_exists( 'home_url' ) ) {
@@ -35,7 +59,12 @@ final class PayPalRESTAPI {
 
 		return 'https://example.com/?paypal_action=callback&paypal_environment=' . $environment;
 	}
-
+    /**
+	 * Generates a unique state string for the OAuth flow.
+	 *
+	 * @return string The generated state string.
+	 * @since 1.0.0
+	 */
 	private static function generate_state(): string {
 		if ( function_exists( 'wp_generate_uuid4' ) ) {
 			return wp_generate_uuid4();
@@ -44,7 +73,14 @@ final class PayPalRESTAPI {
 		$random = function_exists( 'random_bytes' ) ? bin2hex( random_bytes( 16 ) ) : md5( uniqid( (string) microtime( true ), true ) );
 		return md5( $random . microtime( true ) );
 	}
-
+    /**
+	 * Saves the OAuth state in a transient for later validation.
+	 *
+	 * @param string      $state       The state string to save.
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @return bool True if the state was successfully saved, false otherwise.
+	 * @since 1.0.0
+	 */
 	public static function save_oauth_state( string $state, ?string $environment = null ): bool {
 		$environment = self::normalize_environment( array(), $environment );
 		$user_id = function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0;
@@ -56,6 +92,14 @@ final class PayPalRESTAPI {
 		return true;
 	}
 
+	/**
+	 * Validates the OAuth state against the stored transient.
+	 *
+	 * @param string      $state       The state string to validate.
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @return bool True if the state is valid, false otherwise.
+	 * @since 1.0.0
+	 */
 	public static function validate_oauth_state( string $state, ?string $environment = null ): bool {
 		$environment = self::normalize_environment( array(), $environment );
 		$user_id = function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0;
@@ -64,6 +108,12 @@ final class PayPalRESTAPI {
 		return '' !== $state && $state === (string) $expected;
 	}
 
+	/**
+	 * Clears the stored OAuth state transient.
+	 *
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @since 1.0.0
+	 */
 	public static function clear_oauth_state( ?string $environment = null ): void {
 		$environment = self::normalize_environment( array(), $environment );
 		$user_id = function_exists( 'get_current_user_id' ) ? get_current_user_id() : 0;
@@ -72,7 +122,14 @@ final class PayPalRESTAPI {
 			delete_transient( $transient_key );
 		}
 	}
-
+    /**
+	 * Builds the PayPal connect URL for initiating the OAuth flow.
+	 *
+	 * @param array       $settings    The PayPal settings array.
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @return string The constructed PayPal connect URL.
+	 * @since 1.0.0
+	 */
 	public static function build_connect_url( array $settings = array(), ?string $environment = null ): string {
 		$environment = self::normalize_environment( $settings, $environment );
 		$client_id = trim( (string) ( $settings['client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
@@ -106,7 +163,13 @@ final class PayPalRESTAPI {
 
 		return $base_url . $separator . implode( '&', $parts );
 	}
-
+    /**
+	 * Normalizes the payload to an array.
+	 *
+	 * @param mixed $model_or_array The model object or array to normalize.
+	 * @return array The normalized array.
+	 * @since 1.0.0
+	 */
 	private static function normalize_payload( $model_or_array ): array {
 		if ( is_object( $model_or_array ) && method_exists( $model_or_array, 'to_array' ) ) {
 			$model_or_array = $model_or_array->to_array();
@@ -114,7 +177,16 @@ final class PayPalRESTAPI {
 
 		return is_array( $model_or_array ) ? $model_or_array : array();
 	}
-
+    /**
+	 * Makes a request to the PayPal API.
+	 *
+	 * @param string      $path        The API endpoint path.
+	 * @param string      $method      The HTTP method (GET, POST, etc.).
+	 * @param array       $payload     The request payload.
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @return array The API response.
+	 * @since 1.0.0
+	 */
 	private static function request_api( string $path, string $method = 'GET', array $payload = array(), ?string $environment = null ): array {
 		$environment = self::normalize_environment( array(), $environment );
 		$token = PayPalClient::get_access_token( $environment );
@@ -161,40 +233,90 @@ final class PayPalRESTAPI {
 			'environment' => $environment,
 		);
 	}
-
+    /**
+	 * Creates a new product in the PayPal catalog.
+	 *
+	 * @param array       $product     The product data.
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @return array The API response.
+	 * @since 1.0.0
+	 */
 	public static function create_product( $product, ?string $environment = null ): array {
 		$environment = self::normalize_environment( array(), $environment );
 		$payload = self::normalize_payload( $product );
 		return self::request_api( '/v1/catalogs/products', 'POST', $payload, $environment );
 	}
-
+    /**
+	 * Retrieves a product from the PayPal catalog.
+	 *
+	 * @param string      $product_id  The ID of the product to retrieve.
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @return array The API response.
+	 * @since 1.0.0
+	 */
 	public static function get_product( string $product_id, ?string $environment = null ): array {
 		$environment = self::normalize_environment( array(), $environment );
 		return self::request_api( '/v1/catalogs/products/' . rawurlencode( $product_id ), 'GET', array(), $environment );
 	}
-
+    /**
+	 * Creates a new billing plan in PayPal.
+	 *
+	 * @param array       $plan        The plan data.
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @return array The API response.
+	 * @since 1.0.0
+	 */
 	public static function create_plan( $plan, ?string $environment = null ): array {
 		$environment = self::normalize_environment( array(), $environment );
 		$payload = self::normalize_payload( $plan );
 		return self::request_api( '/v1/billing/plans', 'POST', $payload, $environment );
 	}
-
+    /**
+	 * Retrieves a billing plan from PayPal.
+	 *
+	 * @param string      $plan_id     The ID of the plan to retrieve.
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @return array The API response.
+	 * @since 1.0.0
+	 */
 	public static function get_plan( string $plan_id, ?string $environment = null ): array {
 		$environment = self::normalize_environment( array(), $environment );
 		return self::request_api( '/v1/billing/plans/' . rawurlencode( $plan_id ), 'GET', array(), $environment );
 	}
-
+    /**
+	 * Creates a new subscription in PayPal.
+	 *
+	 * @param array       $subscription The subscription data.
+	 * @param string|null $environment  The PayPal environment (sandbox or live).
+	 * @return array The API response.
+	 * @since 1.0.0
+	 */
 	public static function create_subscription( $subscription, ?string $environment = null ): array {
 		$environment = self::normalize_environment( array(), $environment );
 		$payload = self::normalize_payload( $subscription );
 		return self::request_api( '/v1/billing/subscriptions', 'POST', $payload, $environment );
 	}
-
+    /**
+	 * Retrieves a subscription from PayPal.
+	 *
+	 * @param string      $subscription_id The ID of the subscription to retrieve.
+	 * @param string|null $environment     The PayPal environment (sandbox or live).
+	 * @return array The API response.
+	 * @since 1.0.0
+	 */
 	public static function get_subscription( string $subscription_id, ?string $environment = null ): array {
 		$environment = self::normalize_environment( array(), $environment );
 		return self::request_api( '/v1/billing/subscriptions/' . rawurlencode( $subscription_id ), 'GET', array(), $environment );
 	}
-
+    /**
+	 * Activates a subscription in PayPal.
+	 *
+	 * @param string      $subscription_id The ID of the subscription to activate.
+	 * @param string      $reason          The reason for activation.
+	 * @param string|null $environment     The PayPal environment (sandbox or live).
+	 * @return array The API response.
+	 * @since 1.0.0
+	 */
 	public static function activate_subscription( string $subscription_id, string $reason = 'Activation requested by LicencePress', ?string $environment = null ): array {
 		$environment = self::normalize_environment( array(), $environment );
 		return self::request_api(
@@ -206,7 +328,13 @@ final class PayPalRESTAPI {
 			$environment
 		);
 	}
-
+    /**
+	 * Saves OAuth credentials for PayPal.
+	 *
+	 * @param array $settings The settings containing OAuth credentials.
+	 * @return bool True on success, false on failure.
+	 * @since 1.0.0
+	 */
 	public static function save_oauth_credentials( array $settings ): bool {
 		$environment = self::normalize_environment( $settings, $settings['environment'] ?? ( $settings['paypal_environment'] ?? null ) );
 		$client_id   = trim( (string) ( $settings['client_id'] ?? $settings['paypal_' . $environment . '_client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
@@ -239,7 +367,14 @@ final class PayPalRESTAPI {
 
 		return BaseSettings::set_group( 'paypal', $group );
 	}
-
+    /**
+	 * Exchanges an authorization code for OAuth tokens with PayPal.
+	 *
+	 * @param string      $code        The authorization code received from PayPal.
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @return array|null The API response containing access and refresh tokens, or null on failure.
+	 * @since 1.0.0
+	 */
 	public static function exchange_authorization_code( string $code, ?string $environment = null ): ?array {
 		$environment = self::normalize_environment( array(), $environment );
 		$client_id   = PayPalSettings::get_client_id( $environment );
@@ -291,7 +426,14 @@ final class PayPalRESTAPI {
 
 		return $body;
 	}
-
+    /**
+	 * Retrieves the PayPal app model with connection settings.
+	 *
+	 * @param array       $settings    The settings containing PayPal credentials.
+	 * @param string|null $environment The PayPal environment (sandbox or live).
+	 * @return PayPalConnectionSettings The PayPal connection settings model.
+	 * @since 1.0.0
+	 */
 	public static function get_app_model( array $settings = array(), ?string $environment = null ): PayPalConnectionSettings {
 		$environment = self::normalize_environment( $settings, $environment );
 		$app = new PayPalConnectionSettings();

@@ -205,10 +205,30 @@ if ( ! function_exists( 'wp_unslash' ) ) {
 	}
 }
 
+if ( ! function_exists( 'add_filter' ) ) {
+	function add_filter( $hook, $callback, $priority = 10, $accepted_args = 1 ) {
+		$GLOBALS['_licencepress_filters'][ $hook ][] = array(
+			'callback'      => $callback,
+			'priority'      => (int) $priority,
+			'accepted_args' => (int) $accepted_args,
+		);
+		return true;
+	}
+}
+
 if ( ! function_exists( 'apply_filters' ) ) {
 	function apply_filters( $hook, $value ) {
-		unset( $hook );
-		return $value;
+		$args     = func_get_args();
+		$handlers = $GLOBALS['_licencepress_filters'][ $hook ] ?? array();
+		foreach ( $handlers as $handler ) {
+			if ( is_callable( $handler['callback'] ) ) {
+				$callback_args = array_slice( $args, 1, $handler['accepted_args'] );
+				if ( ! empty( $callback_args ) ) {
+					$args[1] = call_user_func_array( $handler['callback'], $callback_args );
+				}
+			}
+		}
+		return $args[1];
 	}
 }
 

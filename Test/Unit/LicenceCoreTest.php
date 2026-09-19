@@ -232,9 +232,9 @@ namespace LicencePress\Test\Unit {
 
 	public function test_paypal_oauth_redirect_uses_paypal_partner_signup_url(): void {
 		$settings = array(
-			'paypal_environment'             => 'sandbox',
-			'paypal_sandbox_client_id'       => '',
-			'paypal_sandbox_client_secret'   => '',
+			'paypal_environment'                 => 'sandbox',
+			'paypal_api_sandbox_client_id'       => '',
+			'paypal_api_sandbox_client_secret'   => '',
 		);
 
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
@@ -249,8 +249,8 @@ namespace LicencePress\Test\Unit {
 		$this->assertTrue( $plugin instanceof \LicencePress\Includes\Plugins\RestRouteProviderInterface );
 
 		$settings = array(
-			'paypal_environment'       => 'sandbox',
-			'paypal_sandbox_client_id' => 'sandbox-client-id',
+			'paypal_environment'                => 'sandbox',
+			'paypal_api_sandbox_client_id' => 'sandbox-client-id',
 		);
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-rest', 'sandbox' );
 		$this->assertStringStartsWith( 'https://www.sandbox.paypal.com/bizsignup/partner/entry?', $url );
@@ -271,14 +271,14 @@ namespace LicencePress\Test\Unit {
 
 		$saved = \LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI::save_oauth_credentials( $settings );
 		$this->assertTrue( $saved );
-		$this->assertNotSame( 'sandbox-client-secret', \LicencePress\Includes\Settings\Settings::get( 'paypal_sandbox_client_secret' ) );
+		$this->assertNotSame( 'sandbox-client-secret', \LicencePress\Includes\Settings\Settings::get( 'paypal_api_sandbox_client_secret' ) );
 		$this->assertSame( 'sandbox-client-id', \LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings::get_client_id( 'sandbox' ) );
 	}
 
 	public function test_paypal_oauth_connect_uses_partner_signup_endpoint(): void {
 		$settings = array(
-			'paypal_environment'       => 'sandbox',
-			'paypal_sandbox_client_id' => 'sandbox-client-id',
+			'paypal_environment'                => 'sandbox',
+			'paypal_api_sandbox_client_id' => 'sandbox-client-id',
 		);
 
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
@@ -291,28 +291,28 @@ namespace LicencePress\Test\Unit {
 	}
 
 	public function test_paypal_oauth_connect_uses_decrypted_client_id_from_settings_store(): void {
-		$encrypted_id = \LicencePress\Includes\Functions\Helpers\EncryptionHelper::encrypt( 'live-client-id-123' );
+		$encrypted_id = \LicencePress\Includes\Functions\Helpers\EncryptionHelper::encrypt( 'sandbox-client-456' );
 		\LicencePress\Includes\Settings\Settings::set_group(
 			'paypal',
 			array(
-				'paypal_environment'       => 'live',
-				'paypal_live_client_id'    => $encrypted_id,
-				'paypal_live_client_secret' => 'secret',
+				'paypal_environment'                 => 'sandbox',
+				'paypal_api_sandbox_client_id'       => $encrypted_id,
+				'paypal_api_sandbox_client_secret'   => 'secret',
 			)
 		);
 
-		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( array(), 'state-456', 'live' );
+		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( array(), 'state-456', 'sandbox' );
 
-		$this->assertStringContainsString( 'client_id=live-client-id-123', $url );
+		$this->assertStringContainsString( 'client_id=sandbox-client-456', $url );
 		$this->assertStringNotContainsString( 'client_id=' . rawurlencode( $encrypted_id ), $url );
 	}
 
 	public function test_paypal_oauth_prefers_server_config_over_admin_store(): void {
-		if ( ! defined( 'LICENCEPRESS_PAYPAL_LIVE_CLIENT_ID' ) ) {
-			define( 'LICENCEPRESS_PAYPAL_LIVE_CLIENT_ID', 'server-live-client-id' );
+		if ( ! defined( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID' ) ) {
+			define( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID', 'server-live-client-id' );
 		}
-		if ( ! defined( 'LICENCEPRESS_PAYPAL_LIVE_CLIENT_SECRET' ) ) {
-			define( 'LICENCEPRESS_PAYPAL_LIVE_CLIENT_SECRET', 'server-live-client-secret' );
+		if ( ! defined( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET' ) ) {
+			define( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET', 'server-live-client-secret' );
 		}
 
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( array(), 'state-789', 'live' );
@@ -514,14 +514,14 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringContainsString( 'licencepress_paypal[paypal_environment]', $output );
 		$this->assertStringContainsString( 'licencepress_paypal[paypal_currency]', $output );
 		$this->assertStringContainsString( 'licencepress_paypal[paypal_subscriptions_enabled]', $output );
-		$this->assertStringNotContainsString( 'licencepress_paypal[paypal_sandbox_client_id]', $output );
+		$this->assertStringNotContainsString( 'licencepress_paypal[paypal_api_sandbox_client_id]', $output );
 	}
 
 	public function test_paypal_oauth_connect_button_is_visible_without_stored_client_id(): void {
 		\LicencePress\Includes\Settings\Settings::set_group(
 			'paypal',
 			array(
-				'paypal_sandbox_client_id' => '',
+				'paypal_api_sandbox_client_id' => '',
 			)
 		);
 
@@ -537,7 +537,7 @@ namespace LicencePress\Test\Unit {
 		\LicencePress\Includes\Settings\Settings::set_group(
 			'paypal',
 			array(
-				'paypal_sandbox_client_id' => 'sandbox-client-123',
+				'paypal_api_sandbox_client_id' => 'sandbox-client-123',
 			)
 		);
 
@@ -545,8 +545,9 @@ namespace LicencePress\Test\Unit {
 		\LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings::render_oauth_connection( '', 'paypal_sandbox_oauth_connect', 'paypal_sandbox_oauth_connect' );
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'paypal_oauth=1', $output );
-		$this->assertStringContainsString( 'paypal_environment=sandbox', $output );
+		$this->assertStringContainsString( 'https://www.sandbox.paypal.com/bizsignup/partner/entry?', $output );
+		$this->assertStringContainsString( 'displayMode=minibrowser', $output );
+		$this->assertStringContainsString( 'client_id=sandbox-client-123', $output );
 		$this->assertStringNotContainsString( 'admin.php?page=licencepress', $output );
 	}
 

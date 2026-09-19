@@ -203,7 +203,8 @@ final class PayPalOAuthHelper {
 			$query['referralToken'] = $referral_token;
 		}
 
-		$client_id = trim( (string) ( $settings['client_id'] ?? $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
+		$constant_name = 'LICENCEPRESS_PAYPAL_API_' . strtoupper( $environment ) . '_CLIENT_ID';
+		$client_id = defined( $constant_name ) ? trim( (string) constant( $constant_name ) ) : trim( (string) ( $settings['client_id'] ?? $settings[ 'paypal_api_' . $environment . '_client_id' ] ?? PayPalSettings::get_client_id( $environment ) ) );
 		if ( '' !== $client_id ) {
 			$query['client_id'] = $client_id;
 		}

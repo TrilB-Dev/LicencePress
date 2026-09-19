@@ -81,8 +81,7 @@ final class PayPalConnectionService {
 		$stored = BaseSettings::get_group( 'paypal', array() );
 		$stored = is_array( $stored ) ? $stored : array();
 		$stored['paypal_environment'] = $environment;
-		$stored['paypal_' . $environment . '_oauth_connected'] = true;
-		$stored['paypal_oauth_connected'] = true;
+		$stored['paypal_api_' . $environment . '_oauth_connected'] = true;
 		BaseSettings::set_group( 'paypal', $stored );
 
 		return array(

@@ -332,8 +332,8 @@ final class PayPalRESTAPI {
 	 */
 	public static function save_oauth_credentials( array $settings ): bool {
 		$environment = self::normalize_environment( $settings, $settings['environment'] ?? ( $settings['paypal_environment'] ?? null ) );
-		$client_id   = trim( (string) ( $settings['client_id'] ?? $settings['paypal_' . $environment . '_client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
-		$secret      = trim( (string) ( $settings['client_secret'] ?? $settings['paypal_' . $environment . '_client_secret'] ?? PayPalSettings::get_client_secret( $environment ) ) );
+		$client_id   = trim( (string) ( $settings['client_id'] ?? $settings['paypal_api_' . $environment . '_client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
+		$secret      = trim( (string) ( $settings['client_secret'] ?? $settings['paypal_api_' . $environment . '_client_secret'] ?? PayPalSettings::get_client_secret( $environment ) ) );
 		$app_name    = sanitize_text_field( (string) ( $settings['app_name'] ?? 'LicencePress PayPal' ) );
 		$redirect_uri = self::resolve_redirect_uri( $environment );
 
@@ -347,18 +347,14 @@ final class PayPalRESTAPI {
 		}
 
 		$group['paypal_environment'] = $environment;
-		$group['paypal_' . $environment . '_client_id'] = EncryptionHelper::encrypt( $client_id ) ?? $client_id;
-		$group['paypal_' . $environment . '_client_secret'] = EncryptionHelper::encrypt( $secret ) ?? $secret;
-		$group['paypal_' . $environment . '_app_name'] = $app_name;
-		$group['paypal_' . $environment . '_redirect_uri'] = $redirect_uri;
-		$group['paypal_' . $environment . '_oauth_connected'] = true;
-		$group['paypal_' . $environment . '_callback'] = $redirect_uri;
-		$group['paypal_client_id'] = $group['paypal_' . $environment . '_client_id'];
-		$group['paypal_client_secret'] = $group['paypal_' . $environment . '_client_secret'];
-		$group['paypal_oauth_connected'] = true;
-		$group['paypal_callback'] = $redirect_uri;
-		$group['paypal_access_token'] = trim( (string) ( $settings['access_token'] ?? $group['paypal_access_token'] ?? '' ) );
-		$group['paypal_refresh_token'] = trim( (string) ( $settings['refresh_token'] ?? $group['paypal_refresh_token'] ?? '' ) );
+		$group['paypal_api_' . $environment . '_client_id'] = EncryptionHelper::encrypt( $client_id ) ?? $client_id;
+		$group['paypal_api_' . $environment . '_client_secret'] = EncryptionHelper::encrypt( $secret ) ?? $secret;
+		$group['paypal_api_' . $environment . '_app_name'] = $app_name;
+		$group['paypal_api_' . $environment . '_redirect_uri'] = $redirect_uri;
+		$group['paypal_api_' . $environment . '_oauth_connected'] = true;
+		$group['paypal_api_' . $environment . '_callback'] = $redirect_uri;
+		$group['paypal_api_' . $environment . '_access_token'] = trim( (string) ( $settings['access_token'] ?? $group['paypal_api_' . $environment . '_access_token'] ?? '' ) );
+		$group['paypal_api_' . $environment . '_refresh_token'] = trim( (string) ( $settings['refresh_token'] ?? $group['paypal_api_' . $environment . '_refresh_token'] ?? '' ) );
 
 		return BaseSettings::set_group( 'paypal', $group );
 	}
@@ -409,12 +405,9 @@ final class PayPalRESTAPI {
 		if ( ! empty( $body['access_token'] ) ) {
 			$settings = BaseSettings::get_group( 'paypal', array() );
 			if ( is_array( $settings ) ) {
-				$settings['paypal_' . $environment . '_access_token'] = sanitize_text_field( (string) $body['access_token'] );
-				$settings['paypal_' . $environment . '_refresh_token'] = sanitize_text_field( (string) ( $body['refresh_token'] ?? '' ) );
-				$settings['paypal_' . $environment . '_oauth_connected'] = true;
-				$settings['paypal_access_token'] = $settings['paypal_' . $environment . '_access_token'];
-				$settings['paypal_refresh_token'] = $settings['paypal_' . $environment . '_refresh_token'];
-				$settings['paypal_oauth_connected'] = true;
+				$settings['paypal_api_' . $environment . '_access_token'] = sanitize_text_field( (string) $body['access_token'] );
+				$settings['paypal_api_' . $environment . '_refresh_token'] = sanitize_text_field( (string) ( $body['refresh_token'] ?? '' ) );
+				$settings['paypal_api_' . $environment . '_oauth_connected'] = true;
 				BaseSettings::set_group( 'paypal', $settings );
 			}
 		}

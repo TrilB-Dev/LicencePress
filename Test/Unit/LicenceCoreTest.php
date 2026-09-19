@@ -308,17 +308,19 @@ namespace LicencePress\Test\Unit {
 	}
 
 	public function test_paypal_oauth_prefers_server_config_over_admin_store(): void {
-		if ( ! defined( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID' ) ) {
-			define( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID', 'server-live-client-id' );
-		}
-		if ( ! defined( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET' ) ) {
-			define( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET', 'server-live-client-secret' );
-		}
+		putenv( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID=server-live-client-id' );
+		putenv( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET=server-live-client-secret' );
+		$_ENV['LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID'] = 'server-live-client-id';
+		$_ENV['LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET'] = 'server-live-client-secret';
 
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( array(), 'state-789', 'live' );
 
 		$this->assertStringContainsString( 'client_id=server-live-client-id', $url );
 		$this->assertSame( 'server-live-client-secret', \LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings::get_client_secret( 'live' ) );
+
+		putenv( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID' );
+		putenv( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET' );
+		unset( $_ENV['LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID'], $_ENV['LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET'] );
 	}
 
 	public function test_paypal_oauth_success_redirect_returns_to_billing_settings_hash(): void {
@@ -573,6 +575,52 @@ namespace LicencePress\Test\Unit {
 
 		$this->assertArrayNotHasKey( 'demo-plugin-demo', $plugins->get_registered_plugins() );
 		$this->assertSame( $before, $plugins->get_registered_plugins() );
+	}
+
+	public function test_plugin_icon_supports_image_urls_and_css_classes(): void {
+		$settings_plugins = new \LicencePress\Admin\Manager\Settings\SettingsPlugins();
+		$method = new \ReflectionMethod( $settings_plugins, 'render_plugin_icon' );
+		$method->setAccessible( true );
+
+		$image_plugin = new class() implements \LicencePress\Includes\Plugins\PluginInterface {
+			public function get_slug(): string { return 'demo-image-plugin'; }
+			public function get_name(): string { return 'Demo Image Plugin'; }
+			public function get_version(): string { return '1.0.0'; }
+			public function get_author(): string { return 'Test'; }
+			public function get_author_uri(): string { return 'https://example.com'; }
+			public function get_description(): string { return 'Demo plugin'; }
+			public function get_uri(): string { return 'https://example.com'; }
+			public function get_license(): string { return 'GPL'; }
+			public function is_active(): bool { return true; }
+			public function init(): void {}
+			public function get_icon(): array { return array( 'url' => 'https://example.com/icon.png' ); }
+		};
+
+		$class_plugin = new class() implements \LicencePress\Includes\Plugins\PluginInterface {
+			public function get_slug(): string { return 'demo-class-plugin'; }
+			public function get_name(): string { return 'Demo Class Plugin'; }
+			public function get_version(): string { return '1.0.0'; }
+			public function get_author(): string { return 'Test'; }
+			public function get_author_uri(): string { return 'https://example.com'; }
+			public function get_description(): string { return 'Demo plugin'; }
+			public function get_uri(): string { return 'https://example.com'; }
+			public function get_license(): string { return 'GPL'; }
+			public function is_active(): bool { return true; }
+			public function init(): void {}
+			public function get_icon(): string { return 'dashicons dashicons-admin-plugins'; }
+		};
+
+		ob_start();
+		$method->invoke( $settings_plugins, $image_plugin );
+		$image_output = ob_get_clean();
+		$this->assertStringContainsString( 'https://example.com/icon.png', $image_output );
+		$this->assertStringNotContainsString( 'dashicons dashicons-admin-plugins', $image_output );
+
+		ob_start();
+		$method->invoke( $settings_plugins, $class_plugin );
+		$class_output = ob_get_clean();
+		$this->assertStringContainsString( 'dashicons dashicons-admin-plugins', $class_output );
+		$this->assertStringNotContainsString( 'src="dashicons', $class_output );
 	}
 
 	public function test_ambiguous_character_multiselect_shows_visible_tags(): void {

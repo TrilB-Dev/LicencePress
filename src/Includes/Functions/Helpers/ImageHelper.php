@@ -35,7 +35,6 @@ final class ImageHelper {
 
 		return LICENCEPRESS_PLUGINS_URL . '/' . $plugin_directory . '/Assets/images/' . $file;
 	}
-
 	/**
 	 * Resolve a plugin slug to its actual directory name.
 	 *
@@ -72,7 +71,6 @@ final class ImageHelper {
 
 		return '';
 	}
-
 	/**
 	 * Keep the asset path relative to the Images directory.
 	 *

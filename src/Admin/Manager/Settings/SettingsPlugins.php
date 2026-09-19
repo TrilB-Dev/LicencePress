@@ -319,34 +319,164 @@ final class SettingsPlugins {
 	private function render_plugin_icon( PluginInterface $plugin ): void {
 		$icon = $plugin->get_icon();
 
-		if ( is_array( $icon ) && ! empty( $icon[0] ) ) {
-			$split_icon_classes = preg_split( '/\s+/', trim( $icon[0] ) );
-			$icon_classes       = array_filter(
-				array_map( 'sanitize_html_class', is_array( $split_icon_classes ) ? $split_icon_classes : array() )
-			);
-			$icon_class         = implode( ' ', $icon_classes );
-			if ( '' === $icon_class ) {
-				$icon_class = 'dashicons dashicons-admin-plugins';
-			}
-			$color = isset( $icon[1] ) ? sanitize_hex_color( $icon[1] ) : '';
-			$style = $color ? 'color: ' . esc_attr( $color ) . ';' : '';
-
-			printf(
-				'<i class="licencepress-plugin-icon %1$s" style="%2$s" aria-hidden="true"></i>',
-				esc_attr( $icon_class ),
-				esc_attr( $style )
-			);
-			return;
+		if ( is_object( $icon ) ) {
+			$icon = get_object_vars( $icon );
 		}
 
-		if ( is_string( $icon ) && '' !== $icon ) {
-			printf( '<img src="%1$s" class="licencepress-plugin-icon" alt="" aria-hidden="true" />', esc_url( $icon ) );
-			return;
+		if ( is_array( $icon ) ) {
+			$image_url = $this->resolve_icon_image_url( $icon );
+			if ( '' !== $image_url ) {
+				printf(
+					'<img src="%1$s" class="licencepress-plugin-icon" alt="" aria-hidden="true" />',
+					esc_url( $image_url )
+				);
+				return;
+			}
+
+			$icon_class = $this->resolve_icon_class( $icon );
+			if ( '' !== $icon_class ) {
+				$color = $this->resolve_icon_color( $icon );
+				$style = $color ? 'color: ' . esc_attr( $color ) . ';' : '';
+				printf(
+					'<i class="licencepress-plugin-icon %1$s" style="%2$s" aria-hidden="true"></i>',
+					esc_attr( $icon_class ),
+					esc_attr( $style )
+				);
+				return;
+			}
+		}
+
+		if ( is_string( $icon ) ) {
+			$icon = trim( $icon );
+			if ( '' !== $icon ) {
+				if ( $this->is_image_url( $icon ) ) {
+					printf(
+						'<img src="%1$s" class="licencepress-plugin-icon" alt="" aria-hidden="true" />',
+						esc_url( $icon )
+					);
+					return;
+				}
+
+				$icon_classes = preg_split( '/\s+/', $icon );
+				$normalized   = array_filter(
+					array_map( 'sanitize_html_class', is_array( $icon_classes ) ? $icon_classes : array() )
+				);
+				$icon_class   = implode( ' ', $normalized );
+				if ( '' !== $icon_class ) {
+					printf( '<i class="licencepress-plugin-icon %1$s" aria-hidden="true"></i>', esc_attr( $icon_class ) );
+					return;
+				}
+			}
 		}
 		?>
-
-		<span class="licencepress-plugin-icon dashicons dashicons-admin-plugins" aria-hidden="true"></span>';
+		<span class="licencepress-plugin-icon dashicons dashicons-admin-plugins" aria-hidden="true"></span>
 		<?php
+	}
+
+	/**
+	 * Resolve an image URL from a plugin icon payload.
+	 *
+	 * @param array<mixed> $icon The icon payload.
+	 * @return string The resolved image URL, or an empty string when no image is present.
+	 */
+	private function resolve_icon_image_url( array $icon ): string {
+		$possible_keys = array( 'url', 'src', 'image', 'icon', 'path' );
+		foreach ( $possible_keys as $key ) {
+			if ( ! array_key_exists( $key, $icon ) || ! is_scalar( $icon[ $key ] ) ) {
+				continue;
+			}
+
+			$value = trim( (string) $icon[ $key ] );
+			if ( '' !== $value && $this->is_image_url( $value ) ) {
+				return $value;
+			}
+		}
+
+		if ( isset( $icon[0] ) && is_scalar( $icon[0] ) ) {
+			$value = trim( (string) $icon[0] );
+			if ( '' !== $value && $this->is_image_url( $value ) ) {
+				return $value;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Resolve a CSS icon class from a plugin icon payload.
+	 *
+	 * @param array<mixed> $icon The icon payload.
+	 * @return string The normalized CSS icon class.
+	 */
+	private function resolve_icon_class( array $icon ): string {
+		if ( isset( $icon[0] ) && is_scalar( $icon[0] ) ) {
+			$raw = trim( (string) $icon[0] );
+			if ( '' !== $raw && ! $this->is_image_url( $raw ) ) {
+				$split = preg_split( '/\s+/', $raw );
+				$classes = array_filter(
+					array_map( 'sanitize_html_class', is_array( $split ) ? $split : array() )
+				);
+				return implode( ' ', $classes );
+			}
+		}
+
+		if ( isset( $icon['class'] ) && is_scalar( $icon['class'] ) ) {
+			$raw = trim( (string) $icon['class'] );
+			if ( '' !== $raw && ! $this->is_image_url( $raw ) ) {
+				$split = preg_split( '/\s+/', $raw );
+				$classes = array_filter(
+					array_map( 'sanitize_html_class', is_array( $split ) ? $split : array() )
+				);
+				return implode( ' ', $classes );
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Resolve a CSS hex icon color from a plugin icon payload.
+	 *
+	 * @param array<mixed> $icon The icon payload.
+	 * @return string The normalized hex color, if present.
+	 */
+	private function resolve_icon_color( array $icon ): string {
+		$keys = array( 'color', 'colour', 1 );
+		foreach ( $keys as $key ) {
+			if ( ! array_key_exists( $key, $icon ) || ! is_scalar( $icon[ $key ] ) ) {
+				continue;
+			}
+
+			$color = sanitize_hex_color( (string) $icon[ $key ] );
+			if ( '' !== $color ) {
+				return $color;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Determine whether a value should be treated as an image URL.
+	 *
+	 * @param string $value The candidate value.
+	 * @return bool True when it appears to be an image URL or data URI.
+	 */
+	private function is_image_url( string $value ): bool {
+		$value = trim( $value );
+		if ( '' === $value ) {
+			return false;
+		}
+
+		if ( str_starts_with( $value, 'data:' ) || str_starts_with( $value, '/' ) ) {
+			return true;
+		}
+
+		if ( preg_match( '/^(?:https?:)?\/\//i', $value ) ) {
+			return true;
+		}
+
+		return (bool) preg_match( '/\.(?:png|jpe?g|gif|svg|webp|avif|bmp|ico)(?:[?#].*)?$/i', $value );
 	}
 	/**
 	 * Render a card for a third-party plugin.

@@ -88,20 +88,30 @@ final class Settings {
 	}
 
 	private static function get_configured_value( string $environment, string $key_suffix ): string {
-		$constant_map = array(
-			'live'    => array(
-				'client_id'     => 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID',
-				'client_secret' => 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET',
-			),
-			'sandbox' => array(
-				'client_id'     => 'LICENCEPRESS_PAYPAL_API_SANDBOX_CLIENT_ID',
-				'client_secret' => 'LICENCEPRESS_PAYPAL_API_SANDBOX_CLIENT_SECRET',
-			),
+		$environment_name = strtoupper( $environment );
+		$variable_name    = 'LICENCEPRESS_PAYPAL_API_' . $environment_name . '_' . strtoupper( str_replace( 'client_secret', 'CLIENT_SECRET', str_replace( 'client_id', 'CLIENT_ID', $key_suffix ) ) );
+		$value            = self::get_environment_variable( $variable_name );
+
+		if ( '' !== $value ) {
+			return $value;
+		}
+
+		return '';
+	}
+
+	private static function get_environment_variable( string $name ): string {
+		$values = array(
+			getenv( $name ),
+			$_ENV[ $name ] ?? null,
+			$_SERVER[ $name ] ?? null,
 		);
 
-		foreach ( $constant_map[ $environment ] ?? array() as $suffix => $constant_name ) {
-			if ( $suffix === $key_suffix && defined( $constant_name ) ) {
-				return (string) constant( $constant_name );
+		foreach ( $values as $value ) {
+			if ( is_string( $value ) ) {
+				$value = trim( $value );
+				if ( '' !== $value ) {
+					return sanitize_text_field( $value );
+				}
 			}
 		}
 

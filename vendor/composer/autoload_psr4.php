@@ -6,20 +6,6 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'apimatic\\jsonmapper\\' => array($vendorDir . '/apimatic/jsonmapper/src'),
-    'Unirest\\' => array($vendorDir . '/apimatic/unirest-php/src'),
-    'Symfony\\Polyfill\\Mbstring\\' => array($vendorDir . '/symfony/polyfill-mbstring'),
-    'Symfony\\Component\\HttpFoundation\\' => array($vendorDir . '/symfony/http-foundation'),
-    'Psr\\Log\\' => array($vendorDir . '/psr/log/src'),
-    'PhpParser\\' => array($vendorDir . '/nikic/php-parser/lib/PhpParser'),
-    'PaypalServerSdkLib\\' => array($vendorDir . '/paypal/paypal-server-sdk/src'),
-    'PHPCSStandards\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\' => array($vendorDir . '/dealerdirect/phpcodesniffer-composer-installer/src'),
-    'Mockery\\' => array($vendorDir . '/mockery/mockery/library/Mockery'),
     'LicencePress\\' => array($baseDir . '/src'),
-    'Doctrine\\Instantiator\\' => array($vendorDir . '/doctrine/instantiator/src/Doctrine/Instantiator'),
     'Defuse\\Crypto\\' => array($vendorDir . '/defuse/php-encryption/src'),
-    'DeepCopy\\' => array($vendorDir . '/myclabs/deep-copy/src/DeepCopy'),
-    'Core\\' => array($vendorDir . '/apimatic/core/src'),
-    'CoreInterfaces\\' => array($vendorDir . '/apimatic/core-interfaces/src'),
-    'Brain\\Monkey\\' => array($vendorDir . '/brain/monkey/src'),
 );

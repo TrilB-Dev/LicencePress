@@ -52,7 +52,7 @@ final class SettingsBilling {
 			)
 		);
 
-		$active_tab = sanitize_key( RequestHelper::get_key( 'billing_tab', 'general' ) );
+		$active_tab = sanitize_key( RequestHelper::get_key( 'bt', RequestHelper::get_key( 'billing_tab', 'general' ) ) );
 		$tabs       = array(
 			'general' => array(
 				'label'    => __( 'General Settings', 'licencepress' ),
@@ -74,7 +74,7 @@ final class SettingsBilling {
 		<ul class="nav nav-tabs mb-3" role="tablist">
 			<?php foreach ( $tabs as $slug => $tab ) : ?>
 				<li class="nav-item" role="presentation">
-					<a class="nav-link <?php echo esc_attr( $slug === $active_tab ? 'active' : '' ); ?>" href="#<?php echo esc_attr( $slug ); ?>" data-licencepress-billing-tab="<?php echo esc_attr( $slug ); ?>" aria-selected="<?php echo esc_attr( $slug === $active_tab ? 'true' : 'false' ); ?>">
+					<a class="nav-link <?php echo esc_attr( $slug === $active_tab ? 'active' : '' ); ?>" href="<?php echo esc_url( admin_url( 'admin.php?page=licencepress-settings&tab=billing&bt=' . rawurlencode( $slug ) ) ); ?>" data-licencepress-billing-tab="<?php echo esc_attr( $slug ); ?>" aria-selected="<?php echo esc_attr( $slug === $active_tab ? 'true' : 'false' ); ?>">
 						<?php echo esc_html( $tab['label'] ?? ucfirst( str_replace( '-', ' ', $slug ) ) ); ?>
 					</a>
 				</li>

@@ -176,10 +176,10 @@ final class PayPalOAuthHelper {
 	 */
 	public static function get_success_redirect_url(): string {
 		if ( function_exists( 'admin_url' ) ) {
-			return admin_url( 'admin.php?page=licencepress&group=settings&tab=billing#paypal' );
+			return admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&bt=paypal' );
 		}
 
-		return self::site_url( '/wp-admin/admin.php?page=licencepress&group=settings&tab=billing#paypal' );
+		return self::site_url( '/wp-admin/admin.php?page=licencepress&group=settings&tab=billing&bt=paypal' );
 	}
 	/**
 	 * Builds the PayPal connect URL for initiating the OAuth flow.
@@ -194,7 +194,7 @@ final class PayPalOAuthHelper {
 		$environment = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? ( $settings['environment'] ?? 'sandbox' ) ) ) );
 		$client_id = trim( (string) ( $settings['client_id'] ?? $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
 		if ( '' === $client_id ) {
-			return self::site_url( '/?page=licencepress&group=settings&tab=billing&paypal_error=missing_client_id&paypal_environment=' . $environment . '#paypal' );
+			return self::site_url( '/?page=licencepress&group=settings&tab=billing&bt=paypal&paypal_error=missing_client_id&paypal_environment=' . $environment );
 		}
 
 		$base_url = 'sandbox' === $environment ? 'https://www.sandbox.paypal.com/connect' : 'https://www.paypal.com/connect';

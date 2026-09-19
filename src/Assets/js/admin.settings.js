@@ -446,12 +446,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!targetKey) {
           return;
         }
-        history.replaceState(null, '', `#${targetKey}`);
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('bt', targetKey);
+        url.hash = '';
+        history.replaceState(null, '', url);
         activateBillingTab(targetKey);
       });
     });
 
-    const initialKey = window.location.hash.replace(/^#/, '') || 'general';
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialKey = urlParams.get('bt') || urlParams.get('billing_tab') || 'general';
     if (root.querySelector(`#${CSS.escape(initialKey)}`)) {
       activateBillingTab(initialKey);
     }

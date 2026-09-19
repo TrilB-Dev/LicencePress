@@ -94,7 +94,7 @@ final class FunctionsSettings {
 				}
 			}
 
-			$billing_tab = ! empty( $paypal_input ) ? 'billing_tab=paypal#paypal' : 'billing_tab=general';
+			$billing_tab = ! empty( $paypal_input ) ? 'bt=paypal' : 'bt=general';
 			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-settings&tab=billing&' . $billing_tab ) );
 			exit;
 		}
@@ -106,7 +106,7 @@ final class FunctionsSettings {
 			check_admin_referer( 'licencepress_billing_invoice', 'licencepress_billing_invoice_nonce' );
 			$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
 			$this->sanitize_billing_invoice( $input );
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-settings&tab=billing&billing_tab=invoice' ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-settings&tab=billing&bt=invoice' ) );
 			exit;
 		}
 	}

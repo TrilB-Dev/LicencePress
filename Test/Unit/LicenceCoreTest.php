@@ -239,9 +239,9 @@ namespace LicencePress\Test\Unit {
 
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
 		$this->assertStringContainsString( 'page=licencepress&group=settings&tab=billing', $url );
+		$this->assertStringContainsString( 'bt=paypal', $url );
 		$this->assertStringContainsString( 'paypal_error=missing_client_id', $url );
 		$this->assertStringContainsString( 'paypal_environment=sandbox', $url );
-		$this->assertStringContainsString( '#paypal', $url );
 	}
 
 	public function test_paypal_rest_connect_route_returns_connect_url(): void {
@@ -325,7 +325,7 @@ namespace LicencePress\Test\Unit {
 	public function test_paypal_oauth_success_redirect_returns_to_billing_settings_hash(): void {
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::get_success_redirect_url();
 
-		$this->assertStringContainsString( 'admin.php?page=licencepress&group=settings&tab=billing#paypal', $url );
+		$this->assertStringContainsString( 'admin.php?page=licencepress&group=settings&tab=billing&bt=paypal', $url );
 		$this->assertStringNotContainsString( 'paypal_environment=', $url );
 	}
 

@@ -134,7 +134,7 @@ final class PayPalRESTAPI {
 		$environment = self::normalize_environment( $settings, $environment );
 		$client_id = trim( (string) ( $settings['client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
 		if ( '' === $client_id ) {
-			return admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&paypal_error=missing_client_id&paypal_environment=' . $environment . '#paypal' );
+			return admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&bt=paypal&paypal_error=missing_client_id&paypal_environment=' . $environment );
 		}
 
 		$state = self::generate_state();

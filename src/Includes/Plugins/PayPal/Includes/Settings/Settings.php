@@ -287,12 +287,14 @@ final class Settings {
 					'label'       => __( 'Enter your Live PayPal Client ID', 'licencepress' ),
 					'description' => __( 'Enter your Live PayPal Client ID.', 'licencepress' ),
 					'type'        => 'text',
+					'class'       => 'w-100',
 				),
 				array(
 					'key'         => 'paypal_api_live_client_secret',
 					'label'       => __( 'Enter your Live PayPal Client Secret', 'licencepress' ),
 					'description' => __( 'Enter your Live PayPal Client Secret.', 'licencepress' ),
 					'type'        => 'password',
+					'class'       => 'w-100',
 				),
 				array(
 					'key'         => 'paypal_api_live_client_config',
@@ -306,12 +308,14 @@ final class Settings {
 					'label'       => __( 'Enter your Sandbox PayPal Client ID', 'licencepress' ),
 					'description' => __( 'Enter your Sandbox PayPal Client ID.', 'licencepress' ),
 					'type'        => 'text',
+					'class'       => 'w-100',
 				),
 				array(
 					'key'         => 'paypal_api_sandbox_client_secret',
 					'label'       => __( 'Enter your Sandbox PayPal Client Secret', 'licencepress' ),
 					'description' => __( 'Enter your Sandbox PayPal Client Secret.', 'licencepress' ),
 					'type'        => 'password',
+					'class'       => 'w-100',
 				),
 				array(
 					'key'         => 'paypal_api_sandbox_client_config',

@@ -132,24 +132,19 @@ final class PayPalRESTAPI {
 	 */
 	public static function build_connect_url( array $settings = array(), ?string $environment = null ): string {
 		$environment = self::normalize_environment( $settings, $environment );
-		$client_id = trim( (string) ( $settings['client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
-		if ( '' === $client_id ) {
-			return admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&bt=paypal&paypal_error=missing_client_id&paypal_environment=' . $environment );
-		}
-
+		$base_url = 'sandbox' === $environment ? 'https://www.sandbox.paypal.com/bizsignup/partner/entry' : 'https://www.paypal.com/bizsignup/partner/entry';
+		$referral_token = trim( (string) ( $settings['referralToken'] ?? $settings['referral_token'] ?? $settings['paypal_referral_token'] ?? '' ) );
 		$state = self::generate_state();
 		self::save_oauth_state( $state, $environment );
-		$redirect_uri = self::resolve_redirect_uri( $environment );
-		$base_url = 'sandbox' === $environment ? self::CONNECT_URL_SANDBOX : self::CONNECT_URL_LIVE;
 
 		$query = array(
-			'flowEntry'     => 'static',
-			'client_id'     => $client_id,
-			'scope'         => 'openid profile email https://uri.paypal.com/services/payments/reporting',
-			'redirect_uri'  => $redirect_uri,
-			'response_type' => 'code',
-			'state'         => $state,
+			'displayMode' => 'minibrowser',
+			'state'       => $state,
 		);
+
+		if ( '' !== $referral_token ) {
+			$query['referralToken'] = $referral_token;
+		}
 
 		if ( function_exists( 'add_query_arg' ) ) {
 			return add_query_arg( $query, $base_url );

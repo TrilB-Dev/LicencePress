@@ -176,12 +176,6 @@ final class PayPalAdmin {
 
 		error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect environment=' . $environment . ' client_id_set=' . ( '' !== $client_id ? 'yes' : 'no' ) );
 
-		if ( false === strpos( $connect_url, 'client_id=' ) ) {
-			error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect missing client ID for environment=' . $environment );
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&paypal_error=missing_client_id&paypal_environment=' . $environment . '#paypal' ) );
-			exit;
-		}
-
 		error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect redirecting to PayPal: ' . $connect_url );
 		wp_safe_redirect( $connect_url );
 		exit;

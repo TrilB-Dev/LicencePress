@@ -192,24 +192,22 @@ final class PayPalOAuthHelper {
 	 */
 	public static function build_connect_url( array $settings, string $state, ?string $environment = null ): string {
 		$environment = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? ( $settings['environment'] ?? 'sandbox' ) ) ) );
-		$client_id = trim( (string) ( $settings['client_id'] ?? $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
-		if ( '' === $client_id ) {
-			return self::site_url( '/?page=licencepress&group=settings&tab=billing&bt=paypal&paypal_error=missing_client_id&paypal_environment=' . $environment );
+		$base_url = 'sandbox' === $environment ? 'https://www.sandbox.paypal.com/bizsignup/partner/entry' : 'https://www.paypal.com/bizsignup/partner/entry';
+		$referral_token = trim( (string) ( $settings['referralToken'] ?? $settings['referral_token'] ?? $settings['paypal_referral_token'] ?? '' ) );
+		$query = array(
+			'displayMode' => 'minibrowser',
+			'state'       => $state,
+		);
+
+		if ( '' !== $referral_token ) {
+			$query['referralToken'] = $referral_token;
 		}
 
-		$base_url = 'sandbox' === $environment ? 'https://www.sandbox.paypal.com/connect' : 'https://www.paypal.com/connect';
-		$callback_url = self::get_public_callback_url( $environment );
+		$client_id = trim( (string) ( $settings['client_id'] ?? $settings[ 'paypal_' . $environment . '_client_id' ] ?? $settings['paypal_client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
+		if ( '' !== $client_id ) {
+			$query['client_id'] = $client_id;
+		}
 
-		return self::build_query_string(
-			array(
-				'flowEntry'    => 'static',
-				'client_id'    => $client_id,
-				'scope'        => 'openid profile email https://uri.paypal.com/services/payments/reporting',
-				'redirect_uri' => $callback_url,
-				'response_type' => 'code',
-				'state'        => $state,
-			),
-			$base_url
-		);
+		return self::build_query_string( $query, $base_url );
 	}
 }

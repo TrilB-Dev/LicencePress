@@ -230,7 +230,7 @@ namespace LicencePress\Test\Unit {
 		$this->assertNotEmpty( $payload['application_context']['return_url'] );
 	}
 
-	public function test_paypal_oauth_redirect_stays_on_paypal_settings_page(): void {
+	public function test_paypal_oauth_redirect_uses_paypal_partner_signup_url(): void {
 		$settings = array(
 			'paypal_environment'             => 'sandbox',
 			'paypal_sandbox_client_id'       => '',
@@ -238,10 +238,9 @@ namespace LicencePress\Test\Unit {
 		);
 
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
-		$this->assertStringContainsString( 'page=licencepress&group=settings&tab=billing', $url );
-		$this->assertStringContainsString( 'bt=paypal', $url );
-		$this->assertStringContainsString( 'paypal_error=missing_client_id', $url );
-		$this->assertStringContainsString( 'paypal_environment=sandbox', $url );
+		$this->assertStringContainsString( 'https://www.sandbox.paypal.com/bizsignup/partner/entry', $url );
+		$this->assertStringContainsString( 'displayMode=minibrowser', $url );
+		$this->assertStringNotContainsString( 'page=licencepress', $url );
 	}
 
 	public function test_paypal_rest_connect_route_returns_connect_url(): void {
@@ -254,8 +253,8 @@ namespace LicencePress\Test\Unit {
 			'paypal_sandbox_client_id' => 'sandbox-client-id',
 		);
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-rest', 'sandbox' );
-		$this->assertStringStartsWith( 'https://www.sandbox.paypal.com/connect?', $url );
-		$this->assertStringContainsString( 'client_id=sandbox-client-id', $url );
+		$this->assertStringStartsWith( 'https://www.sandbox.paypal.com/bizsignup/partner/entry?', $url );
+		$this->assertStringContainsString( 'displayMode=minibrowser', $url );
 		$this->assertStringContainsString( 'state=state-rest', $url );
 	}
 
@@ -267,9 +266,8 @@ namespace LicencePress\Test\Unit {
 		);
 
 		$connect_url = \LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI::build_connect_url( $settings );
-		$this->assertStringStartsWith( 'https://www.sandbox.paypal.com/connect?', $connect_url );
-		$this->assertStringContainsString( 'client_id=sandbox-client-id', $connect_url );
-		$this->assertStringContainsString( 'response_type=code', $connect_url );
+		$this->assertStringStartsWith( 'https://www.sandbox.paypal.com/bizsignup/partner/entry?', $connect_url );
+		$this->assertStringContainsString( 'displayMode=minibrowser', $connect_url );
 
 		$saved = \LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI::save_oauth_credentials( $settings );
 		$this->assertTrue( $saved );
@@ -277,7 +275,7 @@ namespace LicencePress\Test\Unit {
 		$this->assertSame( 'sandbox-client-id', \LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings::get_client_id( 'sandbox' ) );
 	}
 
-	public function test_paypal_oauth_connect_uses_official_connect_endpoint_and_public_callback(): void {
+	public function test_paypal_oauth_connect_uses_partner_signup_endpoint(): void {
 		$settings = array(
 			'paypal_environment'       => 'sandbox',
 			'paypal_sandbox_client_id' => 'sandbox-client-id',
@@ -285,10 +283,11 @@ namespace LicencePress\Test\Unit {
 
 		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
 
-		$this->assertStringStartsWith( 'https://www.sandbox.paypal.com/connect?', $url );
+		$this->assertStringStartsWith( 'https://www.sandbox.paypal.com/bizsignup/partner/entry?', $url );
 		$this->assertStringContainsString( 'client_id=sandbox-client-id', $url );
 		$this->assertStringContainsString( 'state=state-123', $url );
-		$this->assertStringContainsString( 'redirect_uri=https%3A%2F%2Fexample.com%2F%3Fpaypal_action%3Dcallback%26paypal_environment%3Dsandbox', $url );
+		$this->assertStringContainsString( 'displayMode=minibrowser', $url );
+		$this->assertStringNotContainsString( 'redirect_uri=', $url );
 	}
 
 	public function test_paypal_oauth_connect_uses_decrypted_client_id_from_settings_store(): void {

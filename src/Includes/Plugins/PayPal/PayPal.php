@@ -246,8 +246,8 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 		$settings['paypal_environment'] = $environment;
 
 		$connect_url = PayPalConnectionService::start_oauth_connect( $settings, $environment );
-		if ( false === strpos( $connect_url, 'client_id=' ) ) {
-			return new WP_Error( 'paypal_missing_client_id', __( 'PayPal client ID is not configured for this environment.', 'licencepress' ) );
+		if ( false === strpos( $connect_url, 'bizsignup/partner/entry' ) ) {
+			return new WP_Error( 'paypal_partner_signup_unavailable', __( 'PayPal partner signup URL is not available for this environment.', 'licencepress' ) );
 		}
 
 		return new WP_REST_Response(

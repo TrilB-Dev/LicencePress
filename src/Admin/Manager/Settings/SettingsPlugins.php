@@ -461,10 +461,29 @@ final class SettingsPlugins {
 				continue;
 			}
 
-			$color = sanitize_hex_color( (string) $icon[ $key ] );
+			$color = $this->normalize_hex_color( (string) $icon[ $key ] );
 			if ( '' !== $color ) {
 				return $color;
 			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Normalize a color value to a hex string when it is valid.
+	 *
+	 * @param string $value The candidate color value.
+	 * @return string The normalized hex color, or an empty string when invalid.
+	 */
+	private function normalize_hex_color( string $value ): string {
+		$value = trim( $value );
+		if ( '' === $value ) {
+			return '';
+		}
+
+		if ( preg_match( '/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/', $value ) ) {
+			return $value;
 		}
 
 		return '';

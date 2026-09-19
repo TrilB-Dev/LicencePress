@@ -623,6 +623,15 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringNotContainsString( 'src="dashicons', $class_output );
 	}
 
+	public function test_plugin_icon_ignores_invalid_hex_color_values(): void {
+		$settings_plugins = new \LicencePress\Admin\Manager\Settings\SettingsPlugins();
+		$method = new \ReflectionMethod( $settings_plugins, 'resolve_icon_color' );
+		$method->setAccessible( true );
+
+		$this->assertSame( '', $method->invoke( $settings_plugins, array( 'class' => 'dashicons dashicons-admin-plugins', 'color' => 'not-a-color' ) ) );
+		$this->assertSame( '#74c1fc', $method->invoke( $settings_plugins, array( 'class' => 'fab fa-font-awesome', 'color' => '#74c1fc' ) ) );
+	}
+
 	public function test_ambiguous_character_multiselect_shows_visible_tags(): void {
 		ob_start();
 		( new \LicencePress\Admin\Manager\Settings\SettingsGeneral() )->render(

@@ -77,7 +77,12 @@ final class Settings {
 		$decrypted = EncryptionHelper::decrypt( $value );
 		return null !== $decrypted ? $decrypted : $value;
 	}
-
+	/**
+	 * Encrypt the given value for storage.
+	 *
+	 * @param string|null $value The value to encrypt.
+	 * @return string The encrypted value.
+	 */
 	private static function encrypt_value( ?string $value ): string {
 		if ( ! is_string( $value ) || '' === trim( (string) $value ) ) {
 			return '';
@@ -86,7 +91,13 @@ final class Settings {
 		$encrypted = EncryptionHelper::encrypt( $value );
 		return null !== $encrypted ? $encrypted : $value;
 	}
-
+	/**
+	 * Get the configured value for the given environment and key suffix from server configuration.
+	 *
+	 * @param string $environment The environment.
+	 * @param string $key_suffix The key suffix.
+	 * @return string The configured value.
+	 */
 	private static function get_configured_value( string $environment, string $key_suffix ): string {
 		$environment_name = strtoupper( $environment );
 		$variable_name    = 'LICENCEPRESS_PAYPAL_API_' . $environment_name . '_' . strtoupper( str_replace( 'client_secret', 'CLIENT_SECRET', str_replace( 'client_id', 'CLIENT_ID', $key_suffix ) ) );
@@ -98,7 +109,12 @@ final class Settings {
 
 		return '';
 	}
-
+	/**
+	 * Get the value of an environment variable for PayPal configuration.
+	 *
+	 * @param string $name The name of the environment variable.
+	 * @return string The value of the environment variable.
+	 */
 	private static function get_environment_variable( string $name ): string {
 		$values = array(
 			getenv( $name ),
@@ -117,7 +133,13 @@ final class Settings {
 
 		return '';
 	}
-
+	/**
+	 * Get the stored value for the given environment and key suffix.
+	 *
+	 * @param string $environment The environment.
+	 * @param string $key_suffix The key suffix.
+	 * @return string The stored value.
+	 */
 	private static function get_stored_value( string $environment, string $key_suffix ): string {
 		$key = 'paypal_api_' . $environment . '_' . $key_suffix;
 		$value = self::decrypt_value( BaseSettings::get( $key, '' ) );
@@ -127,7 +149,12 @@ final class Settings {
 
 		return '';
 	}
-
+	/**
+	 * Get the PayPal client ID for the active environment.
+	 *
+	 * @param string|null $environment The environment override.
+	 * @return string The client ID.
+	 */
 	public static function get_client_id( ?string $environment = null ): string {
 		$environment = self::normalize_environment( $environment );
 		$constant_value = self::get_configured_value( $environment, 'client_id' );
@@ -265,7 +292,12 @@ final class Settings {
 		$currency = strtoupper( $currency );
 		return '' !== $currency ? $currency : 'USD';
 	}
-
+	/**
+	 * Get the site URL with an optional path appended.
+	 *
+	 * @param string $path The path to append.
+	 * @return string The full site URL.
+	 */
 	private static function site_url( string $path = '' ): string {
 		if ( function_exists( 'home_url' ) ) {
 			return home_url( $path );
@@ -337,7 +369,13 @@ final class Settings {
 			),
 		);
 	}
-
+	/**
+	 * Render the OAuth connection UI for the given environment.
+	 *
+	 * @param mixed  $value The current value.
+	 * @param string $name  The field name.
+	 * @param string $id    The field ID.
+	 */
 	public static function render_oauth_connection( $value, string $name, string $id ): void {
 		$environment = str_contains( $name, 'sandbox' ) || str_contains( $id, 'sandbox' ) ? 'sandbox' : 'live';
 		$settings    = BaseSettings::get_group( self::GROUP, array() );
@@ -374,7 +412,13 @@ final class Settings {
 		</div>
 		<?php
 	}
-
+	/**
+	 * Render the webhook URL UI for the given environment.
+	 *
+	 * @param mixed  $value The current value.
+	 * @param string $name  The field name.
+	 * @param string $id    The field ID.
+	 */
 	public static function render_webhook_url( $value, string $name, string $id ): void {
 		$environment = str_contains( $name, 'sandbox' ) || str_contains( $id, 'sandbox' ) ? 'sandbox' : 'live';
 		$url         = self::get_webhook_url( $environment );

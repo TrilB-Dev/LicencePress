@@ -21,6 +21,7 @@ final class SettingsPlugins {
 	 *
 	 * @param string $slug The slug of the settings page.
 	 * @return bool True if the settings page exists, false otherwise.
+	 * @since 1.0.0
 	 */
 	public function has_settings_page( string $slug ): bool {
 		return isset( $this->settings_pages()[ $slug ] );
@@ -31,6 +32,7 @@ final class SettingsPlugins {
 	 *
 	 * @param string $slug The settings page slug.
 	 * @return bool True when the page is public to the current settings user.
+	 * @since 1.0.0
 	 */
 	public function can_view_settings_page( string $slug ): bool {
 		$page = $this->settings_pages()[ $slug ] ?? null;
@@ -48,6 +50,8 @@ final class SettingsPlugins {
 	 *
 	 * @param string $slug The slug of the settings page.
 	 * @param array  $values The current values of the settings.
+	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render_settings_page( string $slug, array $values ): void {
 		$page = $this->settings_pages()[ $slug ] ?? null;
@@ -123,6 +127,8 @@ final class SettingsPlugins {
 	 * Render the settings page for the given tab.
 	 *
 	 * @param string $tab The tab to render.
+	 * @return void
+	 * @since 1.0.0
 	 */
 	public function render( string $tab ): void {
 		if ( 'third-party' === $tab ) {
@@ -146,6 +152,7 @@ final class SettingsPlugins {
 	 * Get the registered settings pages from enabled plugins.
 	 *
 	 * @return array An associative array of registered settings pages.
+	 * @since 1.0.0
 	 */
 	private function settings_pages(): array {
 		$pages = array();
@@ -229,6 +236,8 @@ final class SettingsPlugins {
 	 *
 	 * @param string $file The plugin file path.
 	 * @param array  $plugin The plugin data.
+	 * @return void
+	 * @since 1.0.0
 	 */
 	private function render_licencepress_plugin_card( $plugin ): void {
 		$enabled       = Plugins::get_instance()->is_plugin_enabled( $plugin->get_slug() );
@@ -315,6 +324,8 @@ final class SettingsPlugins {
 	 * Render a plugin icon from its declared icon variant.
 	 *
 	 * @param PluginInterface $plugin The plugin instance.
+	 * @return void
+	 * @since 1.0.0
 	 */
 	private function render_plugin_icon( PluginInterface $plugin ): void {
 		$icon = $plugin->get_icon();
@@ -378,6 +389,7 @@ final class SettingsPlugins {
 	 *
 	 * @param array<mixed> $icon The icon payload.
 	 * @return string The resolved image URL, or an empty string when no image is present.
+	 * @since 1.0.0
 	 */
 	private function resolve_icon_image_url( array $icon ): string {
 		$possible_keys = array( 'url', 'src', 'image', 'icon', 'path' );
@@ -407,6 +419,7 @@ final class SettingsPlugins {
 	 *
 	 * @param array<mixed> $icon The icon payload.
 	 * @return string The normalized CSS icon class.
+	 * @since 1.0.0
 	 */
 	private function resolve_icon_class( array $icon ): string {
 		if ( isset( $icon[0] ) && is_scalar( $icon[0] ) ) {
@@ -439,6 +452,7 @@ final class SettingsPlugins {
 	 *
 	 * @param array<mixed> $icon The icon payload.
 	 * @return string The normalized hex color, if present.
+	 * @since 1.0.0
 	 */
 	private function resolve_icon_color( array $icon ): string {
 		$keys = array( 'color', 'colour', 1 );
@@ -461,6 +475,7 @@ final class SettingsPlugins {
 	 *
 	 * @param string $value The candidate value.
 	 * @return bool True when it appears to be an image URL or data URI.
+	 * @since 1.0.0
 	 */
 	private function is_image_url( string $value ): bool {
 		$value = trim( $value );
@@ -483,6 +498,8 @@ final class SettingsPlugins {
 	 *
 	 * @param string $file The plugin file path.
 	 * @param array  $plugin The plugin data.
+	 * @return void
+	 * @since 1.0.0
 	 */
 	private function render_plugin_settings_modal(
 		PluginInterface $plugin,
@@ -544,6 +561,8 @@ final class SettingsPlugins {
 	 * Render a card for a plugin.
 	 *
 	 * @param PluginInterface $plugin The plugin instance.
+	 * @return bool True if the current user can view the plugin, false otherwise.
+	 * @since 1.0.0
 	 */
 	private function can_view_plugin( PluginInterface $plugin ): bool {
 		$capability = $this->is_internal_plugin( $plugin )
@@ -556,6 +575,7 @@ final class SettingsPlugins {
 	 *
 	 * @param PluginInterface $plugin The plugin instance.
 	 * @return bool True if the user can edit, false otherwise.
+	 * @since 1.0.0
 	 */
 	private function can_edit_plugin( PluginInterface $plugin ): bool {
 		$capability = $this->is_internal_plugin( $plugin )
@@ -568,6 +588,7 @@ final class SettingsPlugins {
 	 *
 	 * @param PluginInterface $plugin The plugin instance.
 	 * @return bool True if the plugin is internal, false otherwise.
+	 * @since 1.0.0
 	 */
 	private function is_internal_plugin( PluginInterface $plugin ): bool {
 		return 0 === strpos( get_class( $plugin ), 'LicencePress\\Includes\\Plugins\\' );
@@ -578,6 +599,8 @@ final class SettingsPlugins {
 	 * @param array  $settings_page The settings page configuration.
 	 * @param array  $values The current values of the settings.
 	 * @param string $prefix The prefix for the field IDs.
+	 * @return void
+	 * @since 1.0.0
 	 */
 	private function render_plugin_settings_fields( array $settings_page, array $values, string $prefix ): void {
 		$layout = SanitizationHelper::key( $settings_page['layout'] ?? 'box', 'box' );
@@ -784,6 +807,8 @@ final class SettingsPlugins {
 	 *
 	 * @param string $file The plugin file path.
 	 * @param array  $plugin The plugin data.
+	 * @return void
+	 * @since 1.0.0
 	 */
 	private function render_third_party_plugin_card( string $file, array $plugin ): void {
 		$active = function_exists( 'is_plugin_active' ) && is_plugin_active( $file );

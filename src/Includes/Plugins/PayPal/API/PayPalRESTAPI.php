@@ -132,31 +132,18 @@ final class PayPalRESTAPI {
 	 */
 	public static function build_connect_url( array $settings = array(), ?string $environment = null ): string {
 		$environment = self::normalize_environment( $settings, $environment );
-		$base_url = 'sandbox' === $environment ? 'https://www.sandbox.paypal.com/bizsignup/partner/entry' : 'https://www.paypal.com/bizsignup/partner/entry';
-		$referral_token = trim( (string) ( $settings['referralToken'] ?? $settings['referral_token'] ?? $settings['paypal_referral_token'] ?? '' ) );
-		$state = self::generate_state();
-		self::save_oauth_state( $state, $environment );
-
-		$query = array(
-			'displayMode' => 'minibrowser',
-			'state'       => $state,
-		);
-
-		if ( '' !== $referral_token ) {
-			$query['referralToken'] = $referral_token;
+		$base_url = function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=licencepress-paypal&paypal_action=test_connection&paypal_environment=' . $environment ) : 'https://example.com/wp-admin/admin.php?page=licencepress-paypal&paypal_action=test_connection&paypal_environment=' . $environment;
+		$client_id = trim( (string) ( $settings['client_id'] ?? $settings['paypal_api_' . $environment . '_client_id'] ?? PayPalSettings::get_client_id( $environment ) ) );
+		if ( '' !== $client_id ) {
+			if ( function_exists( 'add_query_arg' ) ) {
+				$base_url = \add_query_arg( 'client_id', $client_id, $base_url );
+			} else {
+				$separator = false === strpos( $base_url, '?' ) ? '?' : '&';
+				$base_url .= $separator . 'client_id=' . rawurlencode( $client_id );
+			}
 		}
 
-		if ( function_exists( 'add_query_arg' ) ) {
-			return add_query_arg( $query, $base_url );
-		}
-
-		$separator = false === strpos( $base_url, '?' ) ? '?' : '&';
-		$parts = array();
-		foreach ( $query as $key => $value ) {
-			$parts[] = rawurlencode( (string) $key ) . '=' . rawurlencode( (string) $value );
-		}
-
-		return $base_url . $separator . implode( '&', $parts );
+		return $base_url;
 	}
     /**
 	 * Normalizes the payload to an array.

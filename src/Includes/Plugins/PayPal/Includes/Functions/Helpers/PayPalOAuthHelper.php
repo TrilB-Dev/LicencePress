@@ -79,7 +79,7 @@ final class PayPalOAuthHelper {
 	 */
 	private static function build_query_string( array $query, string $base_url ): string {
 		if ( function_exists( 'add_query_arg' ) ) {
-			return add_query_arg( $query, $base_url );
+			return \add_query_arg( $query, $base_url );
 		}
 
 		$separator = false === strpos( $base_url, '?' ) ? '?' : '&';
@@ -190,25 +190,19 @@ final class PayPalOAuthHelper {
 	 * @return string The constructed PayPal connect URL.
 	 * @since 1.0.0
 	 */
-	public static function build_connect_url( array $settings, string $state, ?string $environment = null ): string {
+	public static function build_connect_url( array $settings, string $state = '', ?string $environment = null ): string {
 		$environment = sanitize_key( (string) ( $environment ?? ( $settings['paypal_environment'] ?? ( $settings['environment'] ?? 'sandbox' ) ) ) );
-		$base_url = 'sandbox' === $environment ? 'https://www.sandbox.paypal.com/bizsignup/partner/entry' : 'https://www.paypal.com/bizsignup/partner/entry';
-		$referral_token = trim( (string) ( $settings['referralToken'] ?? $settings['referral_token'] ?? $settings['paypal_referral_token'] ?? '' ) );
-		$query = array(
-			'displayMode' => 'minibrowser',
-			'state'       => $state,
-		);
-
-		if ( '' !== $referral_token ) {
-			$query['referralToken'] = $referral_token;
-		}
-
-		$constant_name = 'LICENCEPRESS_PAYPAL_API_' . strtoupper( $environment ) . '_CLIENT_ID';
-		$client_id = defined( $constant_name ) ? trim( (string) constant( $constant_name ) ) : trim( (string) ( $settings['client_id'] ?? $settings[ 'paypal_api_' . $environment . '_client_id' ] ?? PayPalSettings::get_client_id( $environment ) ) );
+		$base_url = function_exists( 'admin_url' ) ? admin_url( 'admin.php?page=licencepress-paypal&paypal_action=test_connection&paypal_environment=' . $environment ) : self::site_url( '/wp-admin/admin.php?page=licencepress-paypal&paypal_action=test_connection&paypal_environment=' . $environment );
+		$client_id = trim( (string) ( $settings['client_id'] ?? $settings[ 'paypal_api_' . $environment . '_client_id' ] ?? PayPalSettings::get_client_id( $environment ) ) );
 		if ( '' !== $client_id ) {
-			$query['client_id'] = $client_id;
+			if ( function_exists( 'add_query_arg' ) ) {
+				$base_url = \add_query_arg( 'client_id', $client_id, $base_url );
+			} else {
+				$separator = false === strpos( $base_url, '?' ) ? '?' : '&';
+				$base_url .= $separator . 'client_id=' . rawurlencode( $client_id );
+			}
 		}
 
-		return self::build_query_string( $query, $base_url );
+		return $base_url;
 	}
 }

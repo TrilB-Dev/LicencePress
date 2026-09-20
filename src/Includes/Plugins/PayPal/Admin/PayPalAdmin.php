@@ -156,28 +156,26 @@ final class PayPalAdmin {
 	}
 
 	public static function maybe_handle_oauth_connect(): void {
-		error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect fired: ' . wp_json_encode( $_GET ) );
-
-		if ( ! isset( $_GET['paypal_oauth'] ) ) {
-			error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect exit: paypal_oauth missing.' );
+		if ( ! isset( $_GET['paypal_action'] ) || 'test_connection' !== sanitize_key( wp_unslash( $_GET['paypal_action'] ) ) ) {
 			return;
 		}
 
 		if ( ! current_user_can( 'licencepress_paypal_manage' ) && ! current_user_can( 'manage_options' ) ) {
-			error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect blocked: insufficient capabilities.' );
 			return;
 		}
 
 		$settings = LicencePressSettings::get_group( 'paypal', array() );
 		$settings = is_array( $settings ) ? $settings : array();
 		$environment = sanitize_key( wp_unslash( $_GET['paypal_environment'] ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
-		$connect_url = PayPalConnectionService::start_oauth_connect( $settings, $environment );
-		$client_id = PayPalSettings::get_client_id( $environment );
+		$result = PayPalConnectionService::test_connection( $settings, $environment );
+		$redirect = admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&bt=paypal&paypal_environment=' . $environment );
+		if ( ! empty( $result['success'] ) ) {
+			$redirect = \add_query_arg( 'paypal_connection_test', 'success', $redirect );
+		} else {
+			$redirect = \add_query_arg( 'paypal_connection_test', 'failed', $redirect );
+		}
 
-		error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect environment=' . $environment . ' client_id_set=' . ( '' !== $client_id ? 'yes' : 'no' ) );
-
-		error_log( '[LicencePress][PayPal] maybe_handle_oauth_connect redirecting to PayPal: ' . $connect_url );
-		wp_safe_redirect( $connect_url );
+		wp_safe_redirect( $redirect );
 		exit;
 	}
 

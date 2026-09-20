@@ -383,14 +383,12 @@ final class Settings {
 		$settings    = is_array( $settings ) ? $settings : array();
 		$connected   = ! empty( $settings[ 'paypal_api_' . $environment . '_oauth_connected' ] ) || ! empty( $settings[ 'paypal_' . $environment . '_oauth_connected' ] );
 		$client_id   = self::get_client_id( $environment );
-		$connect_url  = PayPalConnectionService::start_oauth_connect( $settings, $environment );
-		$redirect_uri = PayPalRESTAPI::resolve_redirect_uri( $environment );
-		$status       = $connected ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
-		$tone         = $connected ? 'success' : 'warning';
-		$label        = 'sandbox' === $environment ? __( 'PayPal Sandbox connection', 'licencepress' ) : __( 'PayPal Live connection', 'licencepress' );
-		$message      = $connected
-			? __( 'Your PayPal integration is active and the PayPal sidebar is available for this environment.', 'licencepress' )
-			: __( 'Connect this environment to unlock the PayPal sidebar and checkout settings.', 'licencepress' );
+		$status      = $connected ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
+		$tone        = $connected ? 'success' : 'warning';
+		$label       = 'sandbox' === $environment ? __( 'PayPal Sandbox connection', 'licencepress' ) : __( 'PayPal Live connection', 'licencepress' );
+		$message     = $connected
+			? __( 'The saved PayPal credentials are valid for this environment.', 'licencepress' )
+			: __( 'Add the saved client ID and client secret for this environment to enable PayPal validation.', 'licencepress' );
 		?>
 		<div class="d-flex flex-column gap-3" style="max-width: 540px;">
 			<div class="card border-<?php echo esc_attr( $tone ); ?> shadow-none mb-0">
@@ -402,15 +400,8 @@ final class Settings {
 					<div class="small text-muted"><?php echo esc_html( $message ); ?></div>
 				</div>
 			</div>
-			<a
-				class="btn <?php echo esc_attr( '' !== $client_id ? 'btn-primary' : 'btn-outline-primary' ); ?> align-self-start"
-				href="<?php echo esc_url( $connect_url ); ?>"
-			>	<i class="fab fa-paypal"></i>
-				<?php echo esc_html( $connected ? __( 'Reconnect PayPal', 'licencepress' ) : __( 'Connect PayPal', 'licencepress' ) ); ?>
-			</a>
 			<div class="small text-secondary">
-				<?php echo esc_html( '' !== $client_id ? __( 'The PayPal app is configured and ready to connect.', 'licencepress' ) : ( 'sandbox' === $environment ? __( 'Configure the PayPal Sandbox app from your server environment and then connect.', 'licencepress' ) : __( 'Configure the live PayPal app from your server environment and then connect.', 'licencepress' ) ) ); ?>
-				<?php echo esc_html( __( 'Redirect URI:', 'licencepress' ) ); ?> <code class="text-break"><?php echo esc_html( $redirect_uri ); ?></code>
+				<?php echo esc_html( '' !== $client_id ? __( 'The PayPal app credentials are configured and ready to validate with the saved settings.', 'licencepress' ) : ( 'sandbox' === $environment ? __( 'Add the Sandbox client ID and secret to complete the PayPal configuration.', 'licencepress' ) : __( 'Add the live client ID and secret to complete the PayPal configuration.', 'licencepress' ) ) ); ?>
 			</div>
 		</div>
 		<?php

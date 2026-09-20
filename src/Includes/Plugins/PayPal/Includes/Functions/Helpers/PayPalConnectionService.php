@@ -27,16 +27,67 @@ final class PayPalConnectionService {
 	 */
 	public static function start_oauth_connect( array $settings = array(), ?string $environment = null ): string {
 		$environment = self::normalize_environment( $settings, $environment );
-		$state = PayPalOAuthHelper::generate_state();
-		PayPalOAuthHelper::save_state( $state, $environment );
+		if ( function_exists( 'admin_url' ) ) {
+			return admin_url( 'admin.php?page=licencepress-paypal&paypal_action=test_connection&paypal_environment=' . $environment );
+		}
 
-		$effective_settings = $settings;
-		$effective_settings['paypal_environment'] = $environment;
-		$effective_settings['environment'] = $environment;
-		$effective_settings['client_id'] = $effective_settings['client_id'] ?? $effective_settings[ 'paypal_' . $environment . '_client_id' ] ?? PayPalSettings::get_client_id( $environment );
-		$effective_settings['client_secret'] = $effective_settings['client_secret'] ?? $effective_settings[ 'paypal_' . $environment . '_client_secret' ] ?? PayPalSettings::get_client_secret( $environment );
+		return home_url( '/wp-admin/admin.php?page=licencepress-paypal&paypal_action=test_connection&paypal_environment=' . $environment );
+	}
 
-		return PayPalOAuthHelper::build_connect_url( $effective_settings, $state, $environment );
+	public static function test_connection( array $settings = array(), ?string $environment = null ): array {
+		$environment = self::normalize_environment( $settings, $environment );
+		$client_id = trim( (string) ( $settings['client_id'] ?? $settings[ 'paypal_api_' . $environment . '_client_id' ] ?? PayPalSettings::get_client_id( $environment ) ) );
+		$client_secret = trim( (string) ( $settings['client_secret'] ?? $settings[ 'paypal_api_' . $environment . '_client_secret' ] ?? PayPalSettings::get_client_secret( $environment ) ) );
+
+		if ( '' === $client_id || '' === $client_secret ) {
+			return array(
+				'success' => false,
+				'connected' => false,
+				'error' => 'missing_client_credentials',
+				'environment' => $environment,
+			);
+		}
+
+		$response = wp_remote_post(
+			'https://api-m.' . ( 'sandbox' === $environment ? 'sandbox.' : '' ) . 'paypal.com/v1/oauth2/token',
+			array(
+				'timeout' => 30,
+				'headers' => array(
+					'Authorization' => 'Basic ' . base64_encode( $client_id . ':' . $client_secret ),
+					'Content-Type'  => 'application/x-www-form-urlencoded',
+				),
+				'body' => array(
+					'grant_type' => 'client_credentials',
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return array(
+				'success' => false,
+				'connected' => false,
+				'error' => $response->get_error_message(),
+				'environment' => $environment,
+			);
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		$token = is_array( $body ) && ! empty( $body['access_token'] ) ? (string) $body['access_token'] : '';
+		$connected = '' !== $token;
+
+		$stored = BaseSettings::get_group( 'paypal', array() );
+		$stored = is_array( $stored ) ? $stored : array();
+		$stored['paypal_environment'] = $environment;
+		$stored[ 'paypal_api_' . $environment . '_oauth_connected' ] = $connected;
+		BaseSettings::set_group( 'paypal', $stored );
+
+		return array(
+			'success' => $connected,
+			'connected' => $connected,
+			'error' => $connected ? '' : 'token_exchange_failed',
+			'environment' => $environment,
+			'token' => $token,
+		);
 	}
 	/**
 	 * Completes the PayPal OAuth connection process.
@@ -47,35 +98,21 @@ final class PayPalConnectionService {
 	 */
 	public static function complete_oauth_connect( array $request ): array {
 		$environment = self::normalize_environment( $request, $request['paypal_environment'] ?? null );
-		$code = sanitize_text_field( (string) ( $request['code'] ?? '' ) );
-		$state = sanitize_text_field( (string) ( $request['state'] ?? '' ) );
+		$client_id = PayPalSettings::get_client_id( $environment );
+		$client_secret = PayPalSettings::get_client_secret( $environment );
 
-		if ( '' === $code || '' === $state || ! PayPalOAuthHelper::validate_state( $state, $environment ) ) {
-			PayPalOAuthHelper::clear_state( $environment );
+		if ( '' === $client_id || '' === $client_secret ) {
 			return array(
 				'success' => false,
-				'error' => 'invalid_state_or_code',
+				'error' => 'missing_client_credentials',
 				'environment' => $environment,
-			);
-		}
-
-		PayPalOAuthHelper::clear_state( $environment );
-		$body = PayPalRESTAPI::exchange_authorization_code( $code, $environment );
-		if ( empty( $body ) || empty( $body['access_token'] ) ) {
-			return array(
-				'success' => false,
-				'error' => 'token_exchange_failed',
-				'environment' => $environment,
-				'body' => $body,
 			);
 		}
 
 		$settings = $request;
 		$settings['environment'] = $environment;
-		$settings['client_id'] = PayPalSettings::get_client_id( $environment );
-		$settings['client_secret'] = PayPalSettings::get_client_secret( $environment );
-		$settings['access_token'] = $body['access_token'];
-		$settings['refresh_token'] = $body['refresh_token'] ?? '';
+		$settings['client_id'] = $client_id;
+		$settings['client_secret'] = $client_secret;
 		PayPalRESTAPI::save_oauth_credentials( $settings );
 
 		$stored = BaseSettings::get_group( 'paypal', array() );
@@ -86,7 +123,10 @@ final class PayPalConnectionService {
 
 		return array(
 			'success' => true,
-			'body' => $body,
+			'body' => array(
+				'client_id' => $client_id,
+				'client_secret' => $client_secret,
+			),
 			'environment' => $environment,
 		);
 	}

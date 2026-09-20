@@ -209,10 +209,10 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	public function register_rest_routes(): void {
 		register_rest_route(
 			'licencepress/v1',
-			'/paypal/connect',
+			'/paypal/test-connection',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( self::class, 'rest_connect' ),
+				'callback'            => array( self::class, 'rest_test_connection' ),
 				'permission_callback' => array( self::class, 'rest_permission_callback' ),
 			)
 		);
@@ -232,7 +232,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 		return current_user_can( 'licencepress_paypal_manage' ) || current_user_can( 'manage_options' );
 	}
 
-	public static function rest_connect( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+	public static function rest_test_connection( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$settings = array();
 		$body     = $request->get_json_params();
 		if ( ! is_array( $body ) ) {
@@ -244,17 +244,19 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 
 		$environment = sanitize_key( (string) ( $body['environment'] ?? $body['paypal_environment'] ?? 'sandbox' ) );
 		$settings['paypal_environment'] = $environment;
+		$settings['client_id'] = $body['client_id'] ?? $body['paypal_api_' . $environment . '_client_id'] ?? '';
+		$settings['client_secret'] = $body['client_secret'] ?? $body['paypal_api_' . $environment . '_client_secret'] ?? '';
 
-		$connect_url = PayPalConnectionService::start_oauth_connect( $settings, $environment );
-		if ( false === strpos( $connect_url, 'bizsignup/partner/entry' ) ) {
-			return new WP_Error( 'paypal_partner_signup_unavailable', __( 'PayPal partner signup URL is not available for this environment.', 'licencepress' ) );
+		$result = PayPalConnectionService::test_connection( $settings, $environment );
+		if ( empty( $result['success'] ) ) {
+			return new WP_Error( $result['error'] ?? 'paypal_connection_test_failed', __( 'PayPal connection test failed.', 'licencepress' ) );
 		}
 
 		return new WP_REST_Response(
 			array(
 				'success'     => true,
+				'connected'   => true,
 				'environment' => $environment,
-				'connect_url' => $connect_url,
 			),
 			200
 		);

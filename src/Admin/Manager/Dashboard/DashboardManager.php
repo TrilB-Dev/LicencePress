@@ -85,8 +85,7 @@ final class DashboardManager extends Manager {
 										<div class="card-body d-flex flex-column">
 											<div class="text-primary mb-2"><span class="dashicons dashicons-cart"></span></div>
 											<h3 class="h6"><?php esc_html_e( 'Payments', 'licencepress' ); ?></h3>
-											<p class="small text-secondary flex-grow-1 mb-3"><?php esc_html_e( 'Connect PayPal to unlock checkout, subscriptions, and payment flows.', 'licencepress' ); ?></p>
-											<a class="btn btn-sm btn-outline-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=licencepress-paypal' ) ); ?>"><?php esc_html_e( 'Connect PayPal', 'licencepress' ); ?></a>
+												<p class="small text-secondary flex-grow-1 mb-3"><?php esc_html_e( 'Configure PayPal credentials to enable checkout, subscriptions, and payment flows.', 'licencepress' ); ?></p>
 										</div>
 									</div>
 								</div>

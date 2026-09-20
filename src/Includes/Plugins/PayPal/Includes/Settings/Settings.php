@@ -12,6 +12,7 @@ namespace LicencePress\Includes\Plugins\PayPal\Includes\Settings;
 use LicencePress\Includes\Functions\Helpers\EncryptionHelper;
 use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalConnectionService;
 use LicencePress\Includes\Settings\Settings as BaseSettings;
+use LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI;
 
 final class Settings {
 	/**
@@ -382,11 +383,12 @@ final class Settings {
 		$settings    = is_array( $settings ) ? $settings : array();
 		$connected   = ! empty( $settings[ 'paypal_api_' . $environment . '_oauth_connected' ] ) || ! empty( $settings[ 'paypal_' . $environment . '_oauth_connected' ] );
 		$client_id   = self::get_client_id( $environment );
-		$connect_url = PayPalConnectionService::start_oauth_connect( $settings, $environment );
-		$status      = $connected ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
-		$tone        = $connected ? 'success' : 'warning';
-		$label       = 'sandbox' === $environment ? __( 'PayPal Sandbox connection', 'licencepress' ) : __( 'PayPal Live connection', 'licencepress' );
-		$message     = $connected
+		$connect_url  = PayPalConnectionService::start_oauth_connect( $settings, $environment );
+		$redirect_uri = PayPalRESTAPI::resolve_redirect_uri( $environment );
+		$status       = $connected ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
+		$tone         = $connected ? 'success' : 'warning';
+		$label        = 'sandbox' === $environment ? __( 'PayPal Sandbox connection', 'licencepress' ) : __( 'PayPal Live connection', 'licencepress' );
+		$message      = $connected
 			? __( 'Your PayPal integration is active and the PayPal sidebar is available for this environment.', 'licencepress' )
 			: __( 'Connect this environment to unlock the PayPal sidebar and checkout settings.', 'licencepress' );
 		?>
@@ -408,6 +410,7 @@ final class Settings {
 			</a>
 			<div class="small text-secondary">
 				<?php echo esc_html( '' !== $client_id ? __( 'The PayPal app is configured and ready to connect.', 'licencepress' ) : ( 'sandbox' === $environment ? __( 'Configure the PayPal Sandbox app from your server environment and then connect.', 'licencepress' ) : __( 'Configure the live PayPal app from your server environment and then connect.', 'licencepress' ) ) ); ?>
+				<?php echo esc_html( __( 'Redirect URI:', 'licencepress' ) ); ?> <code class="text-break"><?php echo esc_html( $redirect_uri ); ?></code>
 			</div>
 		</div>
 		<?php

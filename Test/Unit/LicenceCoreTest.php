@@ -42,6 +42,29 @@ namespace {
 	}
 }
 
+namespace LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers {
+	if ( ! function_exists( '\LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\wp_remote_post' ) ) {
+		function wp_remote_post( $url, $args = array() ) {
+			return array(
+				'body'     => '{"access_token":"test-access-token"}',
+				'response' => array( 'code' => 200 ),
+			);
+		}
+	}
+
+	if ( ! function_exists( '\LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\wp_remote_retrieve_body' ) ) {
+		function wp_remote_retrieve_body( $response ) {
+			return is_array( $response ) && isset( $response['body'] ) ? $response['body'] : '';
+		}
+	}
+
+	if ( ! function_exists( '\LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\is_wp_error' ) ) {
+		function is_wp_error( $thing ) {
+			return false;
+		}
+	}
+}
+
 namespace LicencePress\Test\Unit {
 	use Defuse\Crypto\Key;
 	use LicencePress\Includes\Core\PostType;
@@ -552,6 +575,19 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringNotContainsString( 'Test PayPal connection', $output );
 		$this->assertStringNotContainsString( 'admin.php?page=licencepress-paypal&paypal_action=test_connection', $output );
 		$this->assertStringNotContainsString( 'bizsignup/partner/entry', $output );
+	}
+
+	public function test_paypal_settings_sanitize_auto_validates_credentials_after_save(): void {
+		$sanitized = ( new \LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings() )->sanitize(
+			array(
+				'paypal_environment'                 => 'sandbox',
+				'paypal_api_sandbox_client_id'      => 'sandbox-client-id',
+				'paypal_api_sandbox_client_secret'  => 'sandbox-client-secret',
+			)
+		);
+
+		$this->assertTrue( (bool) $sanitized['paypal_api_sandbox_oauth_connected'] );
+		$this->assertTrue( \LicencePress\Includes\Settings\Settings::get_bool( 'paypal_api_sandbox_oauth_connected', false ) );
 	}
 
 	public function test_demo_plugin_slug_is_ignored_during_plugin_discovery(): void {

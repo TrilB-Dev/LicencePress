@@ -459,6 +459,29 @@ final class Settings {
 			'paypal_api_sandbox_callback'        => esc_url_raw( (string) ( $input['paypal_api_sandbox_callback'] ?? '' ) ),
 		);
 
+		foreach ( self::ENVIRONMENTS as $environment ) {
+			$client_id     = self::decrypt_value( $settings[ 'paypal_api_' . $environment . '_client_id' ] ?? '' );
+			$client_secret = self::decrypt_value( $settings[ 'paypal_api_' . $environment . '_client_secret' ] ?? '' );
+
+			if ( '' === $client_id || '' === $client_secret ) {
+				continue;
+			}
+
+			$result = PayPalConnectionService::test_connection(
+				array(
+					'paypal_environment' => $environment,
+					'client_id'          => $client_id,
+					'client_secret'      => $client_secret,
+				),
+				$environment
+			);
+
+			$settings[ 'paypal_api_' . $environment . '_oauth_connected' ] = ! empty( $result['success'] );
+			if ( ! empty( $result['token'] ) ) {
+				$settings[ 'paypal_api_' . $environment . '_access_token' ] = sanitize_text_field( (string) $result['token'] );
+			}
+		}
+
 		BaseSettings::set_group( self::GROUP, $settings );
 
 		return $settings;

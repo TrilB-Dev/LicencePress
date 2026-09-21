@@ -263,7 +263,7 @@ final class SettingsPolicies {
             ]
         ];
     }
-    function software_reseller_agreement(){
+    function software_reseller_agreement(): array{
         return [
 
             "title" => "Software Reseller Agreement",

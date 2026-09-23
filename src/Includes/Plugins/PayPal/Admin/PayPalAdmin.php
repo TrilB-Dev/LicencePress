@@ -9,9 +9,8 @@
 
 namespace LicencePress\Includes\Plugins\PayPal\Admin;
 
-use LicencePress\Includes\Plugins\PayPal\Includes\API\PayPalClient;
+use LicencePress\Includes\Plugins\PayPal\API\Client\PayPalClient;
 use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalConnectionService;
-use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper;
 use LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings as PayPalSettings;
 use LicencePress\Includes\Settings\Settings as LicencePressSettings;
 
@@ -115,14 +114,14 @@ final class PayPalAdmin {
 		?>
 		<div class="wrap licencepress-paypal-wrap">
 			<h1><?php echo esc_html__( 'PayPal', 'licencepress' ); ?></h1>
-			<p class="description"><?php echo esc_html__( 'Connect your PayPal app, enable one-time checkout, and manage recurring subscriptions from LicencePress.', 'licencepress' ); ?></p>
+			<p class="description"><?php echo esc_html__( 'Configure your PayPal app credentials, enable one-time checkout, and manage recurring subscriptions from LicencePress.', 'licencepress' ); ?></p>
 
 			<div class="card" style="max-width: 920px; padding: 20px; margin-top: 20px;">
 				<h2><?php echo esc_html__( 'Connection status', 'licencepress' ); ?></h2>
 				<p><strong><?php echo esc_html__( 'Environment:', 'licencepress' ); ?></strong> <?php echo esc_html( $environment ); ?></p>
-				<p><strong><?php echo esc_html__( 'OAuth:', 'licencepress' ); ?></strong> <?php echo esc_html( $connected ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' ) ); ?></p>
+				<p><strong><?php echo esc_html__( 'REST auth:', 'licencepress' ); ?></strong> <?php echo esc_html( $connected ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' ) ); ?></p>
 				<p><strong><?php echo esc_html__( 'Client ID:', 'licencepress' ); ?></strong> <?php echo esc_html( $client_id_label ); ?></p>
-				<p class="text-secondary mb-0"><?php echo esc_html__( 'Use the PayPal plugin settings modal to complete the OAuth connection and enable the sidebar configuration.', 'licencepress' ); ?></p>
+				<p class="text-secondary mb-0"><?php echo esc_html__( 'Save valid PayPal app credentials to enable the REST authentication check for this environment.', 'licencepress' ); ?></p>
 			</div>
 		</div>
 		<?php
@@ -155,62 +154,4 @@ final class PayPalAdmin {
 		<?php
 	}
 
-	public static function maybe_handle_oauth_connect(): void {
-		if ( ! isset( $_GET['paypal_action'] ) || 'test_connection' !== sanitize_key( wp_unslash( $_GET['paypal_action'] ) ) ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'licencepress_paypal_manage' ) && ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		$settings = LicencePressSettings::get_group( 'paypal', array() );
-		$settings = is_array( $settings ) ? $settings : array();
-		$environment = sanitize_key( wp_unslash( $_GET['paypal_environment'] ?? ( $settings['paypal_environment'] ?? 'sandbox' ) ) );
-		$result = PayPalConnectionService::test_connection( $settings, $environment );
-		$redirect = admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&bt=paypal&paypal_environment=' . $environment );
-		if ( ! empty( $result['success'] ) ) {
-			$redirect = \add_query_arg( 'paypal_connection_test', 'success', $redirect );
-		} else {
-			$redirect = \add_query_arg( 'paypal_connection_test', 'failed', $redirect );
-		}
-
-		wp_safe_redirect( $redirect );
-		exit;
-	}
-
-	public static function maybe_handle_oauth_callback(): void {
-		error_log( '[LicencePress][PayPal] maybe_handle_oauth_callback fired: ' . wp_json_encode( $_GET ) );
-
-		if ( ! isset( $_GET['paypal_action'] ) || 'callback' !== sanitize_key( wp_unslash( $_GET['paypal_action'] ) ) ) {
-			error_log( '[LicencePress][PayPal] maybe_handle_oauth_callback exit: paypal_action not callback.' );
-			return;
-		}
-
-		if ( ! current_user_can( 'licencepress_paypal_manage' ) && ! current_user_can( 'manage_options' ) ) {
-			error_log( '[LicencePress][PayPal] maybe_handle_oauth_callback blocked: insufficient capabilities.' );
-			return;
-		}
-
-		$code        = sanitize_text_field( wp_unslash( $_GET['code'] ?? '' ) );
-		$state       = sanitize_text_field( wp_unslash( $_GET['state'] ?? '' ) );
-		$environment = sanitize_key( wp_unslash( $_GET['paypal_environment'] ?? 'sandbox' ) );
-		$request     = array(
-			'code'               => $code,
-			'state'              => $state,
-			'paypal_environment' => $environment,
-		);
-		error_log( '[LicencePress][PayPal] callback state=' . $state . ' env=' . $environment . ' code_present=' . ( '' !== $code ? 'yes' : 'no' ) );
-
-		$result = PayPalConnectionService::complete_oauth_connect( $request );
-		if ( empty( $result['success'] ) ) {
-			error_log( '[LicencePress][PayPal] callback failed: ' . ( $result['error'] ?? 'unknown_error' ) . ' env=' . ( $result['environment'] ?? $environment ) );
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&paypal_environment=' . $environment . '#paypal' ) );
-			exit;
-		}
-
-		error_log( '[LicencePress][PayPal] OAuth success for environment=' . ( $result['environment'] ?? $environment ) . ' token_received=' . ( ! empty( $result['body']['access_token'] ) ? 'yes' : 'no' ) );
-		wp_safe_redirect( PayPalOAuthHelper::get_success_redirect_url() );
-		exit;
-	}
 }

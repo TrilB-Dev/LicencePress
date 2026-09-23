@@ -10,9 +10,9 @@
 namespace LicencePress\Includes\Plugins\PayPal\Includes\Settings;
 
 use LicencePress\Includes\Functions\Helpers\EncryptionHelper;
+use LicencePress\Includes\Plugins\PayPal\API\PayPalAPI;
 use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalConnectionService;
 use LicencePress\Includes\Settings\Settings as BaseSettings;
-use LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI;
 
 final class Settings {
 	/**
@@ -42,24 +42,36 @@ final class Settings {
 		BaseSettings::register_group(
 			self::GROUP,
 			array(
-				'paypal_environment'                	=> self::DEFAULT_ENVIRONMENT,
-				'paypal_checkout_enabled'           	=> false,
-				'paypal_subscriptions_enabled'      	=> false,
-				'paypal_currency'                   	=> 'USD',
-				'paypal_api_live_client_id'             => '',
-				'paypal_api_live_client_secret'         => '',
-				'paypal_api_live_oauth_connected'       => false,
-				'paypal_api_live_access_token'          => '',
-				'paypal_api_live_refresh_token'         => '',
-				'paypal_api_live_callback'              => '',
-				'paypal_api_live_webhook_id'            => '',
-				'paypal_api_sandbox_client_id'          => '',
-				'paypal_api_sandbox_client_secret'      => '',
-				'paypal_api_sandbox_oauth_connected'    => false,
-				'paypal_api_sandbox_access_token'       => '',
-				'paypal_api_sandbox_refresh_token'      => '',
-				'paypal_api_sandbox_callback'           => '',
-				'paypal_api_sandbox_webhook_id'         => '',
+				'paypal_environment'                  => self::DEFAULT_ENVIRONMENT,
+				'paypal_checkout_enabled'             => true,
+				'paypal_subscriptions_enabled'        => false,
+				'paypal_currency'                     => 'USD',
+				'paypal_feature_one_time_payments'    => true,
+				'paypal_feature_subscription_billing' => false,
+				'paypal_feature_invoicing'           => false,
+				'paypal_feature_refunds'             => false,
+				'paypal_feature_transaction_search'  => true,
+				'paypal_feature_saved_payment_methods'=> false,
+				'paypal_feature_apple_pay'           => false,
+				'paypal_feature_google_pay'          => false,
+				'paypal_feature_advanced_cards'      => false,
+				'paypal_feature_fastlane'            => false,
+				'paypal_feature_ic_plus'             => false,
+				'paypal_feature_customer_disputes'   => false,
+				'paypal_api_live_client_id'           => '',
+				'paypal_api_live_client_secret'       => '',
+				'paypal_api_live_oauth_connected'     => false,
+				'paypal_api_live_access_token'        => '',
+				'paypal_api_live_refresh_token'       => '',
+				'paypal_api_live_callback'            => '',
+				'paypal_api_live_webhook_id'          => '',
+				'paypal_api_sandbox_client_id'        => '',
+				'paypal_api_sandbox_client_secret'    => '',
+				'paypal_api_sandbox_oauth_connected'  => false,
+				'paypal_api_sandbox_access_token'     => '',
+				'paypal_api_sandbox_refresh_token'    => '',
+				'paypal_api_sandbox_callback'         => '',
+				'paypal_api_sandbox_webhook_id'       => '',
 			)
 		);
 	}
@@ -444,19 +456,34 @@ final class Settings {
 		$input = is_array( $input ) ? $input : array();
 
 		$settings = array(
-			'paypal_environment'                 => in_array( sanitize_key( (string) ( $input['paypal_environment'] ?? self::DEFAULT_ENVIRONMENT ) ), self::ENVIRONMENTS, true ) ? sanitize_key( (string) ( $input['paypal_environment'] ?? self::DEFAULT_ENVIRONMENT ) ) : self::DEFAULT_ENVIRONMENT,
-			'paypal_api_live_client_id'          => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_api_live_client_id'] ?? '' ) ) ),
-			'paypal_api_live_client_secret'      => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_api_live_client_secret'] ?? '' ) ) ),
-			'paypal_api_live_oauth_connected'    => ! empty( $input['paypal_api_live_oauth_connected'] ),
-			'paypal_api_live_access_token'       => sanitize_text_field( (string) ( $input['paypal_api_live_access_token'] ?? '' ) ),
-			'paypal_api_live_refresh_token'      => sanitize_text_field( (string) ( $input['paypal_api_live_refresh_token'] ?? '' ) ),
-			'paypal_api_live_callback'           => esc_url_raw( (string) ( $input['paypal_api_live_callback'] ?? '' ) ),
-			'paypal_api_sandbox_client_id'       => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_api_sandbox_client_id'] ?? '' ) ) ),
-			'paypal_api_sandbox_client_secret'   => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_api_sandbox_client_secret'] ?? '' ) ) ),
-			'paypal_api_sandbox_oauth_connected' => ! empty( $input['paypal_api_sandbox_oauth_connected'] ),
-			'paypal_api_sandbox_access_token'    => sanitize_text_field( (string) ( $input['paypal_api_sandbox_access_token'] ?? '' ) ),
-			'paypal_api_sandbox_refresh_token'   => sanitize_text_field( (string) ( $input['paypal_api_sandbox_refresh_token'] ?? '' ) ),
-			'paypal_api_sandbox_callback'        => esc_url_raw( (string) ( $input['paypal_api_sandbox_callback'] ?? '' ) ),
+			'paypal_environment'                     => in_array( sanitize_key( (string) ( $input['paypal_environment'] ?? self::DEFAULT_ENVIRONMENT ) ), self::ENVIRONMENTS, true ) ? sanitize_key( (string) ( $input['paypal_environment'] ?? self::DEFAULT_ENVIRONMENT ) ) : self::DEFAULT_ENVIRONMENT,
+			'paypal_checkout_enabled'                => ! empty( $input['paypal_checkout_enabled'] ),
+			'paypal_subscriptions_enabled'           => ! empty( $input['paypal_subscriptions_enabled'] ),
+			'paypal_currency'                        => sanitize_text_field( (string) ( $input['paypal_currency'] ?? 'USD' ) ),
+			'paypal_feature_one_time_payments'       => ! empty( $input['paypal_feature_one_time_payments'] ),
+			'paypal_feature_subscription_billing'    => ! empty( $input['paypal_feature_subscription_billing'] ),
+			'paypal_feature_invoicing'              => ! empty( $input['paypal_feature_invoicing'] ),
+			'paypal_feature_refunds'                 => ! empty( $input['paypal_feature_refunds'] ),
+			'paypal_feature_transaction_search'      => ! empty( $input['paypal_feature_transaction_search'] ),
+			'paypal_feature_saved_payment_methods'   => ! empty( $input['paypal_feature_saved_payment_methods'] ),
+			'paypal_feature_apple_pay'               => ! empty( $input['paypal_feature_apple_pay'] ),
+			'paypal_feature_google_pay'              => ! empty( $input['paypal_feature_google_pay'] ),
+			'paypal_feature_advanced_cards'          => ! empty( $input['paypal_feature_advanced_cards'] ),
+			'paypal_feature_fastlane'                => ! empty( $input['paypal_feature_fastlane'] ),
+			'paypal_feature_ic_plus'                 => ! empty( $input['paypal_feature_ic_plus'] ),
+			'paypal_feature_customer_disputes'       => ! empty( $input['paypal_feature_customer_disputes'] ),
+			'paypal_api_live_client_id'              => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_api_live_client_id'] ?? '' ) ) ),
+			'paypal_api_live_client_secret'          => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_api_live_client_secret'] ?? '' ) ) ),
+			'paypal_api_live_oauth_connected'        => ! empty( $input['paypal_api_live_oauth_connected'] ),
+			'paypal_api_live_access_token'           => sanitize_text_field( (string) ( $input['paypal_api_live_access_token'] ?? '' ) ),
+			'paypal_api_live_refresh_token'          => sanitize_text_field( (string) ( $input['paypal_api_live_refresh_token'] ?? '' ) ),
+			'paypal_api_live_callback'               => esc_url_raw( (string) ( $input['paypal_api_live_callback'] ?? '' ) ),
+			'paypal_api_sandbox_client_id'           => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_api_sandbox_client_id'] ?? '' ) ) ),
+			'paypal_api_sandbox_client_secret'       => self::encrypt_value( sanitize_text_field( (string) ( $input['paypal_api_sandbox_client_secret'] ?? '' ) ) ),
+			'paypal_api_sandbox_oauth_connected'     => ! empty( $input['paypal_api_sandbox_oauth_connected'] ),
+			'paypal_api_sandbox_access_token'        => sanitize_text_field( (string) ( $input['paypal_api_sandbox_access_token'] ?? '' ) ),
+			'paypal_api_sandbox_refresh_token'       => sanitize_text_field( (string) ( $input['paypal_api_sandbox_refresh_token'] ?? '' ) ),
+			'paypal_api_sandbox_callback'            => esc_url_raw( (string) ( $input['paypal_api_sandbox_callback'] ?? '' ) ),
 		);
 
 		foreach ( self::ENVIRONMENTS as $environment ) {

@@ -1,58 +1,61 @@
 <?php
 /**
- * Base PayPal Checkout model with Gravity Forms-style hydration helpers.
+ * Base Stripe Checkout model with hydration helpers.
  *
  * @package LicencePress
- * @subpackage Includes\Plugins\PayPal\API\Models
- * @since 1.0.0
+ * @subpackage Includes\Plugins\Stripe\API\Models
  */
 
-namespace LicencePress\Includes\Plugins\PayPal\API\Models;
+namespace LicencePress\Includes\Plugins\Stripe\API\Models;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-abstract class PayPalCommerceModel extends AbstractModel {
+abstract class Checkout extends AbstractModel {
 	/**
-	 * PayPal Commerce model ID.
+	 * Stripe object ID.
 	 *
-	 * @since 1.0.0
+	 * @var string|null
 	 */
 	public $id;
+
 	/**
-	 * PayPal Commerce model form data.
+	 * Payment form data.
 	 *
-	 * @since 1.0.0
+	 * @var array
 	 */
 	protected $form = array();
+
 	/**
-	 * PayPal Commerce model feed data.
+	 * Payment feed data.
 	 *
-	 * @since 1.0.0
+	 * @var array
 	 */
 	protected $feed = array();
+
 	/**
-	 * PayPal Commerce model submission data.
+	 * Submission data.
 	 *
-	 * @since 1.0.0
+	 * @var array
 	 */
 	protected $submission_data = array();
+
 	/**
-	 * PayPal Commerce model entry data.
+	 * Entry data.
 	 *
-	 * @since 1.0.0
+	 * @var array
 	 */
 	protected $entry = array();
+
 	/**
-	 * Initializes the PayPal Commerce model with Gravity Forms data.
+	 * Initializes the Stripe checkout model with form data.
 	 *
 	 * @param array $form The form data.
 	 * @param array $feed The feed data.
 	 * @param array $submission_data The submission data.
 	 * @param array $entry The entry data.
 	 * @return $this The current model instance.
-	 * @since 1.0.0
 	 */
 	public function init( $form = array(), $feed = array(), $submission_data = array(), $entry = array() ) {
 		$this->set_gf_data( $form, $feed, $submission_data, $entry );
@@ -60,14 +63,13 @@ abstract class PayPalCommerceModel extends AbstractModel {
 	}
 
 	/**
-	 * Sets the Gravity Forms data for the PayPal Commerce model.
+	 * Sets the form data for the Stripe checkout model.
 	 *
 	 * @param array $form The form data.
 	 * @param array $feed The feed data.
 	 * @param array $submission_data The submission data.
 	 * @param array $entry The entry data.
 	 * @return void
-	 * @since 1.0.0
 	 */
 	public function set_gf_data( $form = array(), $feed = array(), $submission_data = array(), $entry = array() ) {
 		$this->form = is_array( $form ) ? $form : array();
@@ -75,22 +77,21 @@ abstract class PayPalCommerceModel extends AbstractModel {
 		$this->submission_data = is_array( $submission_data ) ? $submission_data : array();
 		$this->entry = is_array( $entry ) ? $entry : array();
 	}
+
 	/**
-	 * Gets the ID of the PayPal Commerce model.
+	 * Gets the ID of the model.
 	 *
 	 * @return string|null The model ID.
-	 * @since 1.0.0
 	 */
 	public function get_id() {
 		return $this->id;
 	}
 
 	/**
-	 * Sets the ID of the PayPal Commerce model.
+	 * Sets the ID of the model.
 	 *
 	 * @param string $id The model ID.
 	 * @return void
-	 * @since 1.0.0
 	 */
 	public function set_id( $id ) {
 		if ( ! empty( $id ) && is_string( $id ) ) {

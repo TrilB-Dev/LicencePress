@@ -40,11 +40,40 @@ namespace {
 			return null;
 		}
 	}
+
+	if ( ! function_exists( 'wp_remote_post' ) ) {
+		function wp_remote_post( $url, $args = array() ) {
+			return \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\wp_remote_post( $url, $args );
+		}
+	}
+
+	if ( ! function_exists( 'wp_remote_retrieve_body' ) ) {
+		function wp_remote_retrieve_body( $response ) {
+			return \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\wp_remote_retrieve_body( $response );
+		}
+	}
+
+	if ( ! function_exists( 'wp_remote_retrieve_response_code' ) ) {
+		function wp_remote_retrieve_response_code( $response ) {
+			return is_array( $response ) && isset( $response['response']['code'] ) ? (int) $response['response']['code'] : 200;
+		}
+	}
+
+	if ( ! function_exists( 'is_wp_error' ) ) {
+		function is_wp_error( $thing ) {
+			return \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\is_wp_error( $thing );
+		}
+	}
 }
 
 namespace LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers {
 	if ( ! function_exists( '\LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\wp_remote_post' ) ) {
 		function wp_remote_post( $url, $args = array() ) {
+			$GLOBALS['_licencepress_test_paypal_request'] = array(
+				'url'  => $url,
+				'args' => $args,
+			);
+
 			return array(
 				'body'     => '{"access_token":"test-access-token"}',
 				'response' => array( 'code' => 200 ),
@@ -230,13 +259,17 @@ namespace LicencePress\Test\Unit {
 		$this->assertMatchesRegularExpression( '/^WPP-[A-Z0-9]{8}-[A-Z0-9]{8}$/', $preview['sample'] );
 	}
 
-	public function test_paypal_gateway_uses_raw_http_requests_instead_of_paypal_php_sdk(): void {
-		$this->assertFalse( method_exists( '\\LicencePress\\Includes\\Plugins\\PayPal\\Includes\\API\\PayPalClient', 'build_sdk_client' ) );
-		$this->assertTrue( method_exists( '\\LicencePress\\Includes\\Plugins\\PayPal\\Includes\\API\\PayPalClient', 'create_order' ) );
+	public function test_paypal_gateway_uses_a_single_client_class(): void {
+		$this->assertTrue( class_exists( '\\LicencePress\\Includes\\Plugins\\PayPal\\API\\Client\\PayPalClient' ) );
+		$this->assertFalse( class_exists( '\\LicencePress\\Includes\\Plugins\\PayPal\\API\\Client\\PayPalSDKClient' ) );
+		$this->assertTrue( method_exists( '\\LicencePress\\Includes\\Plugins\\PayPal\\API\\Client\\PayPalClient', 'build_sdk_client' ) );
+		$this->assertTrue( method_exists( '\\LicencePress\\Includes\\Plugins\\PayPal\\API\\Client\\PayPalClient', 'resolve_environment' ) );
+		$this->assertTrue( method_exists( '\\LicencePress\\Includes\\Plugins\\PayPal\\API\\Client\\PayPalClient', 'create_order' ) );
+		$this->assertSame( 'Sandbox', \LicencePress\Includes\Plugins\PayPal\API\Client\PayPalClient::resolve_environment( 'sandbox' ) );
 	}
 
 	public function test_paypal_order_payload_includes_checkout_details(): void {
-		$payload = \LicencePress\Includes\Plugins\PayPal\Includes\API\PayPalClient::prepare_order_payload(
+		$payload = \LicencePress\Includes\Plugins\PayPal\API\Client\PayPalClient::prepare_order_payload(
 			array(
 				'amount'      => '19.99',
 				'currency'    => 'USD',
@@ -253,112 +286,51 @@ namespace LicencePress\Test\Unit {
 		$this->assertNotEmpty( $payload['application_context']['return_url'] );
 	}
 
-	public function test_paypal_oauth_redirect_uses_internal_test_connection_route(): void {
-		$settings = array(
-			'paypal_environment'               => 'sandbox',
-			'paypal_api_sandbox_client_id'     => '',
-			'paypal_api_sandbox_client_secret' => '',
-		);
-
-		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
-		$this->assertStringContainsString( 'admin.php?page=licencepress-paypal&paypal_action=test_connection', $url );
-		$this->assertStringContainsString( 'paypal_environment=sandbox', $url );
-		$this->assertStringNotContainsString( 'bizsignup/partner/entry', $url );
-	}
-
-	public function test_paypal_rest_connect_route_returns_internal_test_connection_url(): void {
-		$plugin = new \LicencePress\Includes\Plugins\PayPal\PayPal();
-		$this->assertTrue( method_exists( $plugin, 'register_rest_routes' ) );
-		$this->assertTrue( $plugin instanceof \LicencePress\Includes\Plugins\RestRouteProviderInterface );
-
-		$settings = array(
-			'paypal_environment'          => 'sandbox',
-			'paypal_api_sandbox_client_id' => 'sandbox-client-id',
-		);
-		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-rest', 'sandbox' );
-		$this->assertStringContainsString( 'admin.php?page=licencepress-paypal&paypal_action=test_connection', $url );
-		$this->assertStringContainsString( 'paypal_environment=sandbox', $url );
-		$this->assertStringContainsString( 'client_id=sandbox-client-id', $url );
-	}
-
-	public function test_paypal_rest_api_builds_connect_url_and_persists_encrypted_credentials(): void {
-		$settings = array(
-			'client_id'     => 'sandbox-client-id',
-			'client_secret' => 'sandbox-client-secret',
-			'environment'   => 'sandbox',
-		);
-
-		$connect_url = \LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI::build_connect_url( $settings );
-		$this->assertStringContainsString( 'admin.php?page=licencepress-paypal&paypal_action=test_connection', $connect_url );
-		$this->assertStringContainsString( 'paypal_environment=sandbox', $connect_url );
-
-		$saved = \LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI::save_oauth_credentials( $settings );
-		$this->assertTrue( $saved );
-		$this->assertNotSame( 'sandbox-client-secret', \LicencePress\Includes\Settings\Settings::get( 'paypal_api_sandbox_client_secret' ) );
-		$this->assertSame( 'sandbox-client-id', \LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings::get_client_id( 'sandbox' ) );
-	}
-
-	public function test_paypal_oauth_connect_uses_internal_test_connection_route(): void {
-		$settings = array(
-			'paypal_environment'           => 'sandbox',
-			'paypal_api_sandbox_client_id' => 'sandbox-client-id',
-		);
-
-		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( $settings, 'state-123', 'sandbox' );
-
-		$this->assertStringContainsString( 'admin.php?page=licencepress-paypal&paypal_action=test_connection', $url );
-		$this->assertStringContainsString( 'client_id=sandbox-client-id', $url );
-		$this->assertStringNotContainsString( 'bizsignup/partner/entry', $url );
-		$this->assertStringNotContainsString( 'redirect_uri=', $url );
-	}
-
-	public function test_paypal_oauth_connect_uses_decrypted_client_id_from_settings_store(): void {
-		$encrypted_id = \LicencePress\Includes\Functions\Helpers\EncryptionHelper::encrypt( 'sandbox-client-456' );
-		\LicencePress\Includes\Settings\Settings::set_group(
-			'paypal',
+	public function test_paypal_rest_auth_uses_client_credentials_grant_and_saves_connection_state(): void {
+		$result = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalConnectionService::test_connection(
 			array(
-				'paypal_environment'                 => 'sandbox',
-				'paypal_api_sandbox_client_id'       => $encrypted_id,
-				'paypal_api_sandbox_client_secret'   => 'secret',
-			)
+				'client_id'     => 'sandbox-client-id',
+				'client_secret' => 'sandbox-client-secret',
+				'paypal_environment' => 'sandbox',
+			),
+			'sandbox'
 		);
 
-		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( array(), 'state-456', 'sandbox' );
-
-		$this->assertStringContainsString( 'client_id=sandbox-client-456', $url );
-		$this->assertStringNotContainsString( 'client_id=' . rawurlencode( $encrypted_id ), $url );
+		$this->assertTrue( $result['success'] );
+		$this->assertTrue( $result['connected'] );
+		$this->assertSame( 'sandbox', $result['environment'] );
+		$this->assertSame( 'test-access-token', $result['token'] );
+		$this->assertTrue( \LicencePress\Includes\Settings\Settings::get_bool( 'paypal_api_sandbox_oauth_connected', false ) );
 	}
 
-	public function test_paypal_oauth_prefers_server_config_over_admin_store(): void {
-		putenv( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID=server-live-client-id' );
-		putenv( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET=server-live-client-secret' );
-		$_ENV['LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID'] = 'server-live-client-id';
-		$_ENV['LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET'] = 'server-live-client-secret';
+	public function test_paypal_rest_auth_requires_both_client_id_and_secret(): void {
+		$result = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalConnectionService::test_connection(
+			array(
+				'client_id' => 'sandbox-client-id',
+			),
+			'sandbox'
+		);
 
-		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::build_connect_url( array(), 'state-789', 'live' );
-
-		$this->assertStringContainsString( 'client_id=server-live-client-id', $url );
-		$this->assertSame( 'server-live-client-secret', \LicencePress\Includes\Plugins\PayPal\Includes\Settings\Settings::get_client_secret( 'live' ) );
-
-		putenv( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID' );
-		putenv( 'LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET' );
-		unset( $_ENV['LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_ID'], $_ENV['LICENCEPRESS_PAYPAL_API_LIVE_CLIENT_SECRET'] );
+		$this->assertFalse( $result['success'] );
+		$this->assertFalse( $result['connected'] );
+		$this->assertSame( 'missing_client_credentials', $result['error'] );
 	}
 
-	public function test_paypal_oauth_success_redirect_returns_to_billing_settings_hash(): void {
-		$url = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::get_success_redirect_url();
+	public function test_paypal_rest_auth_decodes_secret_before_encoding_basic_headers(): void {
+		$result = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalConnectionService::test_connection(
+			array(
+				'client_id'     => 'live-client-id',
+				'client_secret' => 'live-client-secret',
+				'paypal_environment' => 'live',
+			),
+			'live'
+		);
 
-		$this->assertStringContainsString( 'admin.php?page=licencepress&group=settings&tab=billing&bt=paypal', $url );
-		$this->assertStringNotContainsString( 'paypal_environment=', $url );
-	}
-
-	public function test_paypal_oauth_redirects_are_allowed_for_paypal_hosts(): void {
-		$hosts = \LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalOAuthHelper::register_allowed_redirect_hosts();
-
-		$this->assertContains( 'www.paypal.com', $hosts );
-		$this->assertContains( 'www.sandbox.paypal.com', $hosts );
-		$this->assertContains( 'paypal.com', $hosts );
-		$this->assertContains( 'sandbox.paypal.com', $hosts );
+		$this->assertTrue( $result['success'] );
+		$this->assertSame(
+			'Basic ' . base64_encode( 'live-client-id:live-client-secret' ),
+			$GLOBALS['_licencepress_test_paypal_request']['args']['headers']['Authorization']
+		);
 	}
 
 	public function test_sidebar_links_keep_the_explicit_licencepress_route(): void {
@@ -538,7 +510,11 @@ namespace LicencePress\Test\Unit {
 		$this->assertStringContainsString( 'licencepress_paypal[paypal_environment]', $output );
 		$this->assertStringContainsString( 'licencepress_paypal[paypal_currency]', $output );
 		$this->assertStringContainsString( 'licencepress_paypal[paypal_subscriptions_enabled]', $output );
-		$this->assertStringNotContainsString( 'licencepress_paypal[paypal_api_sandbox_client_id]', $output );
+		$this->assertStringContainsString( 'licencepress_paypal[paypal_feature_one_time_payments]', $output );
+		$this->assertStringContainsString( 'licencepress_paypal[paypal_feature_refunds]', $output );
+		$this->assertStringContainsString( 'licencepress_paypal[paypal_feature_apple_pay]', $output );
+		$this->assertStringContainsString( 'licencepress_paypal[paypal_feature_customer_disputes]', $output );
+		$this->assertStringContainsString( 'PayPal API features', $output );
 	}
 
 	public function test_paypal_connection_status_is_visible_without_a_connect_button(): void {
@@ -1226,13 +1202,13 @@ namespace LicencePress\Test\Unit {
 		$this->assertSame( 'LicencePress', $payload['application_context']['brand_name'] );
 	}
 
-	public function test_paypal_rest_api_supports_product_plan_and_subscription_methods(): void {
-		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI', 'create_product' ) );
-		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI', 'create_plan' ) );
-		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI', 'create_subscription' ) );
-		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI', 'get_product' ) );
-		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI', 'get_plan' ) );
-		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalRESTAPI', 'get_subscription' ) );
+	public function test_paypal_api_supports_product_plan_and_subscription_methods(): void {
+		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalAPI', 'create_product' ) );
+		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalAPI', 'create_plan' ) );
+		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalAPI', 'create_subscription' ) );
+		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalAPI', 'get_product' ) );
+		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalAPI', 'get_plan' ) );
+		$this->assertTrue( method_exists( '\LicencePress\Includes\Plugins\PayPal\API\PayPalAPI', 'get_subscription' ) );
 	}
 }
 

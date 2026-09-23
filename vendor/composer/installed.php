@@ -3,7 +3,7 @@
         'name' => 'mrtrilb/licencepress',
         'pretty_version' => 'dev-Master',
         'version' => 'dev-Master',
-        'reference' => '3e9f6f0138b4ef8a740b84c6a880b97e1597f989',
+        'reference' => 'c92d564826e650a7e2fb39202ffd2fc9a18c582e',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -148,7 +148,7 @@
         'mrtrilb/licencepress' => array(
             'pretty_version' => 'dev-Master',
             'version' => 'dev-Master',
-            'reference' => '3e9f6f0138b4ef8a740b84c6a880b97e1597f989',
+            'reference' => 'c92d564826e650a7e2fb39202ffd2fc9a18c582e',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -504,6 +504,15 @@
             'install_path' => __DIR__ . '/../squizlabs/php_codesniffer',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'stripe/stripe-php' => array(
+            'pretty_version' => 'v21.3.2',
+            'version' => '21.3.2.0',
+            'reference' => '0d8b075e1a97d15c5324353a5277d0ea686ea525',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../stripe/stripe-php',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'symfony/deprecation-contracts' => array(
             'pretty_version' => 'v3.7.1',

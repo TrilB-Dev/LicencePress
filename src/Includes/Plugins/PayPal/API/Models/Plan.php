@@ -14,65 +14,74 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use WP_Error;
 
-class Plan extends PayPalCommerceModel {
-    /**
-	 * The associated PayPal product.
+class Plan extends Checkout {
+	/**
+	 * PayPal plan model.
 	 *
+	 * @var Product|null The associated product.
 	 * @since 1.0.0
 	 */
 	private $product = null;
-    /**
-	 * The associated PayPal product ID.
+	/**
+	 * The product ID associated with the plan.
 	 *
+	 * @var string
 	 * @since 1.0.0
 	 */
 	public $product_id = '';
-    /**
-	 * The name of the PayPal plan.
+	/**
+	 * The name of the plan.
 	 *
+	 * @var string
 	 * @since 1.0.0
 	 */
 	public $name = '';
-    /**
-	 * The status of the PayPal plan.
+	/**
+	 * The status of the plan.
 	 *
+	 * @var string
 	 * @since 1.0.0
 	 */
 	public $status = 'ACTIVE';
-    /**
-	 * The description of the PayPal plan.
+	/**
+	 * The description of the plan.
 	 *
+	 * @var string
 	 * @since 1.0.0
 	 */
 	public $description = '';
-    /**
-	 * The billing cycles of the PayPal plan.
+	/**
+	 * The billing cycles of the plan.
 	 *
+	 * @var array
 	 * @since 1.0.0
 	 */
 	public $billing_cycles = array();
-    /**
-	 * The payment preferences of the PayPal plan.
+	/**
+	 * The payment preferences of the plan.
 	 *
+	 * @var array
 	 * @since 1.0.0
 	 */
 	public $payment_preferences = array();
-    /**
-	 * The taxes of the PayPal plan.
+	/**
+	 * The taxes of the plan.
 	 *
+	 * @var array
 	 * @since 1.0.0
 	 */
 	public $taxes = array();
-    /**
-	 * Whether the quantity is supported for the PayPal plan.
+	/**
+	 * Whether the plan supports quantity.
 	 *
+	 * @var bool
 	 * @since 1.0.0
 	 */
 	public $quantity_supported = true;
-    /**
-	 * Constructs a new PayPal plan instance.
+	/**
+	 * The constructor for the Plan model.
 	 *
-	 * @param Product|null $product The associated PayPal product.
+	 * @param Product|null $product The associated product.
 	 * @since 1.0.0
 	 */
 	public function __construct( $product = null ) {
@@ -81,88 +90,118 @@ class Plan extends PayPalCommerceModel {
 			$this->product_id = $product->get_id() ?: $this->product_id;
 		}
 	}
-    /**
-	 * Sets the associated PayPal product ID.
+	/**
+	 * Set the product ID associated with the plan.
 	 *
-	 * @param string $product_id The PayPal product ID.
+	 * @param string $product_id The product ID.
+	 * @return void
 	 * @since 1.0.0
 	 */
 	public function set_product_id( $product_id ) {
 		$this->product_id = is_scalar( $product_id ) ? (string) $product_id : '';
 	}
-    /**
-	 * Gets the associated PayPal product ID.
+
+	/**
+	 * Get the product ID associated with the plan.
 	 *
-	 * @return string The PayPal product ID.
+	 * @return string The product ID.
 	 * @since 1.0.0
 	 */
 	public function get_product_id() {
 		return $this->product_id;
 	}
 
-    /**
-	 * Sets the name of the PayPal plan.
+	/**
+	 * Set the name of the plan.
 	 *
-	 * @param string $name The PayPal plan name.
+	 * @param string $name The name of the plan.
+	 * @return void
 	 * @since 1.0.0
 	 */
 	public function set_name( $name ) {
 		$this->name = is_scalar( $name ) ? (string) $name : '';
 	}
 
-    /**
-	 * Gets the name of the PayPal plan.
+	/**
+	 * Get the name of the plan.
 	 *
-	 * @return string The PayPal plan name.
+	 * @return string The name of the plan.
 	 * @since 1.0.0
 	 */
 	public function get_name() {
 		return $this->name;
 	}
 
-    /**
-	 * Sets the billing cycles of the PayPal plan.
+	/**
+	 * Set the billing cycles of the plan.
 	 *
-	 * @param array $billing_cycles The PayPal plan billing cycles.
+	 * @param array $billing_cycles The billing cycles of the plan.
+	 * @return void
 	 * @since 1.0.0
 	 */
 	public function set_billing_cycles( $billing_cycles ) {
 		$this->billing_cycles = is_array( $billing_cycles ) ? $billing_cycles : array();
 	}
 
-    /**
-	 * Gets the billing cycles of the PayPal plan.
+	/**
+	 * Get the billing cycles of the plan.
 	 *
-	 * @return array The PayPal plan billing cycles.
+	 * @return array The billing cycles of the plan.
 	 * @since 1.0.0
 	 */
 	public function get_billing_cycles() {
 		return $this->billing_cycles;
 	}
 
-    /**
-	 * Sets the payment preferences of the PayPal plan.
+	/**
+	 * Set the payment preferences of the plan.
 	 *
-	 * @param array $payment_preferences The PayPal plan payment preferences.
+	 * @param array $payment_preferences The payment preferences of the plan.
+	 * @return void
 	 * @since 1.0.0
 	 */
 	public function set_payment_preferences( $payment_preferences ) {
 		$this->payment_preferences = is_array( $payment_preferences ) ? $payment_preferences : array();
 	}
 
-    /**
-	 * Gets the payment preferences of the PayPal plan.
+	/**
+	 * Get the payment preferences of the plan.
 	 *
-	 * @return array The PayPal plan payment preferences.
+	 * @return array The payment preferences of the plan.
 	 * @since 1.0.0
 	 */
 	public function get_payment_preferences() {
 		return $this->payment_preferences;
 	}
-    /**
-	 * Validates the PayPal plan.
+	/**
+	 * Convert the plan object to a payload array suitable for API requests.
 	 *
-	 * @return WP_Error|self Returns WP_Error if validation fails, otherwise returns the plan instance.
+	 * @return array The payload array.
+	 * @since 1.0.0
+	 */
+	public function to_payload(): array {
+		$payload = array(
+			'name' => $this->name,
+			'product_id' => $this->product_id,
+			'status' => $this->status,
+			'description' => $this->description,
+			'billing_cycles' => $this->billing_cycles,
+			'payment_preferences' => $this->payment_preferences,
+		);
+
+		if ( ! empty( $this->taxes ) ) {
+			$payload['taxes'] = $this->taxes;
+		}
+		if ( false !== $this->quantity_supported ) {
+			$payload['quantity_supported'] = (bool) $this->quantity_supported;
+		}
+
+		return $payload;
+	}
+	/**
+	 * Validate the plan object.
+	 *
+	 * @return WP_Error|self Returns WP_Error if validation fails, or the plan object if validation succeeds.
 	 * @since 1.0.0
 	 */
 	public function validate() {

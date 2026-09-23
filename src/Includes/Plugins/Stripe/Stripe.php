@@ -1,16 +1,16 @@
 <?php
 /**
- * LicencePress - PayPal Plugin
+ * LicencePress - Stripe Plugin
  *
  * @package LicencePress
  * @since 1.0.0
  */
 
-namespace LicencePress\Includes\Plugins\PayPal;
+namespace LicencePress\Includes\Plugins\Stripe;
 
 use LicencePress\Includes\Functions\Helpers\LoaderHelper;
 use LicencePress\Includes\Plugins\AdminMenuProviderInterface;
-use LicencePress\Includes\Plugins\PayPal\API\PayPalAPI;
+use LicencePress\Includes\Plugins\Stripe\API\StripeAPI;
 use LicencePress\Includes\Plugins\AdminSidebarProviderInterface;
 use LicencePress\Includes\Plugins\AssetsProviderInterface;
 use LicencePress\Includes\Plugins\I18nProviderInterface;
@@ -18,18 +18,18 @@ use LicencePress\Includes\Plugins\PluginInterface;
 use LicencePress\Includes\Plugins\RestRouteProviderInterface;
 use LicencePress\Includes\Plugins\SettingsProviderInterface;
 use LicencePress\Includes\Plugins\SettingsPageProviderInterface;
-use LicencePress\Includes\Plugins\PayPal\Admin\BillingSettingsPayPal;
-use LicencePress\Includes\Plugins\PayPal\Admin\PayPalAdmin;
-use LicencePress\Includes\Plugins\PayPal\Assets\Assets;
-use LicencePress\Includes\Plugins\PayPal\Includes\Core\I18n;
-use LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers\PayPalConnectionService;
-use LicencePress\Includes\Plugins\PayPal\Includes\Includes;
+use LicencePress\Includes\Plugins\Stripe\Admin\BillingSettingsStripe;
+use LicencePress\Includes\Plugins\Stripe\Admin\StripeAdmin;
+use LicencePress\Includes\Plugins\Stripe\Assets\Assets;
+use LicencePress\Includes\Plugins\Stripe\Includes\Core\I18n;
+use LicencePress\Includes\Plugins\Stripe\Includes\Functions\Helpers\StripeConnectionService;
+use LicencePress\Includes\Plugins\Stripe\Includes\Includes;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 
-final class PayPal implements PluginInterface, RestRouteProviderInterface, SettingsProviderInterface, SettingsPageProviderInterface, AssetsProviderInterface, I18nProviderInterface, AdminMenuProviderInterface, AdminSidebarProviderInterface {
+final class Stripe implements PluginInterface, RestRouteProviderInterface, SettingsProviderInterface, SettingsPageProviderInterface, AssetsProviderInterface, I18nProviderInterface, AdminMenuProviderInterface, AdminSidebarProviderInterface {
 	/**
 	 * The loader helper instance.
 	 *
@@ -37,7 +37,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 */
 	private LoaderHelper $loader;
 	/**
-	 * Constructor for the PayPal plugin.
+	 * Constructor for the Stripe plugin.
 	 */
 	public function __construct() {
 		$this->loader = new LoaderHelper();
@@ -49,7 +49,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * @return string The plugin slug.
 	 */
 	public function get_slug(): string {
-		return 'licencepress-paypal';
+		return 'licencepress-stripe';
 	}
 	/**
 	 * Get the plugin name.
@@ -57,7 +57,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * @return string The plugin name.
 	 */
 	public function get_name(): string {
-		return 'PayPal';
+		return 'Stripe';
 	}
 	/**
 	 * Get the plugin version.
@@ -73,7 +73,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * @return string The plugin icon.
 	 */
 	public function get_icon(): string {
-		return Assets::get_image( 'logo/PayPal-Monogram-FullColor-RGB.png' );
+		return Assets::get_image( 'logo/Stripe-wordmark-Blurple-Small.png' );
 	}
 	/**
 	 * Get the plugin author.
@@ -97,7 +97,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * @return string The plugin description.
 	 */
 	public function get_description(): string {
-		return __( 'Introduces a local PayPal 8.8 editor for LicencePress.', 'licencepress' );
+		return __( 'Introduces a local Stripe 8.8 editor for LicencePress.', 'licencepress' );
 	}
 	/**
 	 * Get the plugin URI.
@@ -132,11 +132,11 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	public function init(): void {
 		Includes::get_instance()->init();
 
-		$paypal_admin = new PayPalAdmin();
-		$billing_tabs = new BillingSettingsPayPal();
+		$stripe_admin = new StripeAdmin();
+		$billing_tabs = new BillingSettingsStripe();
 
 		$this->loader->register_component(
-			$paypal_admin,
+			$stripe_admin,
 			array()
 		)->register_component(
 			$billing_tabs,
@@ -187,7 +187,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	public function register_rest_routes(): void {
 		register_rest_route(
 			'licencepress/v1',
-			'/paypal/test-connection',
+			'/stripe/test-connection',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( self::class, 'rest_test_connection' ),
@@ -198,7 +198,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	}
 
 	public static function rest_permission_callback(): bool {
-		return current_user_can( 'licencepress_paypal_manage' ) || current_user_can( 'manage_options' );
+		return current_user_can( 'licencepress_stripe_manage' ) || current_user_can( 'manage_options' );
 	}
 
 	public static function rest_test_connection( WP_REST_Request $request ): WP_REST_Response|WP_Error {
@@ -211,14 +211,13 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 			$body = array();
 		}
 
-		$environment = sanitize_key( (string) ( $body['environment'] ?? $body['paypal_environment'] ?? 'sandbox' ) );
-		$settings['paypal_environment'] = $environment;
-		$settings['client_id'] = $body['client_id'] ?? $body['paypal_api_' . $environment . '_client_id'] ?? '';
-		$settings['client_secret'] = $body['client_secret'] ?? $body['paypal_api_' . $environment . '_client_secret'] ?? '';
+		$environment = sanitize_key( (string) ( $body['environment'] ?? $body['stripe_environment'] ?? 'sandbox' ) );
+		$settings['stripe_environment'] = $environment;
+		$settings['secret_key'] = $body['secret_key'] ?? $body['stripe_api_' . $environment . '_secret_key'] ?? $body['client_secret'] ?? $body['stripe_api_' . $environment . '_client_secret'] ?? '';
 
-		$result = PayPalConnectionService::test_connection( $settings, $environment );
+		$result = StripeConnectionService::test_connection( $settings, $environment );
 		if ( empty( $result['success'] ) ) {
-			return new WP_Error( $result['error'] ?? 'paypal_connection_test_failed', __( 'PayPal connection test failed.', 'licencepress' ) );
+			return new WP_Error( $result['error'] ?? 'stripe_connection_test_failed', __( 'Stripe connection test failed.', 'licencepress' ) );
 		}
 
 		return new WP_REST_Response(
@@ -245,7 +244,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * @return array The admin menu configuration.
 	 */
 	public function get_admin_menu(): array {
-		return PayPalAdmin::get_admin_menu();
+		return StripeAdmin::get_admin_menu();
 	}
 	/**
 	 * Get the admin sidebar for the plugin.
@@ -253,6 +252,6 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * @return array The admin sidebar configuration.
 	 */
 	public function get_admin_sidebar(): array {
-		return PayPalAdmin::get_admin_sidebar();
+		return StripeAdmin::get_admin_sidebar();
 	}
 }

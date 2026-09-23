@@ -15,6 +15,7 @@ class ComposerStaticInit63b9c64bbeb3b3ae65e485664320ebb9
         'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
         '051bafe20e2674435a162870efa2d2a7' => __DIR__ . '/..' . '/brain/monkey/inc/api.php',
         '7d3b315c4f303f2fc14aca642a738e50' => __DIR__ . '/..' . '/yoast/phpunit-polyfills/phpunitpolyfills-autoload.php',
+        'd92f49fe138fde4e7a3ec6f988960524' => __DIR__ . '/..' . '/stripe/stripe-php/lib/version_check.php',
         'bdb93bd8ba0d5c7dcedfd99a37fece3f' => __DIR__ . '/../..' . '/src/Includes/Plugins/PluginsInterface.php',
     );
 
@@ -31,6 +32,7 @@ class ComposerStaticInit63b9c64bbeb3b3ae65e485664320ebb9
         array (
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Component\\HttpFoundation\\' => 33,
+            'Stripe\\' => 7,
         ),
         'P' =>
         array (
@@ -80,6 +82,10 @@ class ComposerStaticInit63b9c64bbeb3b3ae65e485664320ebb9
         'Symfony\\Component\\HttpFoundation\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/http-foundation',
+        ),
+        'Stripe\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/stripe/stripe-php/lib',
         ),
         'Psr\\Log\\' =>
         array (

@@ -63,7 +63,7 @@ final class PayPalAdmin {
 		$settings = LicencePressSettings::get_group( 'paypal', array() );
 		$settings = is_array( $settings ) ? $settings : array();
 
-		if ( empty( $settings['paypal_api_live_oauth_connected'] ) && empty( $settings['paypal_api_sandbox_oauth_connected'] ) ) {
+		if ( ! PayPalSettings::is_oauth_connected( 'live' ) && ! PayPalSettings::is_oauth_connected( 'sandbox' ) ) {
 			return array();
 		}
 
@@ -108,8 +108,8 @@ final class PayPalAdmin {
 		$settings    = LicencePressSettings::get_group( 'paypal', array() );
 		$settings    = is_array( $settings ) ? $settings : array();
 		$environment = sanitize_key( (string) ( $settings['paypal_environment'] ?? 'sandbox' ) );
-		$connected   = ! empty( $settings[ 'paypal_api_' . $environment . '_oauth_connected' ] );
-		$client_id   = (string) ( $settings[ 'paypal_api_' . $environment . '_client_id' ] ?? '' );
+		$connected   = PayPalSettings::is_oauth_connected( $environment );
+		$client_id   = PayPalSettings::get_client_id( $environment );
 		$client_id_label = '' !== $client_id ? $client_id : __( 'Not configured', 'licencepress' );
 		?>
 		<div class="wrap licencepress-paypal-wrap">

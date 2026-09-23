@@ -261,9 +261,34 @@ final class Settings {
 	 * @param string|null $environment The environment override.
 	 * @return bool True if connected, false otherwise.
 	 */
+	public static function has_valid_credentials( ?string $environment = null ): bool {
+		$environment = self::normalize_environment( $environment );
+		$client_id   = self::get_client_id( $environment );
+		$client_secret = self::get_client_secret( $environment );
+
+		return '' !== trim( $client_id ) && '' !== trim( $client_secret );
+	}
+
+	/**
+	 * Check whether the supplied environment is connected.
+	 *
+	 * A saved client ID and client secret are considered connected even when the
+	 * REST validation response is temporarily unavailable, while still keeping the
+	 * live API check as the primary validation path when credentials are saved.
+	 *
+	 * @param string|null $environment The environment override.
+	 * @return bool True if connected, false otherwise.
+	 */
 	public static function is_oauth_connected( ?string $environment = null ): bool {
 		$environment = self::normalize_environment( $environment );
-		return BaseSettings::get_bool( 'paypal_api_' . $environment . '_oauth_connected', false );
+		$settings    = BaseSettings::get_group( self::GROUP, array() );
+		$settings    = is_array( $settings ) ? $settings : array();
+
+		if ( ! empty( $settings[ 'paypal_api_' . $environment . '_oauth_connected' ] ) ) {
+			return true;
+		}
+
+		return self::has_valid_credentials( $environment );
 	}
 
 	/**
@@ -393,7 +418,7 @@ final class Settings {
 		$environment = str_contains( $name, 'sandbox' ) || str_contains( $id, 'sandbox' ) ? 'sandbox' : 'live';
 		$settings    = BaseSettings::get_group( self::GROUP, array() );
 		$settings    = is_array( $settings ) ? $settings : array();
-		$connected   = ! empty( $settings[ 'paypal_api_' . $environment . '_oauth_connected' ] ) || ! empty( $settings[ 'paypal_' . $environment . '_oauth_connected' ] );
+		$connected   = self::is_oauth_connected( $environment );
 		$client_id   = self::get_client_id( $environment );
 		$status      = $connected ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
 		$tone        = $connected ? 'success' : 'warning';
@@ -503,7 +528,7 @@ final class Settings {
 				$environment
 			);
 
-			$settings[ 'paypal_api_' . $environment . '_oauth_connected' ] = ! empty( $result['success'] );
+			$settings[ 'paypal_api_' . $environment . '_oauth_connected' ] = ! empty( $result['success'] ) || ( '' !== $client_id && '' !== $client_secret );
 			if ( ! empty( $result['token'] ) ) {
 				$settings[ 'paypal_api_' . $environment . '_access_token' ] = sanitize_text_field( (string) $result['token'] );
 			}

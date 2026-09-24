@@ -9,6 +9,7 @@
 namespace LicencePress\Includes\Plugins\Stripe;
 
 use LicencePress\Includes\Functions\Helpers\LoaderHelper;
+use LicencePress\Includes\Plugins\Stripe\Includes\Core\Capabilities as StripeCapabilities;
 use LicencePress\Includes\Plugins\AdminMenuProviderInterface;
 use LicencePress\Includes\Plugins\Stripe\API\StripeAPI;
 use LicencePress\Includes\Plugins\AdminSidebarProviderInterface;
@@ -130,6 +131,7 @@ final class Stripe implements PluginInterface, RestRouteProviderInterface, Setti
 	 * @return void
 	 */
 	public function init(): void {
+		StripeCapabilities::register();
 		Includes::get_instance()->init();
 
 		$stripe_admin = new StripeAdmin();

@@ -45,6 +45,16 @@ final class Capabilities {
 					'label'       => __( 'Manage PayPal Subscriptions', 'licencepress' ),
 					'description' => __( 'Allows configuring recurring subscription billing.', 'licencepress' ),
 				),
+				'licencepress_paypal_refunds'                => array(
+					'group'       => 'LicencePress PayPal',
+					'label'       => __( 'Manage PayPal Refunds', 'licencepress' ),
+					'description' => __( 'Allows processing refunds for PayPal transactions.', 'licencepress' ),
+				),
+				'licencepress_paypal_billing'                => array(
+					'group'       => 'LicencePress PayPal',
+					'label'       => __( 'Manage PayPal Billing', 'licencepress' ),
+					'description' => __( 'Allows managing billing agreements and subscriptions for PayPal.', 'licencepress' ),
+				),
 			)
 		);
 	}

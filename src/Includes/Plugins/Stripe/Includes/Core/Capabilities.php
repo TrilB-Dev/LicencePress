@@ -45,6 +45,21 @@ final class Capabilities {
 					'label'       => __( 'Manage Stripe Subscriptions', 'licencepress' ),
 					'description' => __( 'Allows configuring recurring subscription billing.', 'licencepress' ),
 				),
+				'licencepress_stripe_refunds'              => array(
+					'group'       => 'LicencePress Stripe',
+					'label'       => __( 'Manage Stripe Refunds', 'licencepress' ),
+					'description' => __( 'Allows managing refunds for Stripe transactions.', 'licencepress' ),
+				),
+				'licencepress_stripe_disputes'              => array(
+					'group'       => 'LicencePress Stripe',
+					'label'       => __( 'Manage Stripe Disputes', 'licencepress' ),
+					'description' => __( 'Allows managing disputes for Stripe transactions.', 'licencepress' ),
+				),
+				'licencepress_stripe_billing'              => array(
+					'group'       => 'LicencePress Stripe',
+					'label'       => __( 'Manage Stripe Billing', 'licencepress' ),
+					'description' => __( 'Allows managing billing for Stripe transactions.', 'licencepress' ),
+				),
 			)
 		);
 	}

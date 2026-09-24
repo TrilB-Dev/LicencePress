@@ -1,6 +1,7 @@
 <?php
 /**
  * LicencePress - PayPal Plugin
+ * Provides the main PayPal plugin class for LicencePress.
  *
  * @package LicencePress
  * @since 1.0.0
@@ -9,6 +10,7 @@
 namespace LicencePress\Includes\Plugins\PayPal;
 
 use LicencePress\Includes\Functions\Helpers\LoaderHelper;
+use LicencePress\Includes\Plugins\PayPal\Includes\Core\Capabilities as PayPalCapabilities;
 use LicencePress\Includes\Plugins\AdminMenuProviderInterface;
 use LicencePress\Includes\Plugins\PayPal\API\PayPalAPI;
 use LicencePress\Includes\Plugins\AdminSidebarProviderInterface;
@@ -34,10 +36,13 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * The loader helper instance.
 	 *
 	 * @var LoaderHelper The loader helper instance.
+	 * @since 1.0.0
 	 */
 	private LoaderHelper $loader;
 	/**
 	 * Constructor for the PayPal plugin.
+	 * 
+	 * @since 1.0.0
 	 */
 	public function __construct() {
 		$this->loader = new LoaderHelper();
@@ -47,6 +52,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Get the plugin slug.
 	 *
 	 * @return string The plugin slug.
+	 * @since 1.0.0
 	 */
 	public function get_slug(): string {
 		return 'licencepress-paypal';
@@ -55,6 +61,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Get the plugin name.
 	 *
 	 * @return string The plugin name.
+	 * @since 1.0.0
 	 */
 	public function get_name(): string {
 		return 'PayPal';
@@ -63,6 +70,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Get the plugin version.
 	 *
 	 * @return string The plugin version.
+	 * @since 1.0.0
 	 */
 	public function get_version(): string {
 		return '1.0.0';
@@ -71,6 +79,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Get the plugin icon.
 	 *
 	 * @return string The plugin icon.
+	 * @since 1.0.0
 	 */
 	public function get_icon(): string {
 		return Assets::get_image( 'logo/PayPal-Monogram-FullColor-RGB.png' );
@@ -79,6 +88,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Get the plugin author.
 	 *
 	 * @return string The plugin author.
+	 * @since 1.0.0
 	 */
 	public function get_author(): string {
 		return 'TrilB.Dev Team';
@@ -87,6 +97,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Get the plugin author URI.
 	 *
 	 * @return string The plugin author URI.
+	 * @since 1.0.0
 	 */
 	public function get_author_uri(): string {
 		return 'https://trilb.dev/';
@@ -95,14 +106,16 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Get the plugin description.
 	 *
 	 * @return string The plugin description.
+	 * @since 1.0.0
 	 */
 	public function get_description(): string {
-		return __( 'Introduces a local PayPal 8.8 editor for LicencePress.', 'licencepress' );
+		return __( 'Introduces a local PayPal integration for LicencePress.', 'licencepress' );
 	}
 	/**
 	 * Get the plugin URI.
 	 *
 	 * @return string The plugin URI.
+	 * @since 1.0.0
 	 */
 	public function get_uri(): string {
 		return 'https://trilb.dev/collection/web-extension/wordpress/licencepress';
@@ -111,6 +124,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Get the plugin license.
 	 *
 	 * @return string The plugin license.
+	 * @since 1.0.0
 	 */
 	public function get_license(): string {
 		return 'GPL-2.0-or-later';
@@ -119,6 +133,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Check if the plugin is active.
 	 *
 	 * @return bool True if the plugin is active, false otherwise.
+	 * @since 1.0.0
 	 */
 	public function is_active(): bool {
 		return true;
@@ -130,6 +145,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * @return void
 	 */
 	public function init(): void {
+		PayPalCapabilities::register();
 		Includes::get_instance()->init();
 
 		$paypal_admin = new PayPalAdmin();
@@ -154,6 +170,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Register the settings for the plugin.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function register_settings(): void {
 		Includes::get_instance()->settings()->register();
@@ -162,6 +179,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Get the settings page for the plugin.
 	 *
 	 * @return array The settings page configuration.
+	 * @since 1.0.0
 	 */
 	public function get_settings_page(): array {
 		return Includes::get_instance()->settings()->get_settings_page();
@@ -171,6 +189,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 *
 	 * @param mixed $input The input to sanitize.
 	 * @return array The sanitized settings.
+	 * @since 1.0.0
 	 */
 	public function sanitize_settings( $input ): array {
 		return Includes::get_instance()->settings()->sanitize( $input );
@@ -179,11 +198,17 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Register the assets for the plugin.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function register_assets(): void {
 		( new Assets() )->register();
 	}
-
+	/**
+	 * Register the REST API routes for the plugin.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
 	public function register_rest_routes(): void {
 		register_rest_route(
 			'licencepress/v1',
@@ -196,11 +221,22 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 		);
 
 	}
-
+	/**
+	 * Check if the current user has permission to access the REST API endpoint.
+	 *
+	 * @return bool True if the user has permission, false otherwise.
+	 * @since 1.0.0
+	 */
 	public static function rest_permission_callback(): bool {
 		return current_user_can( 'licencepress_paypal_manage' ) || current_user_can( 'manage_options' );
 	}
-
+	/**
+	 * Test the PayPal connection using the provided settings.
+	 *
+	 * @param WP_REST_Request $request The REST API request object.
+	 * @return WP_REST_Response|WP_Error The response object or an error.
+	 * @since 1.0.0
+	 */
 	public static function rest_test_connection( WP_REST_Request $request ): WP_REST_Response|WP_Error {
 		$settings = array();
 		$body     = $request->get_json_params();
@@ -235,6 +271,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Load the text domain for the plugin.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function load_textdomain(): void {
 		I18n::load_textdomain();
@@ -243,6 +280,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Get the admin menu for the plugin.
 	 *
 	 * @return array The admin menu configuration.
+	 * @since 1.0.0
 	 */
 	public function get_admin_menu(): array {
 		return PayPalAdmin::get_admin_menu();
@@ -251,6 +289,7 @@ final class PayPal implements PluginInterface, RestRouteProviderInterface, Setti
 	 * Get the admin sidebar for the plugin.
 	 *
 	 * @return array The admin sidebar configuration.
+	 * @since 1.0.0
 	 */
 	public function get_admin_sidebar(): array {
 		return PayPalAdmin::get_admin_sidebar();

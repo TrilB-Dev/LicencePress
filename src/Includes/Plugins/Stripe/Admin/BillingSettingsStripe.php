@@ -3,7 +3,8 @@
 namespace LicencePress\Includes\Plugins\Stripe\Admin;
 
 use LicencePress\Includes\Functions\Helpers\FormFieldHelper;
-use LicencePress\Includes\Settings\Settings;
+use LicencePress\Includes\Settings\Settings as CoreSettings;
+use LicencePress\Includes\Plugins\Stripe\Includes\Settings\Settings as StripeSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -33,10 +34,10 @@ final class BillingSettingsStripe {
 	 */
 	public function render_stripe_tab( array $values = array() ): void {
 		$group = 'stripe';
-		$values = array_merge( Settings::get_group( $group, array() ) ?? array(), $values );
+		$values = array_merge( CoreSettings::get_group( $group, array() ) ?? array(), $values );
 		$environment = sanitize_key( (string) ( $values['stripe_environment'] ?? 'sandbox' ) );
 		$environment = in_array( $environment, array( 'sandbox', 'live' ), true ) ? $environment : 'sandbox';
-		$connection_status = ! empty( $values[ 'stripe_api_' . $environment . '_connected' ] ) ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
+		$connection_status = StripeSettings::is_connected( $environment ) ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
 		$fields = array(
 			array(
 				'key'     => 'stripe_checkout_enabled',
@@ -131,7 +132,7 @@ final class BillingSettingsStripe {
 							<h3 class="h5 mb-1"><?php esc_html_e( 'Connection & environment', 'licencepress' ); ?></h3>
 							<p class="text-muted mb-0"><?php esc_html_e( 'Configure the Stripe REST app credentials and choose the mode used for billing operations.', 'licencepress' ); ?></p>
 						</div>
-						<span class="badge bg-<?php echo esc_attr( ! empty( $values[ 'stripe_api_' . $environment . '_connected' ] ) ? 'success' : 'secondary' ); ?>"><?php echo esc_html( $connection_status ); ?></span>
+						<span class="badge bg-<?php echo esc_attr( StripeSettings::is_connected( $environment ) ? 'success' : 'secondary' ); ?>"><?php echo esc_html( $connection_status ); ?></span>
 					</div>
 					<div class="row g-3 align-items-end">
 						<?php foreach ( $fields as $field ) : ?>

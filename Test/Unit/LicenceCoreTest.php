@@ -96,6 +96,7 @@ namespace LicencePress\Includes\Plugins\PayPal\Includes\Functions\Helpers {
 
 namespace LicencePress\Test\Unit {
 	use Defuse\Crypto\Key;
+	use LicencePress\Includes\Core\Capabilities as CoreCapabilities;
 	use LicencePress\Includes\Core\PostType;
 	use LicencePress\Includes\Core\Taxonomy;
 	use LicencePress\Includes\Functions\Helpers\AMHelper;
@@ -127,6 +128,14 @@ namespace LicencePress\Test\Unit {
 		}
 
 		KeyManager::set_runtime_key( (string) constant( 'LICENCEPRESS_ENCRYPTION_KEY' ) );
+	}
+
+	public function test_paypal_plugin_init_registers_provider_capabilities(): void {
+		CoreCapabilities::extend( array() );
+		new \LicencePress\Includes\Plugins\PayPal\PayPal()->init();
+
+		$this->assertArrayHasKey( 'licencepress_paypal_manage', CoreCapabilities::definitions() );
+		$this->assertArrayHasKey( 'licencepress_paypal_view', CoreCapabilities::definitions() );
 	}
 
 	public function test_missing_settings_table_does_not_query_before_install(): void {
@@ -405,6 +414,40 @@ namespace LicencePress\Test\Unit {
 		$this->assertSame( 'Acme Ltd', Settings::get( 'default_licensor_name' ) );
 		$this->assertSame( 'custom', Settings::get( 'default_licence_pattern_type' ) );
 		$this->assertSame( '_', Settings::get( 'default_licence_pattern_separator' ) );
+	}
+
+	public function test_general_settings_are_saved_to_the_standard_wordpress_option_key(): void {
+		$settings = new \LicencePress\Includes\Functions\Admin\FunctionsSettings( new \LicencePress\Includes\Functions\Admin\FunctionsPlugins() );
+
+		$result = $settings->sanitize_general(
+			array(
+				'default_licensor_name'                       => 'Example Co',
+				'default_licensor_type'                       => 'company',
+				'default_licensor_country'                    => 'United Kingdom',
+				'default_licence_prefix'                      => 'LP',
+				'default_licence_platform'                    => array( 'website' ),
+				'default_renewal_policy_mode'                 => 'default',
+				'default_custom_licence_renewal_policy_page'  => 0,
+				'default_licence_pattern_type'                => 'standard',
+				'default_custom_licence_pattern'              => '',
+				'default_licence_pattern_format'              => 'alphanumeric',
+				'default_exclude_ambiguous_characters'        => array( '0', 'O' ),
+				'default_licence_pattern_letter_case'         => 'uppercase',
+				'default_licence_pattern_separator'           => '-',
+			)
+		);
+
+		$this->assertArrayHasKey( 'default_licensor_name', $result );
+		$stored = Settings::get_group( 'general', array() );
+		$this->assertSame( 'Example Co', $stored['default_licensor_name'] ?? '' );
+		$this->assertSame( 'company', $stored['default_licensor_type'] ?? '' );
+
+		if ( function_exists( 'get_option' ) ) {
+			$option = get_option( 'licencepress_general', array() );
+			if ( is_array( $option ) ) {
+				$this->assertSame( 'Example Co', $option['default_licensor_name'] ?? '' );
+			}
+		}
 	}
 
 	public function test_admin_settings_reinitializes_bootstrap_selects_after_tab_reload(): void {

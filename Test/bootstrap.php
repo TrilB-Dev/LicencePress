@@ -71,6 +71,16 @@ if ( ! function_exists( 'sanitize_text_field' ) ) {
 	}
 }
 
+if ( ! function_exists( 'absint' ) ) {
+	function absint( $value ) {
+		if ( is_string( $value ) && '' !== trim( $value ) ) {
+			$value = trim( $value );
+			return (int) preg_replace( '/[^0-9-]/', '', $value );
+		}
+		return (int) filter_var( $value, FILTER_VALIDATE_INT, array( 'options' => array( 'min_range' => 0 ) ) );
+	}
+}
+
 if ( ! function_exists( 'sanitize_email' ) ) {
 	function sanitize_email( $email ) {
 		if ( is_array( $email ) ) {

@@ -63,6 +63,12 @@ final class FunctionsSettings {
 	 *
 	 * @return void
 	 */
+	private function can_manage_billing_settings( string $provider_capability = 'licencepress_settings_general_edit' ): bool {
+		return current_user_can( 'manage_options' )
+			|| current_user_can( 'licencepress_settings_general_edit' )
+			|| current_user_can( $provider_capability );
+	}
+
 	private function handle_direct_post(): void {
 		$action = wp_unslash( $_POST['action'] ?? '' );
 		if ( 'licencepress_save_general_settings' === $action ) {
@@ -77,7 +83,7 @@ final class FunctionsSettings {
 		}
 
 		if ( 'licencepress_save_billing_settings' === $action ) {
-			if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
+			if ( ! $this->can_manage_billing_settings( 'licencepress_paypal_manage' ) && ! $this->can_manage_billing_settings( 'licencepress_stripe_manage' ) ) {
 				wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );
 			}
 			check_admin_referer( 'licencepress_billing_general', 'licencepress_billing_general_nonce' );
@@ -100,7 +106,7 @@ final class FunctionsSettings {
 		}
 
 		if ( 'licencepress_save_billing_invoice_settings' === $action ) {
-			if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
+			if ( ! $this->can_manage_billing_settings( 'licencepress_paypal_manage' ) && ! $this->can_manage_billing_settings( 'licencepress_stripe_manage' ) ) {
 				wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );
 			}
 			check_admin_referer( 'licencepress_billing_invoice', 'licencepress_billing_invoice_nonce' );
@@ -151,6 +157,8 @@ final class FunctionsSettings {
 			Settings::set( $key, $value );
 		}
 
+		update_option( 'licencepress_billing', $billing );
+
 		return $billing;
 	}
 
@@ -173,6 +181,8 @@ final class FunctionsSettings {
 		foreach ( $invoice as $key => $value ) {
 			Settings::set( $key, $value );
 		}
+
+		update_option( 'licencepress_billing_invoice', $invoice );
 
 		return $invoice;
 	}
@@ -240,6 +250,8 @@ final class FunctionsSettings {
 			Settings::set( $key, $value );
 		}
 
+		update_option( 'licencepress_general', $input );
+
 		return $input;
 	}
 	/**
@@ -260,6 +272,9 @@ final class FunctionsSettings {
 			$input[ $key ] = empty( $values ) ? array( 'manage_options' ) : $values;
 			Settings::set( $key, $input[ $key ] );
 		}
+
+		update_option( 'licencepress_access', $input );
+
 		return $input;
 	}
 
@@ -275,6 +290,9 @@ final class FunctionsSettings {
 			$input[ $key ] = ! empty( $input[ $key ] );
 			Settings::set( $key, $input[ $key ] );
 		}
+
+		update_option( 'licencepress_tools', $input );
+
 		return $input;
 	}
 }

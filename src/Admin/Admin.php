@@ -459,7 +459,11 @@ final class Admin {
 	 * @return void
 	 */
 	public function save_billing_logo(): void {
-		if ( ! AjaxHelper::authorized( 'licencepress_billing_general', 'licencepress_settings_general_edit' ) ) {
+		$authorized = current_user_can( 'manage_options' )
+			|| current_user_can( 'licencepress_settings_general_edit' )
+			|| current_user_can( 'licencepress_paypal_manage' )
+			|| current_user_can( 'licencepress_stripe_manage' );
+		if ( ! AjaxHelper::authorized( 'licencepress_billing_general', 'licencepress_settings_general_edit' ) && ! $authorized ) {
 			AjaxHelper::unauthorized( __( 'You are not authorized to update the LicencePress billing logo.', 'licencepress' ) );
 		}
 

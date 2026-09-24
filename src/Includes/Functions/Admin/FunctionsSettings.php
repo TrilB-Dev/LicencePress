@@ -92,7 +92,7 @@ final class FunctionsSettings {
 			check_admin_referer( 'licencepress_general', 'licencepress_general_nonce' );
 			$input = isset( $_POST['licencepress_general'] ) && is_array( $_POST['licencepress_general'] ) ? wp_unslash( $_POST['licencepress_general'] ) : array();
 			$this->sanitize_general( $input );
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-settings&tab=general' ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=general' ) );
 			exit;
 		}
 
@@ -115,7 +115,7 @@ final class FunctionsSettings {
 			}
 
 			$billing_tab = ! empty( $paypal_input ) ? 'bt=paypal' : 'bt=general';
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-settings&tab=billing&' . $billing_tab ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&' . $billing_tab ) );
 			exit;
 		}
 
@@ -126,7 +126,7 @@ final class FunctionsSettings {
 			check_admin_referer( 'licencepress_billing_invoice', 'licencepress_billing_invoice_nonce' );
 			$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
 			$this->sanitize_billing_invoice( $input );
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress-settings&tab=billing&bt=invoice' ) );
+			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&bt=invoice' ) );
 			exit;
 		}
 	}

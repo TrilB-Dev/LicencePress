@@ -51,12 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const bindForms = () => root.querySelectorAll('.licencepress-settings-form, .licencepress-import-form').forEach((form) => {
     form.addEventListener('submit', (event) => {
-      event.preventDefault();
-
       const requiredFields = form.querySelectorAll('[data-licencepress-required="true"]');
       const invalidFields = Array.from(requiredFields).filter((field) => field.value.trim() === '');
 
       if (invalidFields.length > 0) {
+        event.preventDefault();
         showSaveAlert(form, 'error', 'Settings could not be saved.');
         return;
       }
@@ -73,14 +72,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (invalidRegexFields.length > 0) {
+        event.preventDefault();
         showSaveAlert(form, 'error', 'Settings could not be saved.');
         return;
       }
-
-      const submit = form.querySelector('[type="submit"]');
-      if (submit) submit.disabled = true;
-      showSaveAlert(form, 'success', 'Settings saved successfully.');
-      setTimeout(() => { if (submit) submit.disabled = false; }, 600);
     });
   });
 

@@ -57,22 +57,36 @@ final class FunctionsSettings {
 			);
 		}
 	}
-	
+	/**
+	 * Process direct form submissions for access settings.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
+	private function can_manage_general_settings(): bool {
+		return current_user_can( 'manage_options' ) || current_user_can( 'licencepress_settings_general_edit' );
+	}
 	/**
 	 * Process direct form submissions for billing settings.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	private function can_manage_billing_settings( string $provider_capability = 'licencepress_settings_general_edit' ): bool {
 		return current_user_can( 'manage_options' )
 			|| current_user_can( 'licencepress_settings_general_edit' )
 			|| current_user_can( $provider_capability );
 	}
-
+	/**
+	 * Handle direct POST requests for LicencePress settings.
+	 *
+	 * @return void
+	 * @since 1.0.0
+	 */
 	private function handle_direct_post(): void {
 		$action = wp_unslash( $_POST['action'] ?? '' );
 		if ( 'licencepress_save_general_settings' === $action ) {
-			if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
+			if ( ! $this->can_manage_general_settings() ) {
 				wp_die( esc_html__( 'You are not allowed to save LicencePress general settings.', 'licencepress' ), 403 );
 			}
 			check_admin_referer( 'licencepress_general', 'licencepress_general_nonce' );
@@ -121,9 +135,10 @@ final class FunctionsSettings {
 	 *
 	 * @param array<string, mixed> $input The input data to sanitize.
 	 * @return array<string, mixed> The sanitized billing settings.
+	 * @since 1.0.0
 	 */
 	public function sanitize_billing( $input ): array {
-		if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
+		if ( ! $this->can_manage_general_settings() ) {
 			return (array) Settings::get_group( 'billing', array() );
 		}
 
@@ -167,9 +182,10 @@ final class FunctionsSettings {
 	 *
 	 * @param array<string, mixed> $input The input data to sanitize.
 	 * @return array<string, mixed> The sanitized invoice settings.
+	 * @since 1.0.0
 	 */
 	public function sanitize_billing_invoice( $input ): array {
-		if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
+		if ( ! $this->can_manage_general_settings() ) {
 			return (array) Settings::get_group( 'billing', array() );
 		}
 
@@ -191,9 +207,10 @@ final class FunctionsSettings {
 	 *
 	 * @param array<string, mixed> $input The input data to sanitize.
 	 * @return array<string, mixed> The sanitized general settings.
+	 * @since 1.0.0
 	 */
 	public function sanitize_general( $input ): array {
-		if ( ! current_user_can( 'licencepress_settings_general_edit' ) ) {
+		if ( ! $this->can_manage_general_settings() ) {
 			return (array) Settings::get_group( Settings::GENERAL, array() );
 		}
 
@@ -250,18 +267,20 @@ final class FunctionsSettings {
 			Settings::set( $key, $value );
 		}
 
-		update_option( 'licencepress_general', $input );
+		Settings::set_group( Settings::GENERAL, $general );
+		update_option( 'licencepress_general', $general );
 
-		return $input;
+		return $general;
 	}
 	/**
 	 * Sanitize the access settings input.
 	 *
 	 * @param array<string, mixed> $input The input data to sanitize.
 	 * @return array<string, mixed> The sanitized access settings.
+	 * @since 1.0.0
 	 */
 	public function sanitize_access( $input ): array {
-		if ( ! current_user_can( 'licencepress_settings_access_edit' ) ) {
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'licencepress_settings_access_edit' ) ) {
 			return (array) Settings::get_group( Settings::ACCESS, array() );
 		}
 		$input   = is_array( $input ) ? $input : array();
@@ -283,6 +302,7 @@ final class FunctionsSettings {
 	 *
 	 * @param array<string, mixed> $input The input data to sanitize.
 	 * @return array<string, mixed> The sanitized tools settings.
+	 * @since 1.0.0
 	 */
 	public function sanitize_tools( $input ): array {
 		$input = is_array( $input ) ? $input : array();

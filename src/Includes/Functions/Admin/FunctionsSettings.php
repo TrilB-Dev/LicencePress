@@ -8,6 +8,7 @@
  */
 namespace LicencePress\Includes\Functions\Admin;
 
+use LicencePress\Includes\Functions\Helpers\LoaderHelper;
 use LicencePress\Includes\Functions\Helpers\PermalinkHelper;
 use LicencePress\Includes\Plugins\Plugins;
 use LicencePress\Includes\Plugins\SettingsPageProviderInterface;
@@ -34,29 +35,121 @@ final class FunctionsSettings {
 	}
 
 	/**
-	 * Register LicencePress and provider-backed plugin settings.
+	 * Register the WordPress admin-post actions used by the settings forms.
+	 *
+	 * @param LoaderHelper $loader Loader instance used to register hooks.
+	 * @return void
+	 */
+	public function register_admin_post_hooks( LoaderHelper $loader ): void {
+		$loader->register_component(
+			$this,
+			array(
+				array(
+					'type'     => 'action',
+					'hook'     => 'admin_post_licencepress_save_general_settings',
+					'callback' => 'handle_general_save',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'admin_post_licencepress_save_billing_settings',
+					'callback' => 'handle_billing_save',
+				),
+				array(
+					'type'     => 'action',
+					'hook'     => 'admin_post_licencepress_save_billing_invoice_settings',
+					'callback' => 'handle_billing_invoice_save',
+				),
+			)
+		)->run();
+	}
+
+	/**
+	 * Save settings using the direct admin POST flow used by the custom table store.
 	 *
 	 * @return void
 	 */
-	public function register_settings(): void {
-		register_setting( 'licencepress_settings', 'licencepress_general', array( 'sanitize_callback' => array( $this, 'sanitize_general' ) ) );
-		register_setting( 'licencepress_settings', 'licencepress_billing', array( 'sanitize_callback' => array( $this, 'sanitize_billing' ) ) );
-		register_setting( 'licencepress_settings', 'licencepress_billing_invoice', array( 'sanitize_callback' => array( $this, 'sanitize_billing_invoice' ) ) );
-		register_setting( 'licencepress_settings', 'licencepress_access', array( 'sanitize_callback' => array( $this, 'sanitize_access' ) ) );
-		register_setting( 'licencepress_settings', 'licencepress_tools', array( 'sanitize_callback' => array( $this, 'sanitize_tools' ) ) );
-
-		if ( 'POST' === strtoupper( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
-			$this->handle_direct_post();
+	public function save_settings(): void {
+		$action = isset( $_POST['action'] ) ? sanitize_key( wp_unslash( $_POST['action'] ) ) : '';
+		if ( '' === $action ) {
+			return;
 		}
 
-		foreach ( $this->plugin_functions->plugin_settings_pages() as $page ) {
-			register_setting(
-				'licencepress_settings',
-				'licencepress_' . $page['slug'],
-				array( 'sanitize_callback' => $page['provider']->sanitize_settings( ... ) )
-			);
+		if ( 'licencepress_save_general_settings' === $action ) {
+			$this->handle_general_save();
+		}
+
+		if ( 'licencepress_save_billing_settings' === $action ) {
+			$this->handle_billing_save();
+		}
+
+		if ( 'licencepress_save_billing_invoice_settings' === $action ) {
+			$this->handle_billing_invoice_save();
 		}
 	}
+
+	/**
+	 * Handle a general settings save request.
+	 *
+	 * @return void
+	 */
+	public function handle_general_save(): void {
+		if ( ! $this->can_manage_general_settings() ) {
+			wp_die( esc_html__( 'You are not allowed to save LicencePress general settings.', 'licencepress' ), 403 );
+		}
+
+		check_admin_referer( 'licencepress_save_general_settings', 'licencepress_general_nonce' );
+		$input = isset( $_POST['licencepress_general'] ) && is_array( $_POST['licencepress_general'] ) ? wp_unslash( $_POST['licencepress_general'] ) : array();
+		$this->sanitize_general( $input );
+		wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=general' ) );
+		exit;
+	}
+
+	/**
+	 * Handle a billing settings save request.
+	 *
+	 * @return void
+	 */
+	public function handle_billing_save(): void {
+		if ( ! $this->can_manage_billing_settings( 'licencepress_paypal_manage' ) && ! $this->can_manage_billing_settings( 'licencepress_stripe_manage' ) ) {
+			wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );
+		}
+
+		check_admin_referer( 'licencepress_billing_general', 'licencepress_billing_general_nonce' );
+		$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
+		if ( ! empty( $input ) ) {
+			$this->sanitize_billing( $input );
+		}
+
+		$paypal_input = isset( $_POST['licencepress_paypal'] ) && is_array( $_POST['licencepress_paypal'] ) ? wp_unslash( $_POST['licencepress_paypal'] ) : array();
+		if ( ! empty( $paypal_input ) ) {
+			$plugin = Plugins::get_instance()->get_registered_plugins()['licencepress-paypal'] ?? null;
+			if ( $plugin instanceof SettingsPageProviderInterface ) {
+				$plugin->sanitize_settings( $paypal_input );
+			}
+		}
+
+		$billing_tab = ! empty( $paypal_input ) ? 'bt=paypal' : 'bt=general';
+		wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&' . $billing_tab ) );
+		exit;
+	}
+
+	/**
+	 * Handle a billing invoice settings save request.
+	 *
+	 * @return void
+	 */
+	public function handle_billing_invoice_save(): void {
+		if ( ! $this->can_manage_billing_settings( 'licencepress_paypal_manage' ) && ! $this->can_manage_billing_settings( 'licencepress_stripe_manage' ) ) {
+			wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );
+		}
+
+		check_admin_referer( 'licencepress_billing_invoice', 'licencepress_billing_invoice_nonce' );
+		$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
+		$this->sanitize_billing_invoice( $input );
+		wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&bt=invoice' ) );
+		exit;
+	}
+
 	/**
 	 * Process direct form submissions for access settings.
 	 *
@@ -84,51 +177,7 @@ final class FunctionsSettings {
 	 * @since 1.0.0
 	 */
 	private function handle_direct_post(): void {
-		$action = wp_unslash( $_POST['action'] ?? '' );
-		if ( 'licencepress_save_general_settings' === $action ) {
-			if ( ! $this->can_manage_general_settings() ) {
-				wp_die( esc_html__( 'You are not allowed to save LicencePress general settings.', 'licencepress' ), 403 );
-			}
-			check_admin_referer( 'licencepress_general', 'licencepress_general_nonce' );
-			$input = isset( $_POST['licencepress_general'] ) && is_array( $_POST['licencepress_general'] ) ? wp_unslash( $_POST['licencepress_general'] ) : array();
-			$this->sanitize_general( $input );
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=general' ) );
-			exit;
-		}
-
-		if ( 'licencepress_save_billing_settings' === $action ) {
-			if ( ! $this->can_manage_billing_settings( 'licencepress_paypal_manage' ) && ! $this->can_manage_billing_settings( 'licencepress_stripe_manage' ) ) {
-				wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );
-			}
-			check_admin_referer( 'licencepress_billing_general', 'licencepress_billing_general_nonce' );
-			$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
-			if ( ! empty( $input ) ) {
-				$this->sanitize_billing( $input );
-			}
-
-			$paypal_input = isset( $_POST['licencepress_paypal'] ) && is_array( $_POST['licencepress_paypal'] ) ? wp_unslash( $_POST['licencepress_paypal'] ) : array();
-			if ( ! empty( $paypal_input ) ) {
-				$plugin = Plugins::get_instance()->get_registered_plugins()['licencepress-paypal'] ?? null;
-				if ( $plugin instanceof SettingsPageProviderInterface ) {
-					$plugin->sanitize_settings( $paypal_input );
-				}
-			}
-
-			$billing_tab = ! empty( $paypal_input ) ? 'bt=paypal' : 'bt=general';
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&' . $billing_tab ) );
-			exit;
-		}
-
-		if ( 'licencepress_save_billing_invoice_settings' === $action ) {
-			if ( ! $this->can_manage_billing_settings( 'licencepress_paypal_manage' ) && ! $this->can_manage_billing_settings( 'licencepress_stripe_manage' ) ) {
-				wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );
-			}
-			check_admin_referer( 'licencepress_billing_invoice', 'licencepress_billing_invoice_nonce' );
-			$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
-			$this->sanitize_billing_invoice( $input );
-			wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&bt=invoice' ) );
-			exit;
-		}
+		$this->save_settings();
 	}
 	/**
 	 * Sanitize the billing settings input.

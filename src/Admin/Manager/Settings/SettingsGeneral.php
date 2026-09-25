@@ -48,21 +48,11 @@ final class SettingsGeneral {
 		}
 
 		?>
-		<form method="post" action="" class="licencepress-settings-form">
-			<?php echo FormFieldHelper::input( 
-				'action', 
-				'licencepress_save_general_settings', 
-				array( 
-					'type' => 'hidden' 
-				) 
-			); ?>
-			<?php echo FormFieldHelper::input( 
-				'licencepress_general_nonce', 
-				wp_create_nonce( 'licencepress_general' ), 
-				array( 
-					'type' => 'hidden' 
-				) 
-			); ?>
+
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="licencepress-settings-form">
+			<input type="hidden" name="action" value="licencepress_save_general_settings" />
+			<input type="hidden" name="licencepress_tab" value="general" />
+			<?php wp_nonce_field( 'licencepress_save_general_settings', 'licencepress_general_nonce', true, false ); ?>
 			<table class="form-table" role="presentation">
 				<tbody>
 					<tr>

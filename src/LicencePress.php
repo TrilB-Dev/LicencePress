@@ -22,7 +22,6 @@ use LicencePress\Includes\Functions\Helpers\LoaderHelper;
 use LicencePress\Includes\Functions\Admin\FunctionsExport;
 use LicencePress\Includes\Functions\Admin\FunctionsImport;
 use LicencePress\Includes\Functions\Admin\FunctionsPlugins;
-use LicencePress\Includes\Functions\Admin\FunctionsSettings;
 use LicencePress\API\Routes;
 use LicencePress\Includes\Analytics\Analytics;
 use LicencePress\Includes\Licence\LicenceManager;
@@ -130,15 +129,6 @@ class LicencePress {
 	 */
 	protected FunctionsImport $import_functions;
 	/**
-	 * The instance of the FunctionsSettings class that handles the plugin's settings functionality.
-	 *
-	 * @var FunctionsSettings
-	 * @since 1.0.0
-	 * @access protected
-	 */
-	protected FunctionsSettings $settings_functions;
-
-	/**
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
@@ -209,13 +199,11 @@ class LicencePress {
 		$this->plugins            = Plugins::get_instance();
 		$this->export_functions   = new FunctionsExport();
 		$this->import_functions   = new FunctionsImport();
-		$this->settings_functions = new FunctionsSettings( new FunctionsPlugins() );
 
 		$this->loader->add_action( 'init', $this->includes, 'init' );
 		$this->loader->add_action( 'init', LicenceManager::class, 'initialize' );
 		$this->loader->add_action( 'init', $this->plugins, 'init', -10 );
 		$this->loader->add_action( 'admin_menu', $this->admin, 'register_admin_menu' );
-		$this->loader->add_action( 'admin_init', $this->settings_functions, 'register_settings' );
 		$this->loader->add_action( 'admin_post_licencepress_export', $this->export_functions, 'export_data' );
 		$this->loader->add_action( 'admin_post_licencepress_import', $this->import_functions, 'import_data' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $this->assets, 'enqueue_admin' );

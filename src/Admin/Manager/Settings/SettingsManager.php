@@ -15,8 +15,11 @@ use LicencePress\Admin\Manager\Settings\SettingsGeneral;
 use LicencePress\Admin\Manager\Settings\SettingsPlugins;
 use LicencePress\Admin\Manager\Settings\SettingsBilling;
 use LicencePress\Admin\Manager\Settings\SettingsPolicies;
+use LicencePress\Includes\Functions\Helpers\LoaderHelper;
 use LicencePress\Includes\Functions\Helpers\RequestHelper;
 use LicencePress\Includes\Settings\Settings;
+use LicencePress\Includes\Functions\Admin\FunctionsPlugins;
+use LicencePress\Includes\Functions\Admin\FunctionsSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -30,6 +33,14 @@ final class SettingsManager extends Manager {
 	 */
 	private SettingsPlugins $plugins_page;
 	/**
+	 * The instance of the FunctionsSettings class that handles the plugin's settings functionality.
+	 *
+	 * @var FunctionsSettings
+	 * @since 1.0.0
+	 * @access protected
+	 */
+	protected FunctionsSettings $settings_functions;
+	/**
 	 * Current settings page slug.
 	 *
 	 * @var string
@@ -39,8 +50,10 @@ final class SettingsManager extends Manager {
 	 * Constructor for the settings manager.
 	 */
 	public function __construct() {
-		$this->page         = 'settings';
-		$this->plugins_page = new SettingsPlugins();
+		$this->page               = 'settings';
+		$this->plugins_page       = new SettingsPlugins();
+		$this->settings_functions = new FunctionsSettings( new FunctionsPlugins() );
+		$this->settings_functions->register_admin_post_hooks( new LoaderHelper() );
 	}
 	/**
 	 * Renders the settings page.

@@ -116,15 +116,10 @@ final class BillingSettingsStripe {
 			),
 		);
 		?>
-		<form method="post" action="" class="licencepress-settings-form">
-			<?php wp_nonce_field( 'licencepress_billing_general', 'licencepress_billing_general_nonce' ); ?>
-			<?php echo FormFieldHelper::input(
-				'action',
-				'licencepress_save_billing_settings',
-				array(
-					'type' => 'hidden',
-				)
-			); ?>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="licencepress-settings-form">
+			<?php wp_nonce_field( 'licencepress_billing_general', 'licencepress_billing_general_nonce', true, false ); ?>
+			<input type="hidden" name="action" value="licencepress_save_billing_settings" />
+			<input type="hidden" name="licencepress_tab" value="billing" />
 			<div class="card mb-4" style="max-width: 980px;">
 				<div class="card-body">
 					<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">

@@ -52,7 +52,7 @@ final class SettingsGeneral {
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="licencepress-settings-form">
 			<input type="hidden" name="action" value="licencepress_save_general_settings" />
 			<input type="hidden" name="licencepress_tab" value="general" />
-			<?php wp_nonce_field( 'licencepress_save_general_settings', 'licencepress_general_nonce', true, false ); ?>
+			<?php wp_nonce_field( 'licencepress_save_general_settings' ); ?>
 			<table class="form-table" role="presentation">
 				<tbody>
 					<tr>

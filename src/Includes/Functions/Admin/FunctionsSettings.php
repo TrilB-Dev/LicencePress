@@ -97,7 +97,7 @@ final class FunctionsSettings {
 			wp_die( esc_html__( 'You are not allowed to save LicencePress general settings.', 'licencepress' ), 403 );
 		}
 
-		check_admin_referer( 'licencepress_save_general_settings', 'licencepress_general_nonce' );
+		check_admin_referer( 'licencepress_save_general_settings' );
 		$input = isset( $_POST['licencepress_general'] ) && is_array( $_POST['licencepress_general'] ) ? wp_unslash( $_POST['licencepress_general'] ) : array();
 		$this->sanitize_general( $input );
 		wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=general' ) );
@@ -114,7 +114,7 @@ final class FunctionsSettings {
 			wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );
 		}
 
-		check_admin_referer( 'licencepress_billing_general', 'licencepress_billing_general_nonce' );
+		check_admin_referer( 'licencepress_billing_general' );
 		$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
 		if ( ! empty( $input ) ) {
 			$this->sanitize_billing( $input );
@@ -143,7 +143,7 @@ final class FunctionsSettings {
 			wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );
 		}
 
-		check_admin_referer( 'licencepress_billing_invoice', 'licencepress_billing_invoice_nonce' );
+		check_admin_referer( 'licencepress_billing_invoice' );
 		$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
 		$this->sanitize_billing_invoice( $input );
 		wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&bt=invoice' ) );

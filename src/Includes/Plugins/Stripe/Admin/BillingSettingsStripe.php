@@ -117,7 +117,7 @@ final class BillingSettingsStripe {
 		);
 		?>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="licencepress-settings-form">
-			<?php wp_nonce_field( 'licencepress_billing_general', 'licencepress_billing_general_nonce', true, false ); ?>
+			<?php wp_nonce_field( 'licencepress_billing_general' ); ?>
 			<input type="hidden" name="action" value="licencepress_save_billing_settings" />
 			<input type="hidden" name="licencepress_tab" value="billing" />
 			<div class="card mb-4" style="max-width: 980px;">

@@ -199,7 +199,7 @@ final class SettingsBilling {
 							<?php echo FormFieldHelper::bootstrap_select(
 								'licencepress_billing[country]',
 								array(
-									'data' => array(),
+									'data' => ! empty( $values['country'] ?? '' ) ? array( (string) ( $values['country'] ?? '' ) => (string) ( $values['country'] ?? '' ) ) : array( '' => __( 'Select a country', 'licencepress' ) ),
 									'selected' => $values['country'] ?? '',
 									'id' => 'licencepress-billing-country',
 									'live_search' => true,

@@ -40,6 +40,7 @@ final class SettingsGeneral {
 		$pattern       = $values['default_licence_pattern_type'] ?? 'standard';
 		$custom        = $values['default_custom_licence_pattern'] ?? '';
 		$separator     = $values['default_licence_pattern_separator'] ?? '-';
+		$default_country = (string) ( $values['default_licensor_country'] ?? '' );
 		$renewal_licence_pages = array( '' => __( 'Select a page', 'licencepress' ) );
 		if ( function_exists( 'get_pages' ) ) {
 			foreach ( get_pages( array( 'sort_column' => 'post_title', 'sort_order' => 'ASC' ) ) as $page ) {
@@ -122,8 +123,8 @@ final class SettingsGeneral {
 							<?php echo FormFieldHelper::bootstrap_select( 
 								'licencepress_general[default_licensor_country]', 
 								array( 
-									'data' => array(), 
-									'selected' => $values['default_licensor_country'] ?? '', 
+									'data' => $default_country !== '' ? array( $default_country => $default_country ) : array( '' => __( 'Select a country', 'licencepress' ) ),
+									'selected' => $default_country,
 									'id' => 'licencepress-general-default-licensor-country', 
 									'live_search' => true, 
 									'width' => '100%', 

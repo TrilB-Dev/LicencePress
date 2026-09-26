@@ -88,6 +88,27 @@ final class FunctionsSettings {
 	}
 
 	/**
+	 * Validate a save nonce against the standard WordPress field and the legacy plugin-specific field.
+	 *
+	 * @param string $action Nonce action.
+	 * @param string $legacy_field_name Legacy field name to accept for compatibility.
+	 * @return void
+	 */
+	private function validate_save_nonce( string $action, string $legacy_field_name = '' ): void {
+		if ( isset( $_REQUEST['_wpnonce'] ) ) {
+			check_admin_referer( $action, '_wpnonce' );
+			return;
+		}
+
+		if ( '' !== $legacy_field_name && isset( $_REQUEST[ $legacy_field_name ] ) ) {
+			check_admin_referer( $action, $legacy_field_name );
+			return;
+		}
+
+		check_admin_referer( $action );
+	}
+
+	/**
 	 * Handle a general settings save request.
 	 *
 	 * @return void
@@ -97,7 +118,7 @@ final class FunctionsSettings {
 			wp_die( esc_html__( 'You are not allowed to save LicencePress general settings.', 'licencepress' ), 403 );
 		}
 
-		check_admin_referer( 'licencepress_save_general_settings' );
+		$this->validate_save_nonce( 'licencepress_save_general_settings', 'licencepress_general_nonce' );
 		$input = isset( $_POST['licencepress_general'] ) && is_array( $_POST['licencepress_general'] ) ? wp_unslash( $_POST['licencepress_general'] ) : array();
 		$this->sanitize_general( $input );
 		wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=general' ) );
@@ -114,7 +135,7 @@ final class FunctionsSettings {
 			wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );
 		}
 
-		check_admin_referer( 'licencepress_billing_general' );
+		$this->validate_save_nonce( 'licencepress_billing_general', 'licencepress_billing_general_nonce' );
 		$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
 		if ( ! empty( $input ) ) {
 			$this->sanitize_billing( $input );
@@ -143,7 +164,7 @@ final class FunctionsSettings {
 			wp_die( esc_html__( 'You are not allowed to save LicencePress billing settings.', 'licencepress' ), 403 );
 		}
 
-		check_admin_referer( 'licencepress_billing_invoice' );
+		$this->validate_save_nonce( 'licencepress_billing_invoice', 'licencepress_billing_invoice_nonce' );
 		$input = isset( $_POST['licencepress_billing'] ) && is_array( $_POST['licencepress_billing'] ) ? wp_unslash( $_POST['licencepress_billing'] ) : array();
 		$this->sanitize_billing_invoice( $input );
 		wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&bt=invoice' ) );

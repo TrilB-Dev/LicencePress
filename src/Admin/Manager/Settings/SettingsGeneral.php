@@ -130,7 +130,8 @@ final class SettingsGeneral {
 									'width' => '100%', 
 									'bscd_type' => 'country', 
 									'bscd_group' => true, 
-									'bscd_flags' => true 
+									'bscd_flags' => true,
+									'bscd_selected' => $default_country
 								) 
 							); ?>
 						</td>

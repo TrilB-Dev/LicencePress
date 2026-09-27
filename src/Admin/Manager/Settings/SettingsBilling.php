@@ -207,6 +207,7 @@ final class SettingsBilling {
 									'bscd_type' => 'country',
 									'bscd_group' => true,
 									'bscd_flags' => true,
+									'bscd_selected' => $values['country'] ?? '',
 								)
 							); ?>
 						</td>
@@ -246,6 +247,7 @@ final class SettingsBilling {
 									'live_search' => true,
 									'width' => '100%',
 									'bscd_type' => 'uk-counties',
+									'bscd_selected' => $values['uk_county'] ?? '',
 								)
 							); ?>
 						</td>
@@ -267,6 +269,7 @@ final class SettingsBilling {
 									'live_search' => true,
 									'width' => '100%',
 									'bscd_type' => 'us-states',
+									'bscd_selected' => $values['us_state'] ?? '',
 								)
 							); ?>
 						</td>
@@ -469,7 +472,8 @@ final class SettingsBilling {
 										'id' => 'licencepress-billing-phone-country-code',
 										'bscd_type' => 'country-phone',
 										'bscd_flags' => true,
-                                        'class' => 'country-phone-select'
+										'bscd_selected' => $values['phone_country_code'] ?? '',
+										'class' => 'country-phone-select'
 									)
 								) . FormFieldHelper::text_input(
 									'licencepress_billing[phone_number]',

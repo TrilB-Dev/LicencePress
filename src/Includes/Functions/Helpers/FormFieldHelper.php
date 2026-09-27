@@ -606,6 +606,43 @@ final class FormFieldHelper {
 			$select_options = array();
 		}
 
+		$selected_values = array_values(
+			array_filter(
+				array_map( 'strval', (array) $selected ),
+				static fn( $value ) => '' !== trim( $value )
+			)
+		);
+
+		if ( ! empty( $selected_values ) ) {
+			$known_values = array();
+			$collect_values = static function( $items ) use ( &$collect_values, &$known_values ) {
+				if ( ! is_array( $items ) ) {
+					return;
+				}
+
+				foreach ( $items as $key => $item ) {
+					if ( is_array( $item ) ) {
+						if ( array_key_exists( 'options', $item ) && is_array( $item['options'] ) ) {
+							$collect_values( $item['options'] );
+						}
+						continue;
+					}
+
+					$known_values[] = (string) $key;
+				}
+			};
+			$collect_values( $select_options );
+
+			foreach ( $selected_values as $selected_value ) {
+				if ( in_array( $selected_value, $known_values, true ) ) {
+					continue;
+				}
+
+				$select_options = array( $selected_value => $selected_value ) + $select_options;
+				$known_values[] = $selected_value;
+			}
+		}
+
 		return self::render_select( $name, $select_options, $selected, $options, true );
 	}
 	/**

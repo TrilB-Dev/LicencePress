@@ -121,15 +121,10 @@ final class SettingsBilling {
 			)
 		);
 		?>
-		<form method="post" action="" class="licencepress-settings-form">
-			<?php wp_nonce_field( 'licencepress_billing_general', 'licencepress_billing_general_nonce' ); ?>
-			<?php echo FormFieldHelper::input(
-				'action',
-				'licencepress_save_billing_settings',
-				array(
-					'type' => 'hidden',
-				)
-			); ?>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="licencepress-settings-form">
+			<input type="hidden" name="action" value="licencepress_save_billing_general" />
+			<input type="hidden" name="licencepress_tab" value="general" />
+			<?php wp_nonce_field( 'licencepress_billing_general' ); ?>
 			<table class="form-table" role="presentation">
 				<tbody>
 					<tr>
@@ -184,30 +179,6 @@ final class SettingsBilling {
 									'id' => 'licencepress-billing-address-2',
 									'class' => 'w-100',
 									'placeholder' => __( 'Apartment, suite, unit', 'licencepress' ),
-								)
-							); ?>
-						</td>
-					</tr>
-					<tr>
-						<th scope="row">
-							<?php echo FormFieldHelper::label( 
-                                'licencepress-billing-country', 
-                                __( 'Country', 'licencepress' ) 
-                            ); ?>
-						</th>
-						<td>
-							<?php echo FormFieldHelper::bootstrap_select(
-								'licencepress_billing[country]',
-								array(
-									'data' => ! empty( $values['country'] ?? '' ) ? array( (string) ( $values['country'] ?? '' ) => (string) ( $values['country'] ?? '' ) ) : array( '' => __( 'Select a country', 'licencepress' ) ),
-									'selected' => $values['country'] ?? '',
-									'id' => 'licencepress-billing-country',
-									'live_search' => true,
-									'width' => '100%',
-									'bscd_type' => 'country',
-									'bscd_group' => true,
-									'bscd_flags' => true,
-									'bscd_selected' => $values['country'] ?? '',
 								)
 							); ?>
 						</td>
@@ -288,6 +259,30 @@ final class SettingsBilling {
 								array(
 									'id' => 'licencepress-billing-other-county-state',
 									'class' => 'w-100',
+								)
+							); ?>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row">
+							<?php echo FormFieldHelper::label( 
+                                'licencepress-billing-country', 
+                                __( 'Country', 'licencepress' ) 
+                            ); ?>
+						</th>
+						<td>
+							<?php echo FormFieldHelper::bootstrap_select(
+								'licencepress_billing[country]',
+								array(
+									'data' => ! empty( $values['country'] ?? '' ) ? array( (string) ( $values['country'] ?? '' ) => (string) ( $values['country'] ?? '' ) ) : array( '' => __( 'Select a country', 'licencepress' ) ),
+									'selected' => $values['country'] ?? '',
+									'id' => 'licencepress-billing-country',
+									'live_search' => true,
+									'width' => '100%',
+									'bscd_type' => 'country',
+									'bscd_group' => true,
+									'bscd_flags' => true,
+									'bscd_selected' => $values['country'] ?? '',
 								)
 							); ?>
 						</td>

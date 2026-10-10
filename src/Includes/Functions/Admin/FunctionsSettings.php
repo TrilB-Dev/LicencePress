@@ -51,6 +51,11 @@ final class FunctionsSettings {
 				),
 				array(
 					'type'     => 'action',
+					'hook'     => 'admin_post_licencepress_save_billing_general',
+					'callback' => 'handle_billing_save',
+				),
+				array(
+					'type'     => 'action',
 					'hook'     => 'admin_post_licencepress_save_billing_settings',
 					'callback' => 'handle_billing_save',
 				),
@@ -78,7 +83,7 @@ final class FunctionsSettings {
 			$this->handle_general_save();
 		}
 
-		if ( 'licencepress_save_billing_settings' === $action ) {
+		if ( in_array( $action, array( 'licencepress_save_billing_general', 'licencepress_save_billing_settings' ), true ) ) {
 			$this->handle_billing_save();
 		}
 
@@ -143,14 +148,29 @@ final class FunctionsSettings {
 
 		$paypal_input = isset( $_POST['licencepress_paypal'] ) && is_array( $_POST['licencepress_paypal'] ) ? wp_unslash( $_POST['licencepress_paypal'] ) : array();
 		if ( ! empty( $paypal_input ) ) {
+			Settings::set_group( 'billing_paypal', $paypal_input );
 			$plugin = Plugins::get_instance()->get_registered_plugins()['licencepress-paypal'] ?? null;
 			if ( $plugin instanceof SettingsPageProviderInterface ) {
 				$plugin->sanitize_settings( $paypal_input );
 			}
 		}
 
-		$billing_tab = ! empty( $paypal_input ) ? 'bt=paypal' : 'bt=general';
-		wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&' . $billing_tab ) );
+		$stripe_input = isset( $_POST['licencepress_stripe'] ) && is_array( $_POST['licencepress_stripe'] ) ? wp_unslash( $_POST['licencepress_stripe'] ) : array();
+		if ( ! empty( $stripe_input ) ) {
+			Settings::set_group( 'billing_stripe', $stripe_input );
+			$plugin = Plugins::get_instance()->get_registered_plugins()['licencepress-stripe'] ?? null;
+			if ( $plugin instanceof SettingsPageProviderInterface ) {
+				$plugin->sanitize_settings( $stripe_input );
+			}
+		}
+
+		$active_tab = 'general';
+		if ( ! empty( $paypal_input ) ) {
+			$active_tab = 'paypal';
+		} elseif ( ! empty( $stripe_input ) ) {
+			$active_tab = 'stripe';
+		}
+		wp_safe_redirect( admin_url( 'admin.php?page=licencepress&group=settings&tab=billing&bt=' . rawurlencode( $active_tab ) ) );
 		exit;
 	}
 
@@ -209,7 +229,7 @@ final class FunctionsSettings {
 	 */
 	public function sanitize_billing( $input ): array {
 		if ( ! $this->can_manage_general_settings() ) {
-			return (array) Settings::get_group( 'billing', array() );
+			return (array) Settings::get_group( 'billing_general', array() );
 		}
 
 		$input = is_array( $input ) ? $input : array();
@@ -238,11 +258,12 @@ final class FunctionsSettings {
 			'invoice_logo'          => sanitize_text_field( $input['invoice_logo'] ?? '' ),
 		);
 
+		Settings::set_group( 'billing_general', $billing );
 		foreach ( $billing as $key => $value ) {
 			Settings::set( $key, $value );
 		}
 
-		update_option( 'licencepress_billing', $billing );
+		update_option( 'licencepress_billing_general', $billing );
 
 		return $billing;
 	}
@@ -256,7 +277,7 @@ final class FunctionsSettings {
 	 */
 	public function sanitize_billing_invoice( $input ): array {
 		if ( ! $this->can_manage_general_settings() ) {
-			return (array) Settings::get_group( 'billing', array() );
+			return (array) Settings::get_group( 'billing_invoices', array() );
 		}
 
 		$input = is_array( $input ) ? $input : array();
@@ -264,11 +285,12 @@ final class FunctionsSettings {
 			'invoice_style' => wp_kses_post( $input['invoice_style'] ?? '' ),
 		);
 
+		Settings::set_group( 'billing_invoices', $invoice );
 		foreach ( $invoice as $key => $value ) {
 			Settings::set( $key, $value );
 		}
 
-		update_option( 'licencepress_billing_invoice', $invoice );
+		update_option( 'licencepress_billing_invoices', $invoice );
 
 		return $invoice;
 	}

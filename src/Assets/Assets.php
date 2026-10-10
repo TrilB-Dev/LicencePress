@@ -17,18 +17,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Class Assets
- *
- * Manages the registration and enqueueing of assets for the LicencePress plugin.
- */
-final class Assets {
+
+class Assets {
 	/**
 	 * Array to hold registered assets for different pages.
 	 *
 	 * @var array
+	 * @since 1.0.0
 	 */
 	private array $pages = array();
+	/**
+	 * Array to hold registered asset groups.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
+	private array $groups = array();
+	/**
+	 * Array to hold registered asset tabs.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
+	private array $tabs = array();
 	/**
 	 * Registers the default assets for the plugin.
 	 *
@@ -66,10 +77,38 @@ final class Assets {
 	 * @return void
 	 */
 	public function register_page( string $page, array $assets ): void {
-		$page                 = SanitizationHelper::key( $page, 'licencepress' );
+		$page                 = SanitizationHelper::key( $page );
 		$this->pages[ $page ] = array(
 			'styles'  => array_merge( $this->pages[ $page ]['styles'] ?? array(), $assets['styles'] ?? array() ),
 			'scripts' => array_merge( $this->pages[ $page ]['scripts'] ?? array(), $assets['scripts'] ?? array() ),
+		);
+	}
+	/**
+	 * Registers assets for a specific group.
+	 *
+	 * @param string $group The group identifier.
+	 * @param array  $assets The assets to register for the group.
+	 * @return void
+	 */
+	public function register_group( string $group, array $assets ): void {
+		$group = SanitizationHelper::key( $group );
+		$this->groups[ $group ] = array(
+			'styles'  => array_merge( $this->groups[ $group ]['styles'] ?? array(), $assets['styles'] ?? array() ),
+			'scripts' => array_merge( $this->groups[ $group ]['scripts'] ?? array(), $assets['scripts'] ?? array() ),
+		);
+	}
+	/**
+	 * Registers assets for a specific tab.
+	 *
+	 * @param string $tab The tab identifier.
+	 * @param array  $assets The assets to register for the tab.
+	 * @return void
+	 */
+	public function register_tab( string $tab, array $assets ): void {
+		$tab = SanitizationHelper::key( $tab );
+		$this->tabs[ $tab ] = array(
+			'styles'  => array_merge( $this->tabs[ $tab ]['styles'] ?? array(), $assets['styles'] ?? array() ),
+			'scripts' => array_merge( $this->tabs[ $tab ]['scripts'] ?? array(), $assets['scripts'] ?? array() ),
 		);
 	}
 	/**
@@ -84,50 +123,49 @@ final class Assets {
 			'styles'  => array(
 				array(
 					'handle' => 'licencepress-wp-override',
-					'src'    => LICENCEPRESS_URL . 'src/Assets/dist/css/wpoverride.css',
-					'version' => '1.0.0',
+					'src'    => LICENCEPRESS_ASSETS_URL . '/dist/css/wpoverride.css',
 					'deps'   => array( 'forms' ),
 				),
 				array(
 					'handle'  => 'licencepress-bootstrap',
-					'src'     => LICENCEPRESS_URL . 'src/Assets/dist/css/bootstrap.css',
+					'src'     => LICENCEPRESS_ASSETS_URL . '/dist/css/bootstrap.css',
 					'version' => '5.3.8',
 					'deps'    => array( 'licencepress-wp-override' ),
 				),
 				array(
 					'handle'  => 'licencepress-bootstrap-select',
-					'src'     => LICENCEPRESS_URL . 'src/Assets/dist/css/bootstrap-select.min.css',
+					'src'     => LICENCEPRESS_ASSETS_URL . '/dist/css/bootstrap-select.min.css',
 					'version' => '1.2.2',
 					'deps'    => array( 'licencepress-bootstrap' ),
 				),
 				array(
-					'handle'  => 'licencepress-bootstrap-select-country-data',
-					'src'     => LICENCEPRESS_URL . 'src/Assets/dist/css/bs-country-data.min.css',
-					'version' => '1.0.3',
+					'handle'  => 'licencepress-bs-country-data',
+					'src'     => LICENCEPRESS_ASSETS_URL . '/dist/css/bs-country-data.min.css',
+					'version' => '1.0.4',
 					'deps'    => array( 'licencepress-bootstrap-select' ),
 				),
 			),
 			'scripts' => array(
 				array(
 					'handle'    => 'licencepress-bootstrap',
-					'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/bootstrap.js',
+					'src'       => LICENCEPRESS_ASSETS_URL . '/dist/js/bootstrap.js',
 					'version'   => '5.3.8',
 					'in_footer' => true,
 				),
 				array(
 					'handle'    => 'licencepress-bootstrap-select',
-					'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/bootstrap-select.min.js',
+					'src'       => LICENCEPRESS_ASSETS_URL . '/dist/js/bootstrap-select.min.js',
 					'version'   => '1.2.2',
 					'deps'      => array( 'licencepress-bootstrap' ),
 					'in_footer' => true,
 				),
 				array(
-					'handle'    => 'licencepress-bootstrap-select-country-data',
-					'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/bs-country-data.min.js',
-					'version'   => '1.0.3',
+					'handle'	=> 'licencepress-bs-country-data',
+					'src'       => LICENCEPRESS_ASSETS_URL . '/dist/js/bs-country-data.min.js',
+					'version'   => '1.0.4',
 					'deps'      => array( 'licencepress-bootstrap-select' ),
 					'in_footer' => true,
-				),
+				)
 			),
 		);
 
@@ -138,6 +176,7 @@ final class Assets {
 	 * Enqueues the frontend assets for the plugin.
 	 *
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function enqueue_frontend(): void {
 		if ( ! is_singular( 'licencepress_page' ) ) {
@@ -153,8 +192,7 @@ final class Assets {
 					array(
 						array(
 							'handle' => 'licencepress-public',
-							'version' => '1.0.0',
-							'src'    => LICENCEPRESS_URL . 'src/Assets/dist/css/public.css',
+							'src'    => LICENCEPRESS_ASSETS_URL . '/dist/css/public.css',
 						),
 					)
 				),
@@ -163,8 +201,7 @@ final class Assets {
 					array(
 						array(
 							'handle'    => 'licencepress-public',
-							'version'   => '1.0.0',
-							'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/public.js',
+							'src'       => LICENCEPRESS_ASSETS_URL . '/dist/js/public.js',
 							'in_footer' => true,
 						),
 					)
@@ -177,41 +214,16 @@ final class Assets {
 	 *
 	 * @param string $hook_suffix The current admin page hook suffix.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function enqueue_admin( string $hook_suffix ): void {
 		if ( false === strpos( $hook_suffix, 'licencepress' ) ) {
 			return;
 		}
 
-		$page        = RequestHelper::get_key( 'page', 'licencepress' );
-		$group       = RequestHelper::get_key( 'group', '' );
-		$resolved    = self::resolve_admin_page_key( $page, $group );
-		$registered  = $this->pages[ $resolved ] ?? $this->pages[ $page ] ?? array();
-		$base        = apply_filters( 'licencepress_base_assets', array(), 'admin' );
-		$scripts     = array_merge(
-			$base['scripts'] ?? array(),
-			array(
-				array(
-					'handle'    => 'licencepress-admin-ui',
-					'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/admin.ui.js',
-					'version'   => '1.0.0',
-					'deps'      => array( 'licencepress-bootstrap-select' ),
-					'in_footer' => true,
-				),
-			),
-			$registered['scripts'] ?? array()
-		);
-
-		if ( 'licencepress-tools' === $resolved ) {
-			$scripts[] = array(
-				'handle'    => 'licencepress-admin-tools',
-				'src'       => LICENCEPRESS_URL . 'src/Assets/dist/js/admin.tools.js',
-				'version'   => '1.0.0',
-				'deps'      => array( 'licencepress-admin-ui' ),
-				'in_footer' => true,
-			);
-		}
-
+		$page       = RequestHelper::get_key( 'page', 'licencepress' );
+		$registered = $this->pages[ $page ] ?? array();
+		$base       = apply_filters( 'licencepress_base_assets', array(), 'admin' );
 		$this->enqueue_registered(
 			'admin',
 			array(
@@ -220,14 +232,25 @@ final class Assets {
 					array(
 						array(
 							'handle'  => 'licencepress-admin-ui',
-							'src'     => LICENCEPRESS_URL . 'src/Assets/dist/css/admin.ui.css',
+							'src'     => LICENCEPRESS_ASSETS_URL . '/dist/css/admin.ui.css',
 							'version' => '1.0.0',
 							'deps'    => array( 'licencepress-bootstrap' ),
 						),
 					),
 					$registered['styles'] ?? array()
 				),
-				'scripts' => $scripts,
+				'scripts' => array_merge(
+					$base['scripts'] ?? array(),
+					array(
+						array(
+							'handle'    => 'licencepress-admin-ui',
+							'src'       => LICENCEPRESS_ASSETS_URL . '/dist/js/admin.ui.js',
+							'deps'      => array( 'licencepress-bootstrap' ),
+							'in_footer' => true,
+						),
+					),
+					$registered['scripts'] ?? array()
+				),
 			)
 		);
 	}
@@ -237,8 +260,9 @@ final class Assets {
 	 * @param string $context The context (e.g., 'frontend', 'admin').
 	 * @param array  $assets The assets to enqueue.
 	 * @return void
+	 * @since 1.0.0
 	 */
-	private function enqueue_registered( string $context, array $assets ): void {
+	protected function enqueue_registered( string $context, array $assets ): void {
 		$assets = apply_filters( 'licencepress_' . $context . '_assets', $assets, $context );
 		$this->enqueue_bundle( $assets );
 	}
@@ -247,14 +271,16 @@ final class Assets {
 	 *
 	 * @param array $assets The assets to enqueue.
 	 * @return void
+	 * @since 1.0.0
 	 */
-	private function enqueue_bundle( array $assets ): void {
+	protected function enqueue_bundle( array $assets ): void {
 		if ( isset( $assets['styles'] ) && is_string( $assets['styles'] ) ) {
 			$assets['styles'] = array(
 				array(
 					'handle' => 'licencepress-admin-' . $assets['styles'],
-					'src'    => LICENCEPRESS_URL . 'src/Assets/dist/css/admin.' . $assets['styles'] . '.css',
-					'version' => '1.0.0',
+					'src'    => LICENCEPRESS_ASSETS_URL . '/dist/css/admin.' . $assets['styles'] . '.css',
+					'deps'    => array( 'licencepress-admin-ui' ),
+					'version' => LICENCEPRESS_VERSION,
 				),
 			);
 		}
@@ -262,9 +288,10 @@ final class Assets {
 			$assets['scripts'] = array(
 				array(
 					'handle' => 'licencepress-admin-' . $assets['scripts'],
-					'src'    => LICENCEPRESS_URL . 'src/Assets/dist/js/admin.' . $assets['scripts'] . '.js',
-					'version' => '1.0.0',
-					'deps'   => array( 'licencepress-bootstrap' ),
+					'src'    => LICENCEPRESS_ASSETS_URL . '/dist/js/admin.' . $assets['scripts'] . '.js',
+					'deps'   => array( 'licencepress-admin-ui' ),
+					'version' => LICENCEPRESS_VERSION,
+					'in_footer' => true,
 				),
 			);
 		}
@@ -289,16 +316,16 @@ final class Assets {
 			);
 		}
 
-		$current_page = RequestHelper::get_key( 'page', '' );
-		$current_group = RequestHelper::get_key( 'group', '' );
-		$resolved_page = self::resolve_admin_page_key( $current_page, $current_group );
+		$route = $this->current_admin_route();
+		$settings_page = 'licencepress' === $route['page'] && 'settings' === $route['group'];
+		$plugin_tab = in_array( $route['tab'], array( 'plugins', 'third-party' ), true );
 
-		if ( in_array( $resolved_page, array( 'licencepress-settings', 'licencepress' ), true ) && 'settings' === $current_group ) {
+		if ( $settings_page && $plugin_tab ) {
 			$settings_config = array(
 				'ajaxUrl'             => admin_url( 'admin-ajax.php' ),
 				'nonce'               => wp_create_nonce( 'licencepress_settings_tabs' ),
 				'pluginNonce'         => wp_create_nonce( 'licencepress_plugin_toggle' ),
-				'pluginSettingsNonce' => wp_create_nonce( 'licencepress_plugin_settings' ),
+				'pluginSettingsNonce' => wp_create_nonce( 'licencepress_save_plugin_settings' ),
 			);
 			foreach ( array( 'licencepress-admin-settings', 'licencepress-admin-plugins' ) as $handle ) {
 				if ( wp_script_is( $handle, 'enqueued' ) ) {
@@ -306,9 +333,9 @@ final class Assets {
 				}
 			}
 		}
-		if ( 'licencepress-manage' === $resolved_page && wp_script_is( 'licencepress-admin-ui', 'enqueued' ) ) {
+		if ( 'licencepress' === $route['page'] && in_array( $route['group'], array( 'manage-mod', 'mods' ), true ) && wp_script_is( 'licencepress-admin', 'enqueued' ) ) {
 			LoaderHelper::localize_script(
-				'licencepress-admin-ui',
+				'licencepress-admin',
 				'licencepressManager',
 				array(
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
@@ -317,31 +344,25 @@ final class Assets {
 			);
 		}
 	}
-	/**
-	 * Resolve the logical admin page key from the new grouped URL format.
-	 *
-	 * @param string $page The page query value.
-	 * @param string $group The group query value.
-	 * @return string
-	 */
-	private static function resolve_admin_page_key( string $page, string $group ): string {
-		if ( 'licencepress' === $page && '' !== $group ) {
-			$map = array(
-				'customers' => 'licencepress-licences',
-				'licences'  => 'licencepress-licences',
-				'settings'  => 'licencepress-settings',
-				'tools'     => 'licencepress-tools',
-			);
-			return $map[ $group ] ?? $page;
-		}
 
-		return $page;
+	/**
+	 * Get the current admin route values.
+	 *
+	 * @return array{page:string,group:string,tab:string}
+	 */
+	private function current_admin_route(): array {
+		return array(
+			'page'  => RequestHelper::get_key( 'page', '' ),
+			'group' => RequestHelper::get_key( 'group', '' ),
+			'tab'   => RequestHelper::get_key( 'tab', '' ),
+		);
 	}
 	/**
 	 * Retrieves the URL of an image asset.
 	 *
 	 * @param string $file The image file name.
 	 * @return string The URL of the image asset.
+	 * @since 1.0.0
 	 */
 	public static function get_image( string $file ): string {
 

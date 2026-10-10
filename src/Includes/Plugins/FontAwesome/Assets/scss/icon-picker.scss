@@ -7,13 +7,13 @@
  */
 
 /* Icon Picker Container */
-.licencepress-fa-picker-container {
+.LicencePress-fa-picker-container {
     position: relative;
     display: inline-block;
 }
 
 /* Picker Button */
-.licencepress-fa-picker-button {
+.LicencePress-fa-picker-button {
     display: flex !important;
     align-items: center;
     gap: 8px;
@@ -21,7 +21,7 @@
     min-height: 36px;
 }
 
-.licencepress-fa-picker-preview {
+.LicencePress-fa-picker-preview {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -29,18 +29,18 @@
     height: 24px;
 }
 
-.licencepress-fa-picker-preview:empty::before {
+.LicencePress-fa-picker-preview:empty::before {
     content: '📦';
     font-size: 16px;
     opacity: 0.5;
 }
 
-.licencepress-fa-picker-text {
+.LicencePress-fa-picker-text {
     font-size: 14px;
 }
 
 /* Modal Overlay */
-.licencepress-fa-picker-modal {
+.LicencePress-fa-picker-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -52,7 +52,7 @@
     justify-content: center;
 }
 
-.licencepress-fa-picker-overlay {
+.LicencePress-fa-picker-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -62,7 +62,7 @@
 }
 
 /* Modal Dialog */
-.licencepress-fa-picker-dialog {
+.LicencePress-fa-picker-dialog {
     position: relative;
     background: #fff;
     border-radius: 8px;
@@ -75,7 +75,7 @@
 }
 
 /* Modal Header */
-.licencepress-fa-picker-header {
+.LicencePress-fa-picker-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -83,14 +83,14 @@
     border-bottom: 1px solid #e1e1e1;
 }
 
-.licencepress-fa-picker-header h3 {
+.LicencePress-fa-picker-header h3 {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
     color: #1d2327;
 }
 
-.licencepress-fa-picker-close {
+.LicencePress-fa-picker-close {
     background: none;
     border: none;
     font-size: 24px;
@@ -106,20 +106,20 @@
     transition: all 0.2s ease;
 }
 
-.licencepress-fa-picker-close:hover {
+.LicencePress-fa-picker-close:hover {
     background: #f0f0f1;
     color: #1d2327;
 }
 
 /* Search Section */
-.licencepress-fa-picker-search {
+.LicencePress-fa-picker-search {
     display: flex;
     gap: 12px;
     padding: 20px 24px;
     border-bottom: 1px solid #e1e1e1;
 }
 
-.licencepress-fa-picker-search-input {
+.LicencePress-fa-picker-search-input {
     flex: 1;
     padding: 8px 12px;
     border: 1px solid #8c8f94;
@@ -127,14 +127,14 @@
     font-size: 14px;
 }
 
-.licencepress-fa-picker-search-input:focus {
+.LicencePress-fa-picker-search-input:focus {
     outline: none;
     border-color: #007cba;
     box-shadow: 0 0 0 1px #007cba;
 }
 
-.licencepress-fa-picker-pack-filter,
-.licencepress-fa-picker-style-filter {
+.LicencePress-fa-picker-pack-filter,
+.LicencePress-fa-picker-style-filter {
     padding: 8px 12px;
     border: 1px solid #8c8f94;
     border-radius: 4px;
@@ -142,15 +142,15 @@
     width: 90px !important;
 }
 
-.licencepress-fa-picker-pack-filter:focus,
-.licencepress-fa-picker-style-filter:focus {
+.LicencePress-fa-picker-pack-filter:focus,
+.LicencePress-fa-picker-style-filter:focus {
     outline: none;
     border-color: #007cba;
     box-shadow: 0 0 0 1px #007cba;
 }
 
 /* Results Area */
-.licencepress-fa-picker-results {
+.LicencePress-fa-picker-results {
     flex: 1;
     overflow-y: auto;
     padding: 20px 24px;
@@ -158,9 +158,9 @@
     max-height: 400px;
 }
 
-.licencepress-fa-picker-loading,
-.licencepress-fa-picker-error,
-.licencepress-fa-picker-no-results {
+.LicencePress-fa-picker-loading,
+.LicencePress-fa-picker-error,
+.LicencePress-fa-picker-no-results {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -170,14 +170,14 @@
 }
 
 /* Icon Grid */
-.licencepress-fa-picker-grid {
+.LicencePress-fa-picker-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 12px;
 }
 
 /* Icon Items */
-.licencepress-fa-picker-icon-item {
+.LicencePress-fa-picker-icon-item {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -189,30 +189,30 @@
     background: #f8f9fa;
 }
 
-.licencepress-fa-picker-icon-item:hover {
+.LicencePress-fa-picker-icon-item:hover {
     background: #fff;
     border-color: #007cba;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.licencepress-fa-picker-icon-item.selected {
+.LicencePress-fa-picker-icon-item.selected {
     background: #fff;
     border-color: #007cba;
     box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);
 }
 
-.licencepress-fa-picker-icon-item i {
+.LicencePress-fa-picker-icon-item i {
     font-size: 24px;
     margin-bottom: 8px;
     color: #1d2327;
 }
 
-.licencepress-fa-picker-icon-item.selected i {
+.LicencePress-fa-picker-icon-item.selected i {
     color: #007cba;
 }
 
-.licencepress-fa-picker-icon-label {
+.LicencePress-fa-picker-icon-label {
     font-size: 11px;
     text-align: center;
     color: #646970;
@@ -222,7 +222,7 @@
 }
 
 /* Pagination */
-.licencepress-fa-picker-pagination {
+.LicencePress-fa-picker-pagination {
     display: flex;
     justify-content: center;
     margin-top: 20px;
@@ -230,7 +230,7 @@
     border-top: 1px solid #e1e1e1;
 }
 
-.licencepress-fa-picker-load-more {
+.LicencePress-fa-picker-load-more {
     background: #007cba !important;
     color: #fff !important;
     border: none !important;
@@ -241,12 +241,12 @@
     transition: background-color 0.2s ease !important;
 }
 
-.licencepress-fa-picker-load-more:hover {
+.LicencePress-fa-picker-load-more:hover {
     background: #005a87 !important;
 }
 
 /* Modal Footer */
-.licencepress-fa-picker-footer {
+.LicencePress-fa-picker-footer {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
@@ -255,7 +255,7 @@
     background: #f8f9fa;
 }
 
-.licencepress-fa-picker-footer .button {
+.LicencePress-fa-picker-footer .button {
     padding: 8px 16px !important;
     border-radius: 4px !important;
     font-size: 14px !important;
@@ -263,48 +263,48 @@
 
 /* Responsive Design */
 @media (max-width: 782px) {
-    .licencepress-fa-picker-dialog {
+    .LicencePress-fa-picker-dialog {
         width: 95vw;
         max-height: 95vh;
     }
 
-    .licencepress-fa-picker-search {
+    .LicencePress-fa-picker-search {
         flex-direction: column;
         gap: 8px;
     }
 
-    .licencepress-fa-picker-pack-filter,
-    .licencepress-fa-picker-style-filter {
+    .LicencePress-fa-picker-pack-filter,
+    .LicencePress-fa-picker-style-filter {
         min-width: auto;
         width: 100%;
     }
 
-    .licencepress-fa-picker-grid {
+    .LicencePress-fa-picker-grid {
         grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
         gap: 8px;
     }
 
-    .licencepress-fa-picker-icon-item {
+    .LicencePress-fa-picker-icon-item {
         padding: 8px 4px;
     }
 
-    .licencepress-fa-picker-icon-item i {
+    .LicencePress-fa-picker-icon-item i {
         font-size: 20px;
         margin-bottom: 4px;
     }
 
-    .licencepress-fa-picker-icon-label {
+    .LicencePress-fa-picker-icon-label {
         font-size: 10px;
     }
 }
 
 /* Loading Animation */
-@keyframes licencepress-fa-spin {
+@keyframes LicencePress-fa-spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-.licencepress-fa-picker-loading::before {
+.LicencePress-fa-picker-loading::before {
     content: '';
     display: inline-block;
     width: 20px;
@@ -312,25 +312,25 @@
     border: 2px solid #f3f4f5;
     border-top: 2px solid #007cba;
     border-radius: 50%;
-    animation: licencepress-fa-spin 1s linear infinite;
+    animation: LicencePress-fa-spin 1s linear infinite;
     margin-right: 8px;
 }
 
 /* Accessibility */
-.licencepress-fa-picker-icon-item:focus {
+.LicencePress-fa-picker-icon-item:focus {
     outline: 2px solid #007cba;
     outline-offset: 2px;
 }
 
-.licencepress-fa-picker-close:focus,
-.licencepress-fa-picker-search-input:focus,
-.licencepress-fa-picker-pack-filter:focus,
-.licencepress-fa-picker-style-filter:focus {
+.LicencePress-fa-picker-close:focus,
+.LicencePress-fa-picker-search-input:focus,
+.LicencePress-fa-picker-pack-filter:focus,
+.LicencePress-fa-picker-style-filter:focus {
     outline: 2px solid #007cba;
     outline-offset: 2px;
 }
 
 /* WordPress Admin Integration */
-.licencepress-fa-picker-container .button {
+.LicencePress-fa-picker-container .button {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }

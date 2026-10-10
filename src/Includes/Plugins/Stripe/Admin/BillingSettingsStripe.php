@@ -34,7 +34,9 @@ final class BillingSettingsStripe {
 	 */
 	public function render_stripe_tab( array $values = array() ): void {
 		$group = 'stripe';
-		$values = array_merge( CoreSettings::get_group( $group, array() ) ?? array(), $values );
+		$billing_values = CoreSettings::get_group( 'billing_stripe', array() ) ?? array();
+		$plugin_values = CoreSettings::get_group( $group, array() ) ?? array();
+		$values = array_merge( $plugin_values, $billing_values, $values );
 		$environment = sanitize_key( (string) ( $values['stripe_environment'] ?? 'sandbox' ) );
 		$environment = in_array( $environment, array( 'sandbox', 'live' ), true ) ? $environment : 'sandbox';
 		$connection_status = StripeSettings::is_connected( $environment ) ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
@@ -74,20 +76,6 @@ final class BillingSettingsStripe {
 				'label'   => __( 'Enable subscriptions', 'licencepress' ),
 				'type'    => 'checkbox',
 				'default' => false,
-			),
-			array(
-				'key'         => 'stripe_api_live_secret_key',
-				'label'       => __( 'Live secret key', 'licencepress' ),
-				'type'        => 'password',
-				'description' => __( 'Your live Stripe secret key. It is encrypted before storage.', 'licencepress' ),
-				'default'     => '',
-			),
-			array(
-				'key'         => 'stripe_api_sandbox_secret_key',
-				'label'       => __( 'Sandbox secret key', 'licencepress' ),
-				'type'        => 'password',
-				'description' => __( 'Your sandbox Stripe secret key. It is encrypted before storage.', 'licencepress' ),
-				'default'     => '',
 			),
 		);
 

@@ -539,6 +539,34 @@ namespace LicencePress\Test\Unit {
 		$this->assertSame( '<p>Thank you for your order.</p>', Settings::get( 'invoice_style' ) );
 	}
 
+	public function test_billing_tabs_are_persisted_to_separate_billing_rows(): void {
+		$settings = new \LicencePress\Includes\Functions\Admin\FunctionsSettings( new \LicencePress\Includes\Functions\Admin\FunctionsPlugins() );
+
+		$general = $settings->sanitize_billing(
+			array(
+				'billing_name'      => 'Acme Ltd',
+				'billing_address_1' => '12 Market Street',
+				'town'              => 'London',
+				'country'           => 'United Kingdom',
+				'email_address'     => 'billing@acme.example',
+			)
+		);
+		$invoice = $settings->sanitize_billing_invoice(
+			array(
+				'invoice_style' => '<p>Thank you for your order.</p>',
+			)
+		);
+		Settings::set_group( 'billing_paypal', array( 'paypal_environment' => 'sandbox' ) );
+		Settings::set_group( 'billing_stripe', array( 'stripe_environment' => 'live' ) );
+
+		$this->assertSame( 'Acme Ltd', Settings::get_group( 'billing_general', array() )['billing_name'] ?? '' );
+		$this->assertSame( '<p>Thank you for your order.</p>', Settings::get_group( 'billing_invoices', array() )['invoice_style'] ?? '' );
+		$this->assertSame( 'sandbox', Settings::get_group( 'billing_paypal', array() )['paypal_environment'] ?? '' );
+		$this->assertSame( 'live', Settings::get_group( 'billing_stripe', array() )['stripe_environment'] ?? '' );
+		$this->assertSame( 'Acme Ltd', $general['billing_name'] );
+		$this->assertSame( '<p>Thank you for your order.</p>', $invoice['invoice_style'] );
+	}
+
 	public function test_billing_settings_include_paypal_tab_and_form_fields(): void {
 		$billing_settings_paypal = new \LicencePress\Includes\Plugins\PayPal\Admin\BillingSettingsPayPal();
 		\add_filter( 'licencepress_billing_settings_tabs', array( $billing_settings_paypal, 'register_billing_tab' ) );

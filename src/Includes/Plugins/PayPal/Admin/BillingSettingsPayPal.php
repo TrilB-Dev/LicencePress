@@ -34,7 +34,9 @@ final class BillingSettingsPayPal {
 	 */
 	public function render_paypal_tab( array $values = array() ): void {
 		$group = 'paypal';
-		$values = array_merge( CoreSettings::get_group( $group, array() ) ?? array(), $values );
+		$billing_values = CoreSettings::get_group( 'billing_paypal', array() ) ?? array();
+		$plugin_values = CoreSettings::get_group( $group, array() ) ?? array();
+		$values = array_merge( $plugin_values, $billing_values, $values );
 		$environment = sanitize_key( (string) ( $values['paypal_environment'] ?? 'sandbox' ) );
 		$environment = in_array( $environment, array( 'sandbox', 'live' ), true ) ? $environment : 'sandbox';
 		$connection_status = PayPalSettings::is_oauth_connected( $environment ) ? __( 'Connected', 'licencepress' ) : __( 'Not connected', 'licencepress' );
@@ -74,34 +76,6 @@ final class BillingSettingsPayPal {
 				'label'   => __( 'Enable subscriptions', 'licencepress' ),
 				'type'    => 'checkbox',
 				'default' => false,
-			),
-			array(
-				'key'         => 'paypal_api_live_client_id',
-				'label'       => __( 'Live client ID', 'licencepress' ),
-				'type'        => 'text',
-				'description' => __( 'Your live PayPal app client ID.', 'licencepress' ),
-				'default'     => '',
-			),
-			array(
-				'key'         => 'paypal_api_live_client_secret',
-				'label'       => __( 'Live client secret', 'licencepress' ),
-				'type'        => 'password',
-				'description' => __( 'Your live PayPal app secret. It is encrypted before storage.', 'licencepress' ),
-				'default'     => '',
-			),
-			array(
-				'key'         => 'paypal_api_sandbox_client_id',
-				'label'       => __( 'Sandbox client ID', 'licencepress' ),
-				'type'        => 'text',
-				'description' => __( 'Your sandbox PayPal app client ID.', 'licencepress' ),
-				'default'     => '',
-			),
-			array(
-				'key'         => 'paypal_api_sandbox_client_secret',
-				'label'       => __( 'Sandbox client secret', 'licencepress' ),
-				'type'        => 'password',
-				'description' => __( 'Your sandbox PayPal app secret. It is encrypted before storage.', 'licencepress' ),
-				'default'     => '',
 			),
 		);
 

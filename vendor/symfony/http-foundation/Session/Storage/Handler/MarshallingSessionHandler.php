@@ -24,6 +24,16 @@ class MarshallingSessionHandler implements \SessionHandlerInterface, \SessionUpd
     ) {
     }
 
+    public function __serialize(): array
+    {
+        throw new \BadMethodCallException('Cannot serialize '.__CLASS__);
+    }
+
+    public function __unserialize(array $data): void
+    {
+        throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);
+    }
+
     public function open(string $savePath, string $name): bool
     {
         return $this->handler->open($savePath, $name);
@@ -34,7 +44,10 @@ class MarshallingSessionHandler implements \SessionHandlerInterface, \SessionUpd
         return $this->handler->close();
     }
 
-    public function create_sid(): string
+    /**
+     * @return string
+     */
+    public function create_sid()
     {
         return session_create_id() ?: throw new \RuntimeException('Unable to create a session ID.');
     }
